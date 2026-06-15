@@ -4,8 +4,9 @@ import { generateEmbedding, chunkText, extractTextFromUrl } from '@/lib/ai/embed
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { knowledge_source_id } = body
+    const formData = await request.formData()
+    const knowledge_source_id = formData.get('knowledge_source_id') as string
+    const file = formData.get('file') as File | null
 
     if (!knowledge_source_id) {
       return NextResponse.json({ error: 'knowledge_source_id is required' }, { status: 400 })
@@ -27,6 +28,21 @@ export async function POST(request: Request) {
 
     if (source.type === 'website' && source.source_url) {
       text = await extractTextFromUrl(source.source_url)
+    } else if (file) {
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const fileName = file.name.toLowerCase()
+
+      if (fileName.endsWith('.pdf')) {
+        const pdfParse = (await import('pdf-parse')).default
+        const pdfData = await pdfParse(buffer)
+        text = pdfData.text
+      } else if (fileName.endsWith('.docx')) {
+        const mammoth = await import('mammoth')
+        const result = await mammoth.extractRawText({ buffer })
+        text = result.value
+      } else {
+        text = buffer.toString('utf-8')
+      }
     }
 
     if (!text) {
@@ -47,7 +63,7 @@ export async function POST(request: Request) {
           organization_id: source.organization_id,
           content: chunk,
           embedding: embeddingArray as any,
-          metadata: { source_url: source.source_url, chunk_index: chunkCount },
+          metadata: { source_url: source.source_url, chunk_index: chunkCount, file_name: file?.name },
         })
         chunkCount++
       }

@@ -33,6 +33,8 @@ const adminLinks = [
   { href: '/dashboard/admin/agent', label: 'AI Agent', icon: Bot },
   { href: '/dashboard/admin/knowledge', label: 'Knowledge Base', icon: BookOpen },
   { href: '/dashboard/admin/channels', label: 'Channels', icon: Globe },
+  { href: '/dashboard/admin/leads', label: 'Leads', icon: Target },
+  { href: '/dashboard/admin/escalations', label: 'Escalations', icon: Phone },
   { href: '/dashboard/admin/team', label: 'Team', icon: Users },
   { href: '/dashboard/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/admin/billing', label: 'Billing', icon: CreditCard },

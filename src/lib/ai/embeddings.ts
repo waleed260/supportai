@@ -1,5 +1,25 @@
-export async function generateEmbedding(_text: string): Promise<number[]> {
-  return new Array(1024).fill(0).map(() => Math.random() - 0.5)
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+})
+
+export async function generateEmbedding(text: string): Promise<number[]> {
+  const response = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: text,
+    dimensions: 1024,
+  })
+  return response.data[0].embedding
+}
+
+export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
+  const response = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: texts,
+    dimensions: 1024,
+  })
+  return response.data.map(d => d.embedding)
 }
 
 export async function chunkText(text: string, maxChunkSize = 1000): Promise<string[]> {

@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDate, getStatusColor, getSentimentColor } from '@/lib/utils'
-import { Search, MessageSquare, MoreHorizontal } from 'lucide-react'
+import { Search, MessageSquare, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 import type { Conversation } from '@/types'
 
 export default function AdminConversationsPage() {
@@ -87,7 +88,12 @@ export default function AdminConversationsPage() {
             <TableBody>
               {filtered.map(c => (
                 <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell className="font-medium">{c.customer_name || 'Anonymous'}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link href={`/dashboard/admin/conversations/${c.id}`} className="flex items-center gap-2 hover:underline">
+                      {c.customer_name || 'Anonymous'}
+                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                    </Link>
+                  </TableCell>
                   <TableCell><Badge variant="outline">{c.channel}</Badge></TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(c.status)}>{c.status}</Badge>

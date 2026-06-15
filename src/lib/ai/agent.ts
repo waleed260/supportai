@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { generateEmbedding } from './embeddings'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -67,16 +68,19 @@ export async function getRelevantDocuments(organizationId: string, query: string
   return documents || []
 }
 
-export async function generateEmbedding(text: string): Promise<number[] | null> {
+export async function analyzeSentiment(text: string): Promise<string> {
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-5-20250101',
-      max_tokens: 1,
-      messages: [{ role: 'user', content: `Generate an embedding for: ${text}` }],
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 10,
+      system: 'Analyze the sentiment of this customer message. Respond with exactly one word: positive, neutral, negative, frustrated, or high_risk.',
+      messages: [{ role: 'user', content: text }],
     })
-    return null
+    const sentiment = response.content[0]?.type === 'text' ? response.content[0].text.trim().toLowerCase() : 'neutral'
+    const valid = ['positive', 'neutral', 'negative', 'frustrated', 'high_risk']
+    return valid.includes(sentiment) ? sentiment : 'neutral'
   } catch {
-    return null
+    return 'neutral'
   }
 }
 
@@ -125,11 +129,15 @@ export async function generateAIResponse(params: {
   const shouldEscalate = text.includes('[ESCALATE]')
   const leadData = text.includes('[LEAD]')
 
+  const sentiment = agentConfig?.sentiment_analysis_enabled
+    ? await analyzeSentiment(message)
+    : 'neutral'
+
   const supabase = await createServiceRoleClient()
 
   if (shouldEscalate) {
     const reason = text.match(/\[ESCALATE\](.*?)(?:\n|$)/)?.[1]?.trim() || 'AI triggered escalation'
-    await supabase.from('conversations').update({ status: 'escalated', escalation_reason: reason }).eq('id', conversationId)
+    await supabase.from('conversations').update({ status: 'escalated', sentiment, escalation_reason: reason }).eq('id', conversationId)
     await supabase.from('escalations').insert({
       conversation_id: conversationId,
       organization_id: organizationId,
@@ -149,6 +157,7 @@ export async function generateAIResponse(params: {
           ...leadInfo,
           status: 'new',
         })
+        await supabase.from('conversations').update({ lead_status: 'warm' }).eq('id', conversationId)
       } catch {}
     }
   }
@@ -160,6 +169,7 @@ export async function generateAIResponse(params: {
 
   return {
     text: cleanText,
+    sentiment,
     shouldEscalate,
     leadCaptured: leadData,
   }
@@ -182,4 +192,15 @@ export async function storeMessage(params: {
     sentiment: params.sentiment || null,
     confidence_score: params.confidenceScore || null,
   })
+}
+
+export async function storeSentiment(params: {
+  conversationId: string
+  organizationId: string
+  sentiment: string
+}) {
+  const supabase = await createServiceRoleClient()
+  await supabase.from('conversations')
+    .update({ sentiment: params.sentiment as any, updated_at: new Date().toISOString() })
+    .eq('id', params.conversationId)
 }

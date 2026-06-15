@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { generateAIResponse, storeMessage } from '@/lib/ai/agent'
+import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent'
 
 export async function POST(request: Request) {
   try {
@@ -67,11 +67,14 @@ export async function POST(request: Request) {
       organizationId: organization_id,
       role: 'assistant',
       content: response.text,
+      sentiment: response.sentiment,
     })
 
-    await supabase.from('conversations')
-      .update({ updated_at: new Date().toISOString(), sentiment: 'neutral' as any })
-      .eq('id', conversationId)
+    await storeSentiment({
+      conversationId,
+      organizationId: organization_id,
+      sentiment: response.sentiment,
+    })
 
     await supabase.from('analytics_events').insert({
       organization_id,
@@ -83,6 +86,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         text: response.text,
         conversation_id: conversationId,
+        sentiment: response.sentiment,
         escalated: true,
       })
     }
@@ -90,6 +94,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       text: response.text,
       conversation_id: conversationId,
+      sentiment: response.sentiment,
     })
   } catch (error) {
     console.error('Web chat error:', error)

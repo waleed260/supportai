@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { Upload, FileText, Globe, Trash2 } from 'lucide-react'
+import { Upload, FileText, Globe, Trash2, Loader2 } from 'lucide-react'
 import type { KnowledgeSource } from '@/types'
 
 export default function KnowledgeBasePage() {
@@ -19,11 +19,14 @@ export default function KnowledgeBasePage() {
   const [uploadOpen, setUploadOpen] = useState(false)
   const [uploadType, setUploadType] = useState<string>('pdf')
   const [uploadName, setUploadName] = useState('')
+  const [uploadUrl, setUploadUrl] = useState('')
+  const [uploadFile, setUploadFile] = useState<File | null>(null)
+  const [processing, setProcessing] = useState(false)
 
-  const fetchSources = useCallback(async (orgId: string) => {
+  const fetchSources = useCallback(async (oid: string) => {
     const supabase = createClient()
     const { data } = await supabase.from('knowledge_sources')
-      .select('*').eq('organization_id', orgId).order('created_at', { ascending: false })
+      .select('*').eq('organization_id', oid).order('created_at', { ascending: false })
     if (data) setSources(data)
   }, [])
 
@@ -44,19 +47,82 @@ export default function KnowledgeBasePage() {
 
   const handleUpload = async () => {
     if (!orgId || !uploadName) return
-    const supabase = createClient()
-    const { error } = await supabase.from('knowledge_sources').insert({
-      organization_id: orgId,
-      name: uploadName,
-      type: uploadType,
-      status: 'pending',
-    })
-    if (error) { toast.error('Failed to add source') } else {
-      toast.success('Source added')
-      setUploadOpen(false)
-      setUploadName('')
-      fetchSources(orgId)
+
+    if (uploadType === 'website' && !uploadUrl) {
+      toast.error('Please enter a website URL')
+      return
     }
+
+    if (uploadType !== 'website' && !uploadFile) {
+      toast.error('Please select a file')
+      return
+    }
+
+    setProcessing(true)
+
+    if (uploadType === 'website') {
+      const supabase = createClient()
+      const { data: source, error } = await supabase.from('knowledge_sources').insert({
+        organization_id: orgId,
+        name: uploadName,
+        type: 'website',
+        source_url: uploadUrl,
+        status: 'pending',
+      }).select().single()
+
+      if (error) {
+        toast.error('Failed to create source')
+        setProcessing(false)
+        return
+      }
+
+      const res = await fetch('/api/knowledge/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ knowledge_source_id: source.id }),
+      })
+
+      if (res.ok) {
+        toast.success('Website processed successfully')
+      } else {
+        toast.error('Failed to process website')
+      }
+    } else {
+      const formData = new FormData()
+      formData.append('file', uploadFile!)
+      formData.append('organization_id', orgId)
+      formData.append('name', uploadName)
+      formData.append('type', uploadType)
+
+      const res = await fetch('/api/knowledge/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!res.ok) {
+        toast.error('Upload failed')
+        setProcessing(false)
+        return
+      }
+
+      const { knowledge_source_id } = await res.json()
+
+      const processForm = new FormData()
+      processForm.append('knowledge_source_id', knowledge_source_id)
+      processForm.append('file', uploadFile!)
+
+      await fetch('/api/knowledge/process', {
+        method: 'POST',
+        body: processForm,
+      })
+    }
+
+    setProcessing(false)
+    setUploadOpen(false)
+    setUploadName('')
+    setUploadUrl('')
+    setUploadFile(null)
+    if (orgId) fetchSources(orgId)
   }
 
   const deleteSource = async (id: string) => {
@@ -65,6 +131,22 @@ export default function KnowledgeBasePage() {
     await supabase.from('knowledge_sources').delete().eq('id', id)
     toast.success('Deleted')
     fetchSources(orgId)
+  }
+
+  const processSource = async (source: KnowledgeSource) => {
+    setProcessing(true)
+    const res = await fetch('/api/knowledge/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ knowledge_source_id: source.id }),
+    })
+    if (res.ok) {
+      toast.success('Processing complete')
+      if (orgId) fetchSources(orgId)
+    } else {
+      toast.error('Processing failed')
+    }
+    setProcessing(false)
   }
 
   const statusVariant = (status: string) => {
@@ -105,7 +187,20 @@ export default function KnowledgeBasePage() {
                 <label className="text-sm font-medium">Name</label>
                 <Input value={uploadName} onChange={e => setUploadName(e.target.value)} placeholder="e.g., Product FAQ 2024" />
               </div>
-              <Button onClick={handleUpload} className="w-full">Add Source</Button>
+              {uploadType === 'website' ? (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Website URL</label>
+                  <Input value={uploadUrl} onChange={e => setUploadUrl(e.target.value)} placeholder="https://example.com/page" />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">File</label>
+                  <Input type="file" accept={`.${uploadType}`} onChange={e => setUploadFile(e.target.files?.[0] || null)} />
+                </div>
+              )}
+              <Button onClick={handleUpload} className="w-full" disabled={processing}>
+                {processing ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Processing...</> : 'Add & Process'}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -138,7 +233,12 @@ export default function KnowledgeBasePage() {
                   <TableCell>{s.chunk_count}</TableCell>
                   <TableCell><Badge variant={statusVariant(s.status)}>{s.status}</Badge></TableCell>
                   <TableCell className="text-sm text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
+                  <TableCell className="flex gap-1">
+                    {s.status === 'pending' && (
+                      <Button variant="outline" size="sm" onClick={() => processSource(s)} disabled={processing}>
+                        Process
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" onClick={() => deleteSource(s.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
