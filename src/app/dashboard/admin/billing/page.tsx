@@ -1,13 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { CreditCard, CheckCircle, XCircle } from 'lucide-react'
-import { toast } from 'sonner'
+import { CreditCard, CheckCircle } from 'lucide-react'
 import type { Subscription, SubscriptionPlan } from '@/types'
 
 export default function BillingPage() {
@@ -15,24 +13,15 @@ export default function BillingPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
 
   useEffect(() => {
-    const fetch = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-      const orgId = membership.organization_id
-
-      const [subResult, plansResult] = await Promise.all([
-        supabase.from('subscriptions').select('*, plan:subscription_plans(*)')
-          .eq('organization_id', orgId).single(),
-        supabase.from('subscription_plans').select('*').eq('is_active', true),
-      ])
-      if (subResult.data) setSubscription(subResult.data)
-      if (plansResult.data) setPlans(plansResult.data)
+    const loadBilling = async () => {
+      const res = await fetch('/api/billing')
+      if (res.ok) {
+        const data = await res.json()
+        setSubscription(data.subscription)
+        setPlans(data.plans)
+      }
     }
-    fetch()
+    loadBilling()
   }, [])
 
   const statusBadge = (status: string) => {

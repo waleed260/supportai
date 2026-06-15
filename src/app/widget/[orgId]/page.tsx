@@ -17,22 +17,17 @@ export default async function WidgetPage({ params }: { params: Promise<{ orgId: 
   } : undefined
 
   return (
-    <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style>{`body { margin: 0; padding: 0; overflow: hidden; background: transparent; }`}</style>
-      </head>
-      <body>
-        <WidgetEmbed organizationId={orgId} config={config} />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            window.addEventListener('load', function() {
-              var height = document.documentElement.scrollHeight
-              parent.postMessage({ type: 'supportai-resize', height: height }, '*')
-            })
-          `
-        }} />
-      </body>
-    </html>
+    <>
+      <style>{`body { margin: 0; padding: 0; overflow: hidden; background: transparent; }`}</style>
+      <WidgetEmbed organizationId={orgId} config={config} />
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          window.addEventListener('load', function() {
+            var height = document.documentElement.scrollHeight
+            parent.postMessage({ type: 'supportai-resize', height: height }, '*')
+          })
+        `
+      }} />
+    </>
   )
 }
