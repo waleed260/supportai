@@ -24,22 +24,34 @@ export async function POST(request: Request) {
 
     const userId = authData.user.id
 
-    const { error: userError } = await supabase.from('users').insert({
+    const { error: userError } = await supabase.from('users').upsert({
       id: userId,
       email,
       full_name: name,
-    })
+    }, { onConflict: 'email', ignoreDuplicates: false })
     if (userError) {
       return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
     }
 
-    const slug = generateSlug(companyName)
-    const { data: org, error: orgError } = await supabase.from('organizations').insert({
+    let slug = generateSlug(companyName)
+    let { data: org, error: orgError } = await supabase.from('organizations').insert({
       name: companyName,
       slug,
       company_size: companySize,
       is_active: false,
     }).select().single()
+
+    if (orgError?.code === '23505') {
+      slug = `${slug}-${Date.now().toString(36)}`
+      const result = await supabase.from('organizations').insert({
+        name: companyName,
+        slug,
+        company_size: companySize,
+        is_active: false,
+      }).select().single()
+      org = result.data
+      orgError = result.error
+    }
 
     if (orgError) {
       return NextResponse.json({ error: 'Failed to create organization' }, { status: 500 })
