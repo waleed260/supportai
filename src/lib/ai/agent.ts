@@ -3,14 +3,16 @@ import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateEmbedding } from './embeddings'
 import { syncLeadToCrm } from '@/lib/integrations/crm'
 
-const openrouter = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY!,
-  defaultHeaders: {
-    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    'X-Title': 'SupportAI',
-  },
-})
+function getOpenRouter() {
+  return new OpenAI({
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: process.env.OPENROUTER_API_KEY!,
+    defaultHeaders: {
+      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      'X-Title': 'SupportAI',
+    },
+  })
+}
 
 const SYSTEM_PROMPT = `You are SupportAI, an intelligent customer support and sales agent.
 Your role is to help customers with their questions, resolve issues, and capture leads when appropriate.
@@ -108,7 +110,7 @@ export async function getCustomerHistory(organizationId: string, channelConversa
 
 export async function analyzeSentiment(text: string): Promise<string> {
   try {
-    const response = await openrouter.chat.completions.create({
+    const response = await getOpenRouter().chat.completions.create({
       model: 'anthropic/claude-3-haiku',
       max_tokens: 10,
       messages: [
@@ -164,7 +166,7 @@ export async function generateAIResponse(params: {
     }
   }
 
-  const response = await openrouter.chat.completions.create({
+  const response = await getOpenRouter().chat.completions.create({
     model: 'anthropic/claude-3.5-sonnet',
     max_tokens: 1024,
     messages: [

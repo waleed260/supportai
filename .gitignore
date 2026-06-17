@@ -42,3 +42,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .playwright-mcp/
+vercel-env.txt
+agent-dashboard*
+dashboard-snapshot.md
+agent-dashboard-snapshot.md
+agent-dashboard-v2.md
+vercel-home.md
