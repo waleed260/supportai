@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server'
-import { createServiceRoleClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createServerSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File
     const organization_id = formData.get('organization_id') as string
@@ -13,12 +19,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'file, organization_id, and name are required' }, { status: 400 })
     }
 
-    const supabase = await createServiceRoleClient()
+    const { data: membership } = await supabase.from('memberships')
+      .select('role')
+      .eq('user_id', session.user.id)
+      .eq('organization_id', organization_id)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    if (!membership) {
+      return NextResponse.json({ error: 'You do not belong to this organization' }, { status: 403 })
+    }
+
+    const svc = await createServiceRoleClient()
 
     const ext = file.name.split('.').pop()?.toLowerCase() || 'txt'
     const filePath = `uploads/${organization_id}/${Date.now()}-${file.name}`
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await svc.storage
       .from('knowledge')
       .upload(filePath, file, {
         contentType: file.type,
@@ -29,7 +46,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Upload failed: ' + uploadError.message }, { status: 500 })
     }
 
-    const { data: source, error: dbError } = await supabase.from('knowledge_sources').insert({
+    const { data: source, error: dbError } = await svc.from('knowledge_sources').insert({
       organization_id,
       name,
       type: type || ext,
@@ -41,7 +58,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: dbError.message }, { status: 500 })
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = svc.storage
       .from('knowledge')
       .getPublicUrl(filePath)
 

@@ -19,6 +19,37 @@ export async function POST(request: Request) {
     const { data: widget } = await supabase.from('widget_settings')
       .select('*').eq('organization_id', organization_id).single()
 
+    const { data: org } = await supabase.from('organizations')
+      .select('is_active').eq('id', organization_id).single()
+    if (!org?.is_active) {
+      return NextResponse.json({ error: 'Organization is not active' }, { status: 403 })
+    }
+
+    const { data: sub } = await supabase.from('subscriptions')
+      .select('plan_id')
+      .eq('organization_id', organization_id)
+      .in('status', ['active', 'trialing'])
+      .limit(1)
+      .maybeSingle()
+
+    let maxConvos: number | null = null
+    if (sub?.plan_id) {
+      const { data: plan } = await supabase.from('subscription_plans')
+        .select('max_conversations')
+        .eq('id', sub.plan_id)
+        .single()
+      maxConvos = plan?.max_conversations ?? null
+    }
+    if (maxConvos) {
+      const { count } = await supabase.from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organization_id)
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+      if (count && count >= maxConvos) {
+        return NextResponse.json({ error: 'Monthly conversation limit reached' }, { status: 402 })
+      }
+    }
+
     let conversationId: string
 
     const { data: existingConvo } = await supabase.from('conversations')

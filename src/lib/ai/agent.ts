@@ -1,9 +1,15 @@
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateEmbedding } from './embeddings'
+import { syncLeadToCrm } from '@/lib/integrations/crm'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
+const openrouter = new OpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY!,
+  defaultHeaders: {
+    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    'X-Title': 'SupportAI',
+  },
 })
 
 const SYSTEM_PROMPT = `You are SupportAI, an intelligent customer support and sales agent.
@@ -18,6 +24,7 @@ Guidelines:
 - Always maintain context from previous messages
 - Use the knowledge base to answer questions accurately
 - When you don't know something, be honest and offer to connect with a human
+- Detect the customer's language and respond in the same language. Mirror their tone and vocabulary.
 
 If you need to escalate, include [ESCALATE] in your response followed by the reason.
 If you've captured lead information, include [LEAD] followed by JSON of the data.`
@@ -68,15 +75,48 @@ export async function getRelevantDocuments(organizationId: string, query: string
   return documents || []
 }
 
+export async function getCustomerHistory(organizationId: string, channelConversationId: string) {
+  const supabase = await createServiceRoleClient()
+
+  const { data: pastConvos } = await supabase.from('conversations')
+    .select('id, status, sentiment, created_at')
+    .eq('organization_id', organizationId)
+    .eq('channel_conversation_id', channelConversationId)
+    .neq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  if (!pastConvos || pastConvos.length === 0) return []
+
+  const histories = await Promise.all(
+    pastConvos.map(async (convo) => {
+      const { data: msgs } = await supabase.from('messages')
+        .select('role, content')
+        .eq('conversation_id', convo.id)
+        .order('created_at', { ascending: true })
+        .limit(6)
+
+      if (!msgs || msgs.length === 0) return null
+
+      const customerMsg = msgs.find(m => m.role === 'customer')?.content?.slice(0, 200) || ''
+      return `[Past conversation from ${new Date(convo.created_at).toLocaleDateString()}] Status: ${convo.status}, Sentiment: ${convo.sentiment}. Customer said: "${customerMsg}"`
+    })
+  )
+
+  return histories.filter(Boolean)
+}
+
 export async function analyzeSentiment(text: string): Promise<string> {
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const response = await openrouter.chat.completions.create({
+      model: 'anthropic/claude-3-haiku',
       max_tokens: 10,
-      system: 'Analyze the sentiment of this customer message. Respond with exactly one word: positive, neutral, negative, frustrated, or high_risk.',
-      messages: [{ role: 'user', content: text }],
+      messages: [
+        { role: 'system', content: 'Analyze the sentiment of this customer message. Respond with exactly one word: positive, neutral, negative, frustrated, or high_risk.' },
+        { role: 'user', content: text },
+      ],
     })
-    const sentiment = response.content[0]?.type === 'text' ? response.content[0].text.trim().toLowerCase() : 'neutral'
+    const sentiment = response.choices[0]?.message?.content?.trim().toLowerCase() || 'neutral'
     const valid = ['positive', 'neutral', 'negative', 'frustrated', 'high_risk']
     return valid.includes(sentiment) ? sentiment : 'neutral'
   } catch {
@@ -98,8 +138,9 @@ export async function generateAIResponse(params: {
     lead_capture_enabled?: boolean
     sales_mode_enabled?: boolean
   }
+  channelConversationId?: string
 }) {
-  const { organizationId, message, history, agentConfig, conversationId } = params
+  const { organizationId, message, history, agentConfig, conversationId, channelConversationId } = params
 
   const personalitySection = agentConfig
     ? getPersonalityPrompt(
@@ -115,17 +156,25 @@ export async function generateAIResponse(params: {
     ? `\n\nRelevant knowledge base content:\n${relevantDocs.map((d: { content: string }) => d.content).join('\n---\n')}`
     : ''
 
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-5-20250101',
+  let memoryContext = ''
+  if (channelConversationId) {
+    const customerHistory = await getCustomerHistory(organizationId, channelConversationId)
+    if (customerHistory.length > 0) {
+      memoryContext = `\n\nThis customer has interacted with us before. Past context:\n${customerHistory.join('\n')}`
+    }
+  }
+
+  const response = await openrouter.chat.completions.create({
+    model: 'anthropic/claude-3.5-sonnet',
     max_tokens: 1024,
-    system: SYSTEM_PROMPT + personalitySection + knowledgeContext,
     messages: [
+      { role: 'system', content: SYSTEM_PROMPT + personalitySection + knowledgeContext + memoryContext },
       ...history.slice(-10).map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
       { role: 'user', content: message },
     ],
   })
 
-  const text = response.content[0]?.type === 'text' ? response.content[0].text : ''
+  const text = response.choices[0]?.message?.content || ''
   const shouldEscalate = text.includes('[ESCALATE]')
   const leadData = text.includes('[LEAD]')
 
@@ -158,6 +207,7 @@ export async function generateAIResponse(params: {
           status: 'new',
         })
         await supabase.from('conversations').update({ lead_status: 'warm' }).eq('id', conversationId)
+        await syncLeadToCrm(organizationId, leadInfo)
       } catch {}
     }
   }

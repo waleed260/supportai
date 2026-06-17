@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent'
 
@@ -18,7 +19,19 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const rawBody = await request.text()
+    const body = JSON.parse(rawBody)
+
+    const appSecret = process.env.META_APP_SECRET
+    if (appSecret) {
+      const signature = request.headers.get('x-hub-signature-256') || ''
+      const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
+      if (signature !== expected) {
+        console.error('WhatsApp webhook: invalid signature')
+        return NextResponse.json({ status: 'ok' })
+      }
+    }
+
     const entry = body.entry?.[0]
     const change = entry?.changes?.[0]
     const message = change?.value?.messages?.[0]
@@ -37,17 +50,23 @@ export async function POST(request: Request) {
     const { data: connection } = await supabase.from('channel_connections')
       .select('organization_id')
       .eq('channel', 'whatsapp')
-      .single()
+      .filter('credentials->>phone_number_id', 'eq', String(phoneNumberId))
+      .maybeSingle()
 
-    if (!connection) return NextResponse.json({ status: 'ok' })
+    if (!connection) {
+      return NextResponse.json({ status: 'ok' })
+    }
 
     const orgId = connection.organization_id
+
+    const { data: org } = await supabase.from('organizations').select('is_active').eq('id', orgId).single()
+    if (!org?.is_active) return NextResponse.json({ status: 'ok' })
 
     let conversationId: string
     const { data: existing } = await supabase.from('conversations')
       .select('id').eq('organization_id', orgId)
       .eq('channel', 'whatsapp').eq('channel_conversation_id', from)
-      .limit(1).single()
+      .limit(1).maybeSingle()
 
     if (existing) {
       conversationId = existing.id
@@ -84,6 +103,7 @@ export async function POST(request: Request) {
       message: text,
       history: history || [],
       agentConfig: agent || undefined,
+      channelConversationId: from,
     })
 
     await storeMessage({

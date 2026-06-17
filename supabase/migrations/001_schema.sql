@@ -83,7 +83,7 @@ create table ai_agents (
   tone_of_voice text default 'friendly',
   brand_guidelines text,
   custom_instructions text,
-  model text default 'claude-sonnet-5-20250101',
+  model text default 'anthropic/claude-3.5-sonnet',
   temperature numeric default 0.7,
   is_active boolean default true,
   lead_capture_enabled boolean default false,

@@ -60,6 +60,7 @@ export default function RegisterPage() {
       name: companyName,
       slug,
       company_size: companySize,
+      is_active: false,
     }).select().single()
 
     if (orgError) {
@@ -83,7 +84,7 @@ export default function RegisterPage() {
       organization_id: org.id,
     })
 
-    toast.success('Account created! Check your email to confirm.')
+    toast.success('Account created! A super admin will approve your organization shortly.')
     router.push('/login')
   }
 
