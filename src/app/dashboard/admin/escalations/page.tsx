@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,25 +14,14 @@ import { AlertTriangle, CheckCircle, UserCheck } from 'lucide-react'
 import type { Escalation } from '@/types'
 
 export default function EscalationsPage() {
+  const { membership, user } = useAuthContext()
   const [escalations, setEscalations] = useState<(Escalation & { conversation?: { customer_name: string; channel: string; customer_email: string; sentiment: string } })[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
-  const [orgId, setOrgId] = useState<string | null>(null)
   const [filter, setFilter] = useState('open')
 
   useEffect(() => {
-    const init = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      setUserId(session.user.id)
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-      setOrgId(membership.organization_id)
-      fetchEscalations(membership.organization_id)
-    }
-    init()
-  }, [])
+    if (!membership) return
+    fetchEscalations(membership.organization_id)
+  }, [membership])
 
   const fetchEscalations = async (oid: string) => {
     const supabase = createClient()
@@ -45,7 +35,7 @@ export default function EscalationsPage() {
   const resolveEscalation = async (id: string) => {
     const supabase = createClient()
     const { error } = await supabase.from('escalations').update({
-      resolved_by: userId,
+      resolved_by: user?.id,
       resolved_at: new Date().toISOString(),
     }).eq('id', id)
 
@@ -56,7 +46,7 @@ export default function EscalationsPage() {
         await supabase.from('conversations').update({ status: 'active' }).eq('id', esc.conversation_id)
       }
       toast.success('Escalation resolved')
-      if (orgId) fetchEscalations(orgId)
+      if (membership) fetchEscalations(membership.organization_id)
     }
   }
 

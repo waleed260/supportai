@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,26 +14,22 @@ import { toast } from 'sonner'
 import type { AIAgent } from '@/types'
 
 export default function AgentConfigPage() {
+  const { membership } = useAuthContext()
   const [agent, setAgent] = useState<AIAgent | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    if (!membership) return
     const fetch = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-
       const { data } = await supabase.from('ai_agents')
         .select('*').eq('organization_id', membership.organization_id).single()
       if (data) setAgent(data)
       setLoading(false)
     }
     fetch()
-  }, [])
+  }, [membership])
 
   const update = async (key: string, value: unknown) => {
     if (!agent) return

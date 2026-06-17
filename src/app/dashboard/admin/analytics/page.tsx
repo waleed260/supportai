@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, TrendingUp, MessageSquare, AlertTriangle, Users, Target, TrendingDown, Activity } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
@@ -9,24 +10,19 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const COLORS = ['#22c55e', '#6b7280', '#f97316', '#ef4444', '#dc2626']
 
 export default function AdminAnalyticsPage() {
+  const { membership } = useAuthContext()
   const [metrics, setMetrics] = useState({
     total: 0, active: 0, resolved: 0, escalated: 0,
     positive: 0, neutral: 0, negative: 0, frustrated: 0,
     leads: 0,
   })
   const [dailyData, setDailyData] = useState<{ date: string; count: number }[]>([])
-  const [orgId, setOrgId] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!membership) return
     const fetch = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
       const oid = membership.organization_id
-      setOrgId(oid)
 
       const { data: convos } = await supabase.from('conversations').select('status, sentiment, created_at').eq('organization_id', oid)
       if (convos) {

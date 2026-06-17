@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,31 +13,26 @@ import { toast } from 'sonner'
 import type { Conversation } from '@/types'
 
 export default function TeamConversationsPage() {
+  const { membership, user } = useAuthContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    const init = async () => {
+    if (!membership) return
+    const fetch = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      setUserId(session.user.id)
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
       const { data } = await supabase.from('conversations')
         .select('*').eq('organization_id', membership.organization_id)
         .in('status', ['active', 'escalated', 'waiting'])
         .order('updated_at', { ascending: false })
       if (data) setConversations(data)
     }
-    init()
-  }, [])
+    fetch()
+  }, [membership])
 
   const takeOver = async (conversationId: string) => {
     const supabase = createClient()
     const { error } = await supabase.from('conversations')
-      .update({ assigned_to: userId, status: 'active' }).eq('id', conversationId)
+      .update({ assigned_to: user?.id, status: 'active' }).eq('id', conversationId)
     if (error) toast.error('Failed to take over')
     else {
       toast.success('Conversation assigned to you!')

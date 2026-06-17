@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,21 +15,18 @@ import Link from 'next/link'
 import type { Conversation, Message } from '@/types'
 
 export default function ConversationDetailPage() {
+  const { user } = useAuthContext()
   const params = useParams()
   const id = params.id as string
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
-  const [userId, setUserId] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!user) return
     const init = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      setUserId(session.user.id)
-
       const { data: conv } = await supabase.from('conversations')
         .select('*').eq('id', id).single()
       if (conv) setConversation(conv)
@@ -38,14 +36,14 @@ export default function ConversationDetailPage() {
       if (msgs) setMessages(msgs)
     }
     init()
-  }, [id])
+  }, [id, user])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   const sendReply = async () => {
-    if (!newMessage.trim() || !userId) return
+    if (!newMessage.trim() || !user) return
     const supabase = createClient()
 
     const { error } = await supabase.from('messages').insert({

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -17,28 +18,23 @@ const channelConfig: { channel: ConversationChannel; label: string; icon: typeof
 ]
 
 export default function ChannelsPage() {
+  const { membership } = useAuthContext()
   const [connections, setConnections] = useState<ChannelConnection[]>([])
-  const [orgId, setOrgId] = useState<string | null>(null)
 
   useEffect(() => {
-    const init = async () => {
+    if (!membership) return
+    const fetch = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-      setOrgId(membership.organization_id)
-
       const { data } = await supabase.from('channel_connections')
         .select('*').eq('organization_id', membership.organization_id)
       if (data) setConnections(data)
     }
-    init()
-  }, [])
+    fetch()
+  }, [membership])
 
   const toggleConnection = async (channel: ConversationChannel) => {
-    if (!orgId) return
+    if (!membership) return
+    const orgId = membership.organization_id
     const supabase = createClient()
     const existing = connections.find(c => c.channel === channel)
     if (existing) {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,24 +15,15 @@ import Link from 'next/link'
 import type { Conversation } from '@/types'
 
 export default function AdminConversationsPage() {
+  const { membership } = useAuthContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [orgId, setOrgId] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>('all')
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    const init = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-      setOrgId(membership.organization_id)
-      fetchConversations(membership.organization_id)
-    }
-    init()
-  }, [])
+    if (!membership) return
+    fetchConversations(membership.organization_id)
+  }, [membership])
 
   const fetchConversations = async (orgId: string) => {
     const supabase = createClient()

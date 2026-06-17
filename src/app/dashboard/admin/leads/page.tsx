@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,23 +14,14 @@ import { UserPlus, Phone, Mail, ExternalLink } from 'lucide-react'
 import type { Lead } from '@/types'
 
 export default function LeadsPage() {
+  const { membership } = useAuthContext()
   const [leads, setLeads] = useState<(Lead & { conversation?: { customer_name: string; channel: string } })[]>([])
-  const [orgId, setOrgId] = useState<string | null>(null)
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
-    const init = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-      setOrgId(membership.organization_id)
-      fetchLeads(membership.organization_id)
-    }
-    init()
-  }, [])
+    if (!membership) return
+    fetchLeads(membership.organization_id)
+  }, [membership])
 
   const fetchLeads = async (oid: string) => {
     const supabase = createClient()
@@ -46,7 +38,7 @@ export default function LeadsPage() {
     if (error) toast.error('Failed to update')
     else {
       toast.success(`Lead marked as ${status}`)
-      if (orgId) fetchLeads(orgId)
+      if (membership) fetchLeads(membership.organization_id)
     }
   }
 

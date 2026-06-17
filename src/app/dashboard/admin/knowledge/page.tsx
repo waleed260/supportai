@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,8 +15,8 @@ import { Upload, FileText, Globe, Trash2, Loader2 } from 'lucide-react'
 import type { KnowledgeSource } from '@/types'
 
 export default function KnowledgeBasePage() {
+  const { membership } = useAuthContext()
   const [sources, setSources] = useState<KnowledgeSource[]>([])
-  const [orgId, setOrgId] = useState<string | null>(null)
   const [uploadOpen, setUploadOpen] = useState(false)
   const [uploadType, setUploadType] = useState<string>('pdf')
   const [uploadName, setUploadName] = useState('')
@@ -31,22 +32,13 @@ export default function KnowledgeBasePage() {
   }, [])
 
   useEffect(() => {
-    const init = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (membership) {
-        setOrgId(membership.organization_id)
-        fetchSources(membership.organization_id)
-      }
-    }
-    init()
-  }, [fetchSources])
+    if (!membership) return
+    fetchSources(membership.organization_id)
+  }, [membership, fetchSources])
 
   const handleUpload = async () => {
-    if (!orgId || !uploadName) return
+    if (!membership || !uploadName) return
+    const orgId = membership.organization_id
 
     if (uploadType === 'website' && !uploadUrl) {
       toast.error('Please enter a website URL')
@@ -122,15 +114,15 @@ export default function KnowledgeBasePage() {
     setUploadName('')
     setUploadUrl('')
     setUploadFile(null)
-    if (orgId) fetchSources(orgId)
+    if (membership) fetchSources(membership.organization_id)
   }
 
   const deleteSource = async (id: string) => {
-    if (!orgId) return
+    if (!membership) return
     const supabase = createClient()
     await supabase.from('knowledge_sources').delete().eq('id', id)
     toast.success('Deleted')
-    fetchSources(orgId)
+    fetchSources(membership.organization_id)
   }
 
   const processSource = async (source: KnowledgeSource) => {
@@ -142,7 +134,7 @@ export default function KnowledgeBasePage() {
     })
     if (res.ok) {
       toast.success('Processing complete')
-      if (orgId) fetchSources(orgId)
+      if (membership) fetchSources(membership.organization_id)
     } else {
       toast.error('Processing failed')
     }

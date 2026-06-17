@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,31 +15,26 @@ import { Plus, Trash2 } from 'lucide-react'
 import type { Membership, User } from '@/types'
 
 export default function TeamPage() {
+  const { membership } = useAuthContext()
   const [team, setTeam] = useState<(Membership & { user?: User })[]>([])
-  const [orgId, setOrgId] = useState<string | null>(null)
   const [inviteOpen, setInviteOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<string>('team_member')
 
   useEffect(() => {
-    const init = async () => {
+    if (!membership) return
+    const fetch = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-      setOrgId(membership.organization_id)
-
       const { data } = await supabase.from('memberships')
         .select('*, user:users(*)').eq('organization_id', membership.organization_id)
       if (data) setTeam(data)
     }
-    init()
-  }, [])
+    fetch()
+  }, [membership])
 
   const inviteMember = async () => {
-    if (!orgId || !inviteEmail) return
+    if (!membership || !inviteEmail) return
+    const orgId = membership.organization_id
     const supabase = createClient()
 
     const { data: existingUser } = await supabase.from('users')

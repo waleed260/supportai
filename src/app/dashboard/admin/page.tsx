@@ -2,20 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MessageSquare, Users, TrendingUp, AlertTriangle } from 'lucide-react'
 
 export default function AdminOverview() {
+  const { membership } = useAuthContext()
   const [stats, setStats] = useState({ convos: 0, active: 0, escalated: 0, leads: 0 })
 
   useEffect(() => {
+    if (!membership) return
     const fetch = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
       const orgId = membership.organization_id
 
       const [convos, active, escalated, leads] = await Promise.all([
