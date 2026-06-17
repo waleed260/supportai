@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,7 +9,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { generateSlug } from '@/lib/utils'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -20,69 +18,23 @@ export default function RegisterPage() {
   const [companySize, setCompanySize] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: name } },
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name, companyName, companySize }),
     })
+    const data = await res.json()
 
-    if (authError) {
-      toast.error(authError.message)
+    if (!res.ok) {
+      toast.error(data.error || 'Registration failed')
       setLoading(false)
       return
     }
-
-    if (!authData.user) {
-      toast.error('Failed to create account')
-      setLoading(false)
-      return
-    }
-
-    const { error: userError } = await supabase.from('users').insert({
-      id: authData.user.id,
-      email,
-      full_name: name,
-    })
-    if (userError) {
-      toast.error('Failed to create profile')
-      setLoading(false)
-      return
-    }
-
-    const slug = generateSlug(companyName)
-    const { data: org, error: orgError } = await supabase.from('organizations').insert({
-      name: companyName,
-      slug,
-      company_size: companySize,
-      is_active: false,
-    }).select().single()
-
-    if (orgError) {
-      toast.error('Failed to create organization')
-      setLoading(false)
-      return
-    }
-
-    await supabase.from('memberships').insert({
-      user_id: authData.user.id,
-      organization_id: org.id,
-      role: 'client_admin',
-    })
-
-    await supabase.from('ai_agents').insert({
-      organization_id: org.id,
-      name: `${companyName} Assistant`,
-    })
-
-    await supabase.from('widget_settings').insert({
-      organization_id: org.id,
-    })
 
     toast.success('Account created! A super admin will approve your organization shortly.')
     router.push('/login')
