@@ -4,6 +4,7 @@ import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent
 import { checkFeature } from '@/lib/feature-gate'
 import { webchatSchema, sanitizeText } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
+import { checkUsageLimit } from '@/lib/billing/usage'
 
 export async function POST(request: Request) {
   try {
@@ -41,29 +42,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Organization is not active' }, { status: 403 })
     }
 
-    const { data: sub } = await supabase.from('subscriptions')
-      .select('plan_id')
-      .eq('organization_id', organization_id)
-      .in('status', ['active', 'trialing'])
-      .limit(1)
-      .maybeSingle()
-
-    let maxConvos: number | null = null
-    if (sub?.plan_id) {
-      const { data: plan } = await supabase.from('subscription_plans')
-        .select('max_conversations')
-        .eq('id', sub.plan_id)
-        .single()
-      maxConvos = plan?.max_conversations ?? null
-    }
-    if (maxConvos) {
-      const { count } = await supabase.from('conversations')
-        .select('*', { count: 'exact', head: true })
-        .eq('organization_id', organization_id)
-        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-      if (count && count >= maxConvos) {
-        return NextResponse.json({ error: 'Monthly conversation limit reached' }, { status: 402 })
-      }
+    const usage = await checkUsageLimit(organization_id)
+    if (!usage.allowed) {
+      await supabase.from('analytics_events').insert({
+        organization_id,
+        event_type: 'usage_limit_reached',
+        event_data: { channel: 'web_chat', used: usage.used, limit: usage.limit, plan: usage.planName },
+      })
+      return NextResponse.json({
+        error: 'plan_limit_reached',
+        text: 'This support channel is currently unavailable. Please contact the business directly.',
+        usage_limit_reached: true,
+      }, { status: 403 })
     }
 
     const [canCaptureLead, canAnalyzeSentiment] = await Promise.all([

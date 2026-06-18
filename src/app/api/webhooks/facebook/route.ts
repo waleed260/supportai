@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent'
 import { limiters } from '@/lib/rate-limit'
+import { checkUsageLimit } from '@/lib/billing/usage'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -78,12 +79,46 @@ export async function POST(request: Request) {
     const { data: org } = await supabase.from('organizations').select('is_active').eq('id', orgId).single()
     if (!org?.is_active) return NextResponse.json({ status: 'ok' })
 
-    let conversationId: string
     const { data: existing } = await supabase.from('conversations')
       .select('id').eq('organization_id', orgId)
       .eq('channel', 'facebook').eq('channel_conversation_id', senderId)
       .limit(1).maybeSingle()
 
+    if (!existing) {
+      const usage = await checkUsageLimit(orgId)
+      if (!usage.allowed) {
+        console.warn({
+          msg: 'usage_limit_reached',
+          org_id: orgId,
+          channel: 'facebook',
+          used: usage.used,
+          limit: usage.limit,
+          plan: usage.planName,
+        })
+        await supabase.from('analytics_events').insert({
+          organization_id: orgId,
+          event_type: 'usage_limit_reached',
+          event_data: { channel: 'facebook', sender_id: senderId, used: usage.used, limit: usage.limit, plan: usage.planName },
+        })
+        const fbToken = process.env.FACEBOOK_PAGE_TOKEN
+        if (fbToken && pageId) {
+          await fetch(`https://graph.facebook.com/v21.0/${pageId}/messages`, {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + fbToken,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              recipient: { id: senderId },
+              message: { text: 'Support is temporarily unavailable. Please try again later.' },
+            }),
+          })
+        }
+        return NextResponse.json({ status: 'ok' })
+      }
+    }
+
+    let conversationId: string
     if (existing) {
       conversationId = existing.id
     } else {
