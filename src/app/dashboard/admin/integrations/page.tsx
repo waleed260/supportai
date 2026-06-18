@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,26 +29,28 @@ export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([])
   const [selected, setSelected] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.from('org_integrations').select('*')
-      if (data) setIntegrations(data)
+    const fetchIntegrations = async () => {
+      const res = await fetch('/api/integrations')
+      if (res.ok) setIntegrations(await res.json())
       setLoading(false)
     }
-    fetch()
-  }, [supabase])
+    fetchIntegrations()
+  }, [])
 
   const getIntegration = (provider: string) => integrations.find(i => i.provider === provider)
 
   const toggleIntegration = async (provider: string, enabled: boolean) => {
-    const { error } = await supabase.from('org_integrations').upsert({
-      provider,
-      is_enabled: enabled,
-      name: `${provider} integration`,
-    }, { onConflict: 'organization_id,provider' }).select().single()
-    if (error) { toast.error(error.message) } else {
+    const res = await fetch('/api/integrations', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider, is_enabled: enabled }),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      toast.error(err.error || 'Failed to update')
+    } else {
       setIntegrations(prev => {
         const exists = prev.find(i => i.provider === provider)
         if (exists) return prev.map(i => i.provider === provider ? { ...i, is_enabled: enabled } : i)

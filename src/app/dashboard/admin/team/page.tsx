@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,48 +22,44 @@ export default function TeamPage() {
 
   useEffect(() => {
     if (!membership) return
-    const fetch = async () => {
-      const supabase = createClient()
-      const { data } = await supabase.from('memberships')
-        .select('*, user:users(*)').eq('organization_id', membership.organization_id)
-      if (data) setTeam(data)
+    const fetchTeam = async () => {
+      const res = await fetch('/api/memberships')
+      if (res.ok) setTeam(await res.json())
     }
-    fetch()
+    fetchTeam()
   }, [membership])
 
   const inviteMember = async () => {
     if (!membership || !inviteEmail) return
-    const orgId = membership.organization_id
-    const supabase = createClient()
 
-    const { data: existingUser } = await supabase.from('users')
-      .select('id').eq('email', inviteEmail).single()
+    const res = await fetch('/api/memberships', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
+    })
 
-    if (!existingUser) {
+    if (res.status === 404) {
       toast.error('User not found. They need to register first.')
       return
     }
 
-    const { error } = await supabase.from('memberships').insert({
-      user_id: existingUser.id,
-      organization_id: orgId,
-      role: inviteRole,
-    })
-    if (error) { toast.error('Failed to add member') } else {
+    if (!res.ok) {
+      toast.error('Failed to add member')
+    } else {
       toast.success('Team member added!')
       setInviteOpen(false)
       setInviteEmail('')
-      const { data } = await supabase.from('memberships')
-        .select('*, user:users(*)').eq('organization_id', orgId)
-      if (data) setTeam(data)
+      const member = await res.json()
+      setTeam(prev => [...prev, member])
     }
   }
 
   const removeMember = async (id: string) => {
-    const supabase = createClient()
-    await supabase.from('memberships').delete().eq('id', id)
-    toast.success('Member removed')
-    setTeam(prev => prev.filter(m => m.id !== id))
+    const res = await fetch(`/api/memberships?id=${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      toast.success('Member removed')
+      setTeam(prev => prev.filter(m => m.id !== id))
+    }
   }
 
   return (

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,14 +25,12 @@ export default function ConversationDetailPage() {
   useEffect(() => {
     if (!user) return
     const init = async () => {
-      const supabase = createClient()
-      const { data: conv } = await supabase.from('conversations')
-        .select('*').eq('id', id).single()
-      if (conv) setConversation(conv)
-
-      const { data: msgs } = await supabase.from('messages')
-        .select('*').eq('conversation_id', id).order('created_at', { ascending: true })
-      if (msgs) setMessages(msgs)
+      const res = await fetch(`/api/conversations/${id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setConversation(data)
+        setMessages(data.messages || [])
+      }
     }
     init()
   }, [id, user])
@@ -44,34 +41,36 @@ export default function ConversationDetailPage() {
 
   const sendReply = async () => {
     if (!newMessage.trim() || !user) return
-    const supabase = createClient()
 
-    const { error } = await supabase.from('messages').insert({
-      conversation_id: id,
-      organization_id: conversation?.organization_id,
-      role: 'agent',
-      content: newMessage.trim(),
+    const res = await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        conversation_id: id,
+        role: 'agent',
+        content: newMessage.trim(),
+      }),
     })
 
-    if (error) {
+    if (!res.ok) {
       toast.error('Failed to send')
     } else {
       setNewMessage('')
-      const { data: msgs } = await supabase.from('messages')
-        .select('*').eq('conversation_id', id).order('created_at', { ascending: true })
-      if (msgs) setMessages(msgs)
-
-      await supabase.from('conversations')
-        .update({ updated_at: new Date().toISOString() }).eq('id', id)
+      const sent = await res.json()
+      setMessages(prev => [...prev, sent])
     }
   }
 
   const resolveConversation = async () => {
-    const supabase = createClient()
-    await supabase.from('conversations')
-      .update({ status: 'resolved', updated_at: new Date().toISOString() }).eq('id', id)
-    toast.success('Conversation resolved')
-    setConversation(prev => prev ? { ...prev, status: 'resolved' as const } : prev)
+    const res = await fetch(`/api/conversations/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'resolved' }),
+    })
+    if (res.ok) {
+      toast.success('Conversation resolved')
+      setConversation(prev => prev ? { ...prev, status: 'resolved' as const } : prev)
+    }
   }
 
   if (!conversation) {

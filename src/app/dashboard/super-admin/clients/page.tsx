@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -20,36 +19,33 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'destructive' | 'o
 }
 
 export default function SuperAdminClients() {
-  const { user } = useAuthContext()
   const [organizations, setOrganizations] = useState<OrgWithStatus[]>([])
 
   useEffect(() => {
     const load = async () => {
-      const supabase = createClient()
-      const { data } = await supabase
-        .from('organizations')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (data) setOrganizations(data)
+      const res = await fetch('/api/admin/actions')
+      if (res.ok) setOrganizations(await res.json())
     }
     load()
   }, [])
 
   const updateStatus = async (id: string, status: 'active' | 'pending' | 'paused' | 'suspended') => {
-    const supabase = createClient()
-    const updates: Record<string, unknown> = {
-      status,
-      is_active: status === 'active',
+    const actionMap: Record<string, string> = {
+      active: 'approve_client',
+      suspended: 'suspend_client',
+      pending: 'reopen_client',
     }
-    // Record approval metadata when activating
-    if (status === 'active') {
-      updates.approved_at = new Date().toISOString()
-      updates.approved_by = user?.id ?? null
-    }
+    const action = actionMap[status]
+    if (!action) return
 
-    const { error } = await supabase.from('organizations').update(updates).eq('id', id)
-    if (error) {
-      toast.error(`Failed: ${error.message}`)
+    const res = await fetch('/api/admin/actions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, target_organization_id: id }),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      toast.error(`Failed: ${err.error || 'Unknown error'}`)
     } else {
       setOrganizations(prev =>
         prev.map(o => o.id === id ? { ...o, status, is_active: status === 'active' } : o)

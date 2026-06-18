@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,28 +22,23 @@ export default function EscalationsPage() {
     fetchEscalations(membership.organization_id)
   }, [membership])
 
-  const fetchEscalations = async (oid: string) => {
-    const supabase = createClient()
-    const { data } = await supabase.from('escalations')
-      .select('*, conversation:conversations(customer_name, channel, customer_email, sentiment)')
-      .eq('organization_id', oid)
-      .order('created_at', { ascending: false })
-    if (data) setEscalations(data)
+  const fetchEscalations = async (_oid: string) => {
+    const res = await fetch('/api/escalations')
+    if (res.ok) {
+      const json = await res.json()
+      setEscalations(json.data)
+    }
   }
 
   const resolveEscalation = async (id: string) => {
-    const supabase = createClient()
-    const { error } = await supabase.from('escalations').update({
-      resolved_by: user?.id,
-      resolved_at: new Date().toISOString(),
-    }).eq('id', id)
+    const res = await fetch('/api/escalations', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, resolved_by: user?.id }),
+    })
 
-    if (error) toast.error('Failed to resolve')
+    if (!res.ok) toast.error('Failed to resolve')
     else {
-      const { data: esc } = await supabase.from('escalations').select('conversation_id').eq('id', id).single()
-      if (esc) {
-        await supabase.from('conversations').update({ status: 'active' }).eq('id', esc.conversation_id)
-      }
       toast.success('Escalation resolved')
       if (membership) fetchEscalations(membership.organization_id)
     }

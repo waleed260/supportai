@@ -5,8 +5,36 @@ import { logAudit } from '@/lib/audit'
 import { log } from '@/lib/logger'
 import { limiters } from '@/lib/rate-limit'
 
-const validActions = ['approve_client', 'suspend_client', 'reject_client'] as const
+const validActions = ['approve_client', 'suspend_client', 'reject_client', 'reopen_client'] as const
 type AdminAction = typeof validActions[number]
+
+export async function GET() {
+  try {
+    const supabase = await createServerSupabaseClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('organization_id, role')
+      .eq('user_id', session.user.id)
+      .eq('is_active', true)
+      .limit(1)
+      .single()
+    if (!membership || membership.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { data } = await supabase.from('organizations')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    return NextResponse.json(data || [])
+  } catch (error) {
+    Sentry.captureException(error, { tags: { route: '/api/admin/actions' } })
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -49,7 +77,13 @@ export async function POST(request: Request) {
       case 'approve_client': {
         const { error } = await svc
           .from('organizations')
-          .update({ is_active: true, updated_at: new Date().toISOString() })
+          .update({
+            is_active: true,
+            status: 'active',
+            approved_at: new Date().toISOString(),
+            approved_by: session.user.id,
+            updated_at: new Date().toISOString(),
+          })
           .eq('id', target_organization_id)
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         break
@@ -57,7 +91,7 @@ export async function POST(request: Request) {
       case 'suspend_client': {
         const { error } = await svc
           .from('organizations')
-          .update({ is_active: false, updated_at: new Date().toISOString() })
+          .update({ is_active: false, status: 'suspended', updated_at: new Date().toISOString() })
           .eq('id', target_organization_id)
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         break
@@ -65,7 +99,15 @@ export async function POST(request: Request) {
       case 'reject_client': {
         const { error } = await svc
           .from('organizations')
-          .update({ is_active: false, updated_at: new Date().toISOString() })
+          .update({ is_active: false, status: 'suspended', updated_at: new Date().toISOString() })
+          .eq('id', target_organization_id)
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        break
+      }
+      case 'reopen_client': {
+        const { error } = await svc
+          .from('organizations')
+          .update({ is_active: false, status: 'pending', updated_at: new Date().toISOString() })
           .eq('id', target_organization_id)
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         break

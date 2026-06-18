@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -24,16 +23,14 @@ export default function KnowledgeBasePage() {
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [processing, setProcessing] = useState(false)
 
-  const fetchSources = useCallback(async (oid: string) => {
-    const supabase = createClient()
-    const { data } = await supabase.from('knowledge_sources')
-      .select('*').eq('organization_id', oid).order('created_at', { ascending: false })
-    if (data) setSources(data)
+  const fetchSources = useCallback(async () => {
+    const res = await fetch('/api/knowledge')
+    if (res.ok) setSources(await res.json())
   }, [])
 
   useEffect(() => {
     if (!membership) return
-    fetchSources(membership.organization_id)
+    fetchSources()
   }, [membership, fetchSources])
 
   const handleUpload = async () => {
@@ -53,28 +50,31 @@ export default function KnowledgeBasePage() {
     setProcessing(true)
 
     if (uploadType === 'website') {
-      const supabase = createClient()
-      const { data: source, error } = await supabase.from('knowledge_sources').insert({
-        organization_id: orgId,
-        name: uploadName,
-        type: 'website',
-        source_url: uploadUrl,
-        status: 'pending',
-      }).select().single()
+      const res = await fetch('/api/knowledge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: uploadName,
+          type: 'website',
+          source_url: uploadUrl,
+        }),
+      })
 
-      if (error) {
+      if (!res.ok) {
         toast.error('Failed to create source')
         setProcessing(false)
         return
       }
 
-      const res = await fetch('/api/knowledge/process', {
+      const source = await res.json()
+
+      const processRes = await fetch('/api/knowledge/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ knowledge_source_id: source.id }),
       })
 
-      if (res.ok) {
+      if (processRes.ok) {
         toast.success('Website processed successfully')
       } else {
         toast.error('Failed to process website')
@@ -114,15 +114,15 @@ export default function KnowledgeBasePage() {
     setUploadName('')
     setUploadUrl('')
     setUploadFile(null)
-    if (membership) fetchSources(membership.organization_id)
+    if (membership) fetchSources()
   }
 
   const deleteSource = async (id: string) => {
-    if (!membership) return
-    const supabase = createClient()
-    await supabase.from('knowledge_sources').delete().eq('id', id)
-    toast.success('Deleted')
-    fetchSources(membership.organization_id)
+    const res = await fetch(`/api/knowledge?id=${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      toast.success('Deleted')
+      fetchSources()
+    }
   }
 
   const processSource = async (source: KnowledgeSource) => {
@@ -134,7 +134,7 @@ export default function KnowledgeBasePage() {
     })
     if (res.ok) {
       toast.success('Processing complete')
-      if (membership) fetchSources(membership.organization_id)
+      if (membership) fetchSources()
     } else {
       toast.error('Processing failed')
     }

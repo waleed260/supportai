@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,19 +22,21 @@ export default function LeadsPage() {
     fetchLeads(membership.organization_id)
   }, [membership])
 
-  const fetchLeads = async (oid: string) => {
-    const supabase = createClient()
-    const { data } = await supabase.from('leads')
-      .select('*, conversation:conversations(customer_name, channel)')
-      .eq('organization_id', oid)
-      .order('created_at', { ascending: false })
-    if (data) setLeads(data)
+  const fetchLeads = async (_oid: string) => {
+    const res = await fetch('/api/leads')
+    if (res.ok) {
+      const json = await res.json()
+      setLeads(json.data)
+    }
   }
 
   const updateStatus = async (id: string, status: string) => {
-    const supabase = createClient()
-    const { error } = await supabase.from('leads').update({ status }).eq('id', id)
-    if (error) toast.error('Failed to update')
+    const res = await fetch('/api/leads', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    })
+    if (!res.ok) toast.error('Failed to update')
     else {
       toast.success(`Lead marked as ${status}`)
       if (membership) fetchLeads(membership.organization_id)
