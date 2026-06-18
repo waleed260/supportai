@@ -27,10 +27,15 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withSentryConfig(nextConfig, {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: true,
-  telemetry: false,
-})
+const hasSentryConfig = !!(process.env.SENTRY_DSN && process.env.SENTRY_AUTH_TOKEN)
+const config = hasSentryConfig
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: true,
+      telemetry: false,
+    })
+  : nextConfig
+
+export default config
