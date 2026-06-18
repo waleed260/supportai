@@ -7,6 +7,7 @@ import { limiters } from '@/lib/rate-limit'
 import { checkUsageLimit } from '@/lib/billing/usage'
 import { cachedQuery } from '@/lib/cache'
 import { log, getRouteName } from '@/lib/logger'
+import { safeDecryptCredentials } from '@/lib/crypto'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
       300,
       async () => {
         const { data: conn } = await supabase.from('channel_connections')
-          .select('organization_id')
+          .select('organization_id, credentials')
           .eq('channel', 'whatsapp')
           .filter('config->>phone_number_id', 'eq', String(phoneNumberId))
           .maybeSingle()
@@ -81,6 +82,14 @@ export async function POST(request: Request) {
         external_id: phoneNumberId,
       })
       return NextResponse.json({ status: 'ok' })
+    }
+
+    function getChannelToken(conn: typeof connection): string | null {
+      if (conn?.credentials && conn.credentials !== '{}') {
+        const decrypted = safeDecryptCredentials(conn.credentials)
+        if (decrypted && typeof decrypted.access_token === 'string') return decrypted.access_token
+      }
+      return null
     }
 
     const orgId = connection.organization_id
@@ -117,12 +126,12 @@ export async function POST(request: Request) {
           event_type: 'usage_limit_reached',
           event_data: { channel: 'whatsapp', from, used: usage.used, limit: usage.limit, plan: usage.planName },
         })
-        const whatsappToken = process.env.WHATSAPP_TOKEN
-        if (whatsappToken) {
+        const unavailableToken = getChannelToken(connection) || process.env.WHATSAPP_TOKEN
+        if (unavailableToken) {
           await fetch(`https://graph.facebook.com/v21.0/${phoneNumberId}/messages`, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${whatsappToken}`,
+              'Authorization': `Bearer ${unavailableToken}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -188,13 +197,13 @@ export async function POST(request: Request) {
       sentiment: response.sentiment,
     })
 
-    const whatsappToken = process.env.WHATSAPP_TOKEN
-    if (whatsappToken) {
+    const replyToken = getChannelToken(connection) || process.env.WHATSAPP_TOKEN
+    if (replyToken) {
       const url = `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`
       await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${whatsappToken}`,
+          'Authorization': `Bearer ${replyToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

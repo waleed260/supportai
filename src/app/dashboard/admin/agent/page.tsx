@@ -41,6 +41,21 @@ export default function AgentConfigPage() {
     } catch {}
   }, [])
 
+  const logAudit = useCallback(async (key: string, value: unknown) => {
+    try {
+      await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'config_change',
+          resourceType: 'ai_agent',
+          resourceId: agent?.id,
+          details: { key, value, previous: agent?.[key as keyof typeof agent] },
+        }),
+      })
+    } catch {}
+  }, [agent])
+
   const update = async (key: string, value: unknown) => {
     if (!agent) return
     const supabase = createClient()
@@ -49,6 +64,7 @@ export default function AgentConfigPage() {
     else {
       setAgent(prev => prev ? { ...prev, [key]: value } : prev)
       invalidateAgentCache()
+      logAudit(key, value)
     }
   }
 

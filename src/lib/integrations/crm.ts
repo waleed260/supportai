@@ -1,5 +1,6 @@
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { log } from '@/lib/logger'
+import { JWT } from 'google-auth-library'
 
 type LeadData = {
   name?: string
@@ -125,24 +126,23 @@ async function pushToGoogleSheets(credentials: Record<string, any>, lead: LeadDa
 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheet_id}/values/${sheet_name || 'Sheet1'}!A:F:append?valueInputOption=USER_ENTERED`
 
-  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: private_key,
-    }),
-  })
-  const tokenData = await tokenResponse.json() as { access_token?: string }
+  if (!service_account_email || !private_key) return
 
-  if (tokenData.access_token) {
-    await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ values }),
-    })
-  }
+  const auth = new JWT({
+    email: service_account_email,
+    key: private_key,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  })
+
+  const accessToken = await auth.getAccessToken()
+  if (!accessToken) return
+
+  await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ values }),
+  })
 }

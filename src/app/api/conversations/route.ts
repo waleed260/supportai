@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { conversationsPostSchema, sanitizeText } from '@/lib/validation'
+import { conversationsPostSchema, sanitizeText, paginationSchema } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
 
 export async function GET(request: Request) {
@@ -13,8 +13,12 @@ export async function GET(request: Request) {
   if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 403 })
 
   const { searchParams } = new URL(request.url)
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
-  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '50')))
+  const parsed = paginationSchema.safeParse({
+    page: searchParams.get('page'),
+    pageSize: searchParams.get('pageSize'),
+  })
+  const page = parsed.data?.page ?? 1
+  const pageSize = parsed.data?.pageSize ?? 50
   const offset = (page - 1) * pageSize
 
   const { data, count, error } = await supabase

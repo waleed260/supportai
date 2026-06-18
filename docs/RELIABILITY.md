@@ -131,6 +131,7 @@ the code.
 | 006_org_status.sql | Status column | `006_org_status.down.sql` | Drops `status` column, reverts `is_active` default |
 | 007_config_column.sql | Channel config column | `007_add_config_to_channel_connections.down.sql` | Drops `config` column |
 | 008_fix_vector_index.sql | HNSW index | `008_fix_vector_index.down.sql` | Drops HNSW, recreates IVFFlat |
+| 009_add_language_column.sql | Language column | `009_add_language_column.down.sql` | Drops `language` column + index |
 
 ## 6. Backup & Recovery Flowchart
 
@@ -228,7 +229,56 @@ alert is your only signal that a client's messages are being silently dropped.
 **Why:** Signature failures on Stripe webhooks may indicate an attack or a
 misconfigured webhook endpoint. Investigate promptly.
 
-## 10. Restore-from-Backup Test Script
+## 11. AI Provider Architecture — OpenRouter vs. Direct Anthropic API
+
+### Design Decision: OpenRouter as Default
+
+SupportAI defaults to routing all LLM calls through **OpenRouter** rather than
+calling the Anthropic API directly. This decision is documented so operators
+understand the tradeoffs and can switch if needed.
+
+### Why OpenRouter (Default)
+
+| Factor | OpenRouter | Direct Anthropic API |
+|---|---|---|
+| Multi-model support | Single endpoint for Claude, GPT-4o, Gemini, etc. | Claude only |
+| Failover | Automatic fallback if a model is overloaded | Manual re-request |
+| Cost tracking | Dashboard with per-model spend breakdown | Anthropic console only |
+| API key management | One key for all models | One key per provider |
+| Latency | Adds ~50ms proxy overhead | Lowest possible latency |
+
+### When to Switch to Direct Anthropic
+
+- Your deployment only uses Claude models and you need every millisecond
+- You have an existing Anthropic enterprise agreement with committed throughput
+- You need access to Anthropic-specific features (e.g., prompt caching, batch API)
+
+### How to Switch
+
+Set the following environment variables:
+
+```env
+USE_DIRECT_ANTHROPIC=true
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODEL=claude-3.5-sonnet
+# ANTHROPIC_BASE_URL=https://api.anthropic.com  (default)
+```
+
+The `ANTHROPIC_MODEL` value changes format when switching:
+- **OpenRouter format:** `anthropic/claude-3.5-sonnet` (provider/model)
+- **Direct Anthropic format:** `claude-3.5-sonnet` (model name only)
+
+When `USE_DIRECT_ANTHROPIC=true`, the code uses the `@anthropic-ai/sdk` package
+directly. The `system` prompt is passed via Anthropic's dedicated `system`
+parameter, and message history is filtered to `user`/`assistant` roles only.
+
+### Model Selection Priority
+
+1. Per-agent model (`ai_agents.model`) — set in admin dashboard
+2. `ANTHROPIC_MODEL` env var — global default
+3. `anthropic/claude-3.5-sonnet` — hardcoded fallback
+
+## 12. Restore-from-Backup Test Script
 
 Run this script periodically (at least quarterly, next: 2026-09-01) against a
 staging Supabase project to verify the backup export is restorable:

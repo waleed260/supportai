@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { cacheDel } from '@/lib/cache'
+import { cacheInvalidateSchema } from '@/lib/validation'
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
@@ -11,12 +12,13 @@ export async function POST(request: Request) {
     .select('organization_id').eq('user_id', session.user.id).limit(1).single()
   if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 403 })
 
-  const { pattern } = await request.json()
-  if (typeof pattern !== 'string') {
-    return NextResponse.json({ error: 'pattern is required' }, { status: 400 })
+  const body = await request.json()
+  const parsed = cacheInvalidateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
   }
 
-  const cacheKey = `${pattern}:${membership.organization_id}`
+  const cacheKey = `${parsed.data.pattern}:${membership.organization_id}`
   await cacheDel(cacheKey)
 
   return NextResponse.json({ ok: true })

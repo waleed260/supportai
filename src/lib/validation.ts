@@ -110,3 +110,16 @@ export const createCheckoutSchema = z.object({
 export const webchatConfigSchema = z.object({
   organization_id: z.string().min(1),
 })
+
+export const cacheInvalidateSchema = z.object({
+  pattern: z.string().min(1).max(255),
+})
+
+export const paginationSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(50),
+})
+
+export const conversationIdSchema = z.object({
+  id: z.string().uuid(),
+})

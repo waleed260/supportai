@@ -7,6 +7,7 @@ import { limiters } from '@/lib/rate-limit'
 import { checkUsageLimit } from '@/lib/billing/usage'
 import { cachedQuery } from '@/lib/cache'
 import { log } from '@/lib/logger'
+import { safeDecryptCredentials } from '@/lib/crypto'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
       300,
       async () => {
         const { data: conn } = await supabase.from('channel_connections')
-          .select('organization_id')
+          .select('organization_id, credentials')
           .eq('channel', 'facebook')
           .filter('config->>page_id', 'eq', String(pageId))
           .maybeSingle()
@@ -80,6 +81,14 @@ export async function POST(request: Request) {
         external_id: pageId,
       })
       return NextResponse.json({ status: 'ok' })
+    }
+
+    function getChannelToken(conn: typeof connection): string | null {
+      if (conn?.credentials && conn.credentials !== '{}') {
+        const decrypted = safeDecryptCredentials(conn.credentials)
+        if (decrypted && typeof decrypted.access_token === 'string') return decrypted.access_token
+      }
+      return null
     }
 
     const orgId = connection.organization_id
@@ -116,12 +125,12 @@ export async function POST(request: Request) {
           event_type: 'usage_limit_reached',
           event_data: { channel: 'facebook', sender_id: senderId, used: usage.used, limit: usage.limit, plan: usage.planName },
         })
-        const fbToken = process.env.FACEBOOK_PAGE_TOKEN
-        if (fbToken && pageId) {
+        const unavailableToken = getChannelToken(connection) || process.env.FACEBOOK_PAGE_TOKEN
+        if (unavailableToken && pageId) {
           await fetch(`https://graph.facebook.com/v21.0/${pageId}/messages`, {
             method: 'POST',
             headers: {
-              'Authorization': 'Bearer ' + fbToken,
+              'Authorization': 'Bearer ' + unavailableToken,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -186,13 +195,13 @@ export async function POST(request: Request) {
       sentiment: response.sentiment,
     })
 
-    const fbToken = process.env.FACEBOOK_PAGE_TOKEN
-    if (fbToken && pageId) {
+    const replyToken = getChannelToken(connection) || process.env.FACEBOOK_PAGE_TOKEN
+    if (replyToken && pageId) {
       const url = 'https://graph.facebook.com/v21.0/' + pageId + '/messages'
       await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer ' + fbToken,
+          'Authorization': 'Bearer ' + replyToken,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

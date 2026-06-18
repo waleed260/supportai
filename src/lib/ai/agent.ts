@@ -1,18 +1,53 @@
 import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateEmbedding } from './embeddings'
 import { syncLeadToCrm } from '@/lib/integrations/crm'
 import { cachedQuery, cacheDel } from '@/lib/cache'
 
-function getOpenRouter() {
-  return new OpenAI({
-    baseURL: 'https://openrouter.ai/api/v1',
-    apiKey: process.env.OPENROUTER_API_KEY!,
-    defaultHeaders: {
-      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      'X-Title': 'SupportAI',
-    },
+function getAIProvider(): { type: 'openrouter' | 'direct'; client: OpenAI | Anthropic } {
+  if (process.env.USE_DIRECT_ANTHROPIC === 'true' && process.env.ANTHROPIC_API_KEY) {
+    return {
+      type: 'direct',
+      client: new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }),
+    }
+  }
+  return {
+    type: 'openrouter',
+    client: new OpenAI({
+      baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+      apiKey: process.env.OPENROUTER_API_KEY!,
+      defaultHeaders: {
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        'X-Title': 'SupportAI',
+      },
+    }),
+  }
+}
+
+type ProviderMessage = { role: 'system' | 'user' | 'assistant'; content: string }
+
+async function callAI(messages: ProviderMessage[], model: string, maxTokens: number): Promise<string> {
+  const provider = getAIProvider()
+
+  if (provider.type === 'direct') {
+    const client = provider.client as Anthropic
+    const response = await client.messages.create({
+      model: model.replace('anthropic/', ''),
+      max_tokens: maxTokens,
+      system: messages.find(m => m.role === 'system')?.content || '',
+      messages: messages.filter(m => m.role !== 'system') as Anthropic.MessageParam[],
+    })
+    return response.content.map(b => b.type === 'text' ? b.text : '').join('')
+  }
+
+  const client = provider.client as OpenAI
+  const response = await client.chat.completions.create({
+    model,
+    max_tokens: maxTokens,
+    messages,
   })
+  return response.choices[0]?.message?.content || ''
 }
 
 const SYSTEM_PROMPT = `You are SupportAI, an intelligent customer support and sales agent.
@@ -119,17 +154,34 @@ export async function getCustomerHistory(organizationId: string, channelConversa
   return histories.filter(Boolean)
 }
 
+export async function detectLanguage(text: string): Promise<string> {
+  try {
+    const content = await callAI(
+      [
+        { role: 'system', content: 'Detect the language of this message. Respond with exactly the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "ar", "zh", "ja", "ko", "pt", "ru", "it", "nl", "tr", "vi", "th"). Default to "en" if unsure.' },
+        { role: 'user', content: text.slice(0, 500) },
+      ],
+      'anthropic/claude-3-haiku',
+      10,
+    )
+    const lang = content.trim().toLowerCase()
+    return /^[a-z]{2}$/.test(lang) ? lang : 'en'
+  } catch {
+    return 'en'
+  }
+}
+
 export async function analyzeSentiment(text: string): Promise<string> {
   try {
-    const response = await getOpenRouter().chat.completions.create({
-      model: 'anthropic/claude-3-haiku',
-      max_tokens: 10,
-      messages: [
+    const content = await callAI(
+      [
         { role: 'system', content: 'Analyze the sentiment of this customer message. Respond with exactly one word: positive, neutral, negative, frustrated, or high_risk.' },
         { role: 'user', content: text },
       ],
-    })
-    const sentiment = response.choices[0]?.message?.content?.trim().toLowerCase() || 'neutral'
+      'anthropic/claude-3-haiku',
+      10,
+    )
+    const sentiment = content.trim().toLowerCase()
     const valid = ['positive', 'neutral', 'negative', 'frustrated', 'high_risk']
     return valid.includes(sentiment) ? sentiment : 'neutral'
   } catch {
@@ -178,19 +230,20 @@ export async function generateAIResponse(params: {
     }
   }
 
+  const detectedLanguage = await detectLanguage(message)
+  const languageContext = `\n\nThe customer's language code is: ${detectedLanguage}. Always respond in this language.`
+
   const model = params.agentConfig?.model || process.env.ANTHROPIC_MODEL || 'anthropic/claude-3.5-sonnet'
 
-  const response = await getOpenRouter().chat.completions.create({
-    model,
-    max_tokens: 1024,
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT + personalitySection + knowledgeContext + memoryContext },
-      ...history.slice(-10).map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+  const text = await callAI(
+    [
+      { role: 'system', content: SYSTEM_PROMPT + personalitySection + knowledgeContext + memoryContext + languageContext },
+      ...history.slice(-10).map(m => ({ role: m.role as 'system' | 'user' | 'assistant', content: m.content })),
       { role: 'user', content: message },
     ],
-  })
-
-  const text = response.choices[0]?.message?.content || ''
+    model,
+    1024,
+  )
   const shouldEscalate = text.includes('[ESCALATE]')
   const leadData = text.includes('[LEAD]')
 
@@ -199,6 +252,7 @@ export async function generateAIResponse(params: {
     : 'neutral'
 
   const supabase = await createServiceRoleClient()
+  try { await supabase.from('conversations').update({ language: detectedLanguage }).eq('id', conversationId) } catch {}
 
   if (shouldEscalate) {
     const reason = text.match(/\[ESCALATE\](.*?)(?:\n|$)/)?.[1]?.trim() || 'AI triggered escalation'

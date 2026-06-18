@@ -54,9 +54,9 @@ export async function checkUsageLimit(organizationId: string): Promise<UsageResu
   const limit = plan.max_conversations
 
   return {
-    allowed: used < limit,
+    allowed: limit === null ? true : used < limit,
     used,
-    limit,
+    limit: limit ?? Infinity,
     planName: plan.name,
   }
 }
