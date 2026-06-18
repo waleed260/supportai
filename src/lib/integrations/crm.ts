@@ -1,4 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { log } from '@/lib/logger'
 
 type LeadData = {
   name?: string
@@ -37,7 +38,12 @@ export async function syncLeadToCrm(organizationId: string, lead: LeadData) {
           break
       }
     } catch (err) {
-      console.error(`CRM sync failed for ${integration.provider}:`, err)
+      log.error(`CRM sync failed for ${integration.provider}`, {
+        error: err,
+        route: 'crm:syncLeadToCrm',
+        orgId: organizationId,
+        provider: integration.provider,
+      })
     }
   }
 }

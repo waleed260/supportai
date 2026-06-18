@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateSlug } from '@/lib/utils'
 import { registerSchema, sanitizeText } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -107,7 +109,10 @@ export async function POST(request: Request) {
       message: 'Registration successful. Your account is pending approval by our team.',
     })
   } catch (error) {
-    console.error('Registration error:', error)
+    Sentry.captureException(error, {
+      tags: { route: '/api/auth/register' },
+    })
+    log.error('Registration error', { route: '/api/auth/register', error })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

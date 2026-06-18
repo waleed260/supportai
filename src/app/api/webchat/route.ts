@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateAIResponse, storeMessage, storeSentiment, getAgentConfig } from '@/lib/ai/agent'
 import { checkFeature } from '@/lib/feature-gate'
 import { webchatSchema, sanitizeText } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
 import { checkUsageLimit } from '@/lib/billing/usage'
+import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -150,7 +152,10 @@ export async function POST(request: Request) {
       sentiment: response.sentiment,
     })
   } catch (error) {
-    console.error('Web chat error:', error)
+    Sentry.captureException(error, {
+      tags: { route: '/api/webchat' },
+    })
+    log.error('Web chat error', { route: '/api/webchat', error })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

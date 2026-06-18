@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { generateEmbedding, chunkText, extractTextFromUrl } from '@/lib/ai/embeddings'
-import { knowledgeProcessSchema } from '@/lib/validation'
+import { generateEmbedding } from '@/lib/ai/embeddings'
+import { chunkText, splitIntoChunks } from '@/lib/knowledge/chunking'
 import { limiters } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -85,7 +87,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, chunks_processed: chunkCount })
   } catch (error) {
-    console.error('Knowledge processing error:', error)
+    Sentry.captureException(error, {
+      tags: { route: '/api/knowledge/process' },
+    })
+    log.error('Knowledge processing error', { route: '/api/knowledge/process', error })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

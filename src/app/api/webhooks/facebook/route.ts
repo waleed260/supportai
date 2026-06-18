@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
+import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateAIResponse, storeMessage, storeSentiment, getAgentConfig } from '@/lib/ai/agent'
 import { limiters } from '@/lib/rate-limit'
 import { checkUsageLimit } from '@/lib/billing/usage'
 import { cachedQuery } from '@/lib/cache'
+import { log } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -27,12 +29,19 @@ export async function POST(request: Request) {
     const signature = request.headers.get('x-hub-signature-256') || ''
     const appSecret = process.env.META_APP_SECRET
     if (!appSecret) {
-      console.error('Facebook webhook: META_APP_SECRET not configured')
+      log.error('META_APP_SECRET not configured', { route: '/api/webhooks/facebook' })
+      Sentry.captureException(new Error('META_APP_SECRET not configured'), {
+        tags: { route: '/api/webhooks/facebook' },
+      })
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
     const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
     if (!signature || signature !== expected) {
-      console.error('Facebook webhook: invalid or missing signature')
+      log.error('invalid or missing signature', { route: '/api/webhooks/facebook' })
+      Sentry.captureException(new Error('Invalid webhook signature'), {
+        tags: { route: '/api/webhooks/facebook' },
+        extra: { channel: 'facebook', hasSignature: !!signature, matches: signature === expected },
+      })
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
@@ -65,9 +74,8 @@ export async function POST(request: Request) {
     )
 
     if (!connection) {
-      console.warn({
-        msg: 'webhook_no_connection',
-        org_id: 'unknown',
+      log.warn('webhook_no_connection', {
+        route: '/api/webhooks/facebook',
         channel: 'facebook',
         external_id: pageId,
       })
@@ -95,9 +103,9 @@ export async function POST(request: Request) {
     if (!existing) {
       const usage = await checkUsageLimit(orgId)
       if (!usage.allowed) {
-        console.warn({
-          msg: 'usage_limit_reached',
-          org_id: orgId,
+        log.warn('usage_limit_reached', {
+          route: '/api/webhooks/facebook',
+          orgId,
           channel: 'facebook',
           used: usage.used,
           limit: usage.limit,
@@ -196,7 +204,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ status: 'ok' })
   } catch (error) {
-    console.error('Facebook webhook error:', error)
+    Sentry.captureException(error, {
+      tags: { route: '/api/webhooks/facebook' },
+    })
+    log.error('Facebook webhook error', {
+      route: '/api/webhooks/facebook',
+      error,
+    })
     return NextResponse.json({ status: 'ok' })
   }
 }

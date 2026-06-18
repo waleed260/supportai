@@ -4,6 +4,8 @@
  * Spec: "Channel tokens (WhatsApp, Instagram) AES-encrypted before storing."
  */
 
+import { log } from '@/lib/logger'
+
 function getKey(): Buffer {
   const hex = process.env.ENCRYPTION_KEY
   if (!hex) throw new Error('ENCRYPTION_KEY env var is not set')
@@ -55,7 +57,7 @@ export function decryptCredentials(encrypted: string): Record<string, unknown> |
  */
 export function safeEncryptCredentials(credentials: Record<string, unknown>): string {
   if (!process.env.ENCRYPTION_KEY) {
-    console.warn('[crypto] ENCRYPTION_KEY not set — storing credentials unencrypted (dev only)')
+    log.warn('ENCRYPTION_KEY not set — storing credentials unencrypted (dev only)', { route: 'crypto:safeEncryptCredentials' })
     return JSON.stringify(credentials)
   }
   return encryptCredentials(credentials)

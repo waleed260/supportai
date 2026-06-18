@@ -5,6 +5,7 @@
  */
 
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { log } from '@/lib/logger'
 
 export async function logAudit(params: {
   userId: string
@@ -28,6 +29,6 @@ export async function logAudit(params: {
     })
   } catch (err) {
     // Audit failures must never crash the main flow
-    console.error('[audit] Failed to write audit log:', err)
+    log.error('Failed to write audit log', { error: err, route: 'audit:logAudit' })
   }
 }

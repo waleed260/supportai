@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { knowledgeUploadSchema, sanitizeText } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -85,7 +87,10 @@ export async function POST(request: Request) {
       file_url: publicUrl,
     })
   } catch (error) {
-    console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    Sentry.captureException(error, {
+      tags: { route: '/api/knowledge/upload' },
+    })
+    log.error('Upload error', { route: '/api/knowledge/upload', error })
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 })
   }
 }

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import Stripe from 'stripe'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createCheckoutSchema } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31' as any })
@@ -50,7 +52,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {
-    console.error('Checkout error:', error)
+    Sentry.captureException(error, { tags: { route: '/api/subscriptions/create-checkout' } })
+    log.error('Checkout error', { route: '/api/subscriptions/create-checkout', error })
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }

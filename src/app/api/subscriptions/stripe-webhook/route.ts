@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
@@ -95,7 +97,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error('Webhook error:', error)
+    Sentry.captureException(error, {
+      tags: { route: '/api/subscriptions/stripe-webhook' },
+    })
+    log.error('Stripe webhook error', { route: '/api/subscriptions/stripe-webhook', error })
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 })
   }
 }
