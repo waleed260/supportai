@@ -1,104 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
   <defs>
     <radialGradient id="bgGlow" cx="50%" cy="45%" r="55%">
-      <stop offset="0%" stop-color="#1A1A1A" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#262626" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0A0A0A" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="bgBase" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#000000"/>
-      <stop offset="50%" stop-color="#0A0A0A"/>
-      <stop offset="100%" stop-color="#141414"/>
-    </linearGradient>
-    <linearGradient id="bevelIn" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#262626" stop-opacity="0.2"/>
-      <stop offset="50%" stop-color="#0A0A0A" stop-opacity="0.06"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0.5"/>
-    </linearGradient>
-    <linearGradient id="glassOverlay" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.05"/>
-      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.012"/>
-      <stop offset="70%" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0.35"/>
-    </linearGradient>
-    <linearGradient id="glassEdge" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#737373" stop-opacity="0.2"/>
-      <stop offset="50%" stop-color="#404040" stop-opacity="0.03"/>
-      <stop offset="100%" stop-color="#1A1A1A" stop-opacity="0.18"/>
-    </linearGradient>
-    <linearGradient id="sDark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#8A8A8A"/>
-      <stop offset="50%" stop-color="#404040"/>
-      <stop offset="100%" stop-color="#1A1A1A"/>
-    </linearGradient>
-    <linearGradient id="sMain" x1="0" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="40%" stop-color="#F5F5F5"/>
-      <stop offset="70%" stop-color="#D4D4D4"/>
-      <stop offset="100%" stop-color="#A3A3A3"/>
-    </linearGradient>
-    <linearGradient id="sHighlight" x1="0" y1="0" x2="1" y2="0.5">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
-      <stop offset="30%" stop-color="#FFFFFF" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="ringAccent" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#737373" stop-opacity="0.35"/>
-      <stop offset="50%" stop-color="#A3A3A3" stop-opacity="0.12"/>
-      <stop offset="100%" stop-color="#262626" stop-opacity="0.05"/>
-    </linearGradient>
-    <filter id="badgeShadow">
-      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#000" flood-opacity="0.7"/>
+    <filter id="floatShadow">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.6"/>
     </filter>
-    <filter id="sShadow">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.75"/>
-    </filter>
-    <filter id="floatGlow">
-      <feGaussianBlur stdDeviation="36"/>
-    </filter>
-    <filter id="outerGlow">
-      <feGaussianBlur stdDeviation="50"/>
-    </filter>
-    <clipPath id="badgeClip">
+    <clipPath id="badge">
       <rect x="15" y="15" width="470" height="470" rx="110"/>
     </clipPath>
   </defs>
 
-  <ellipse cx="250" cy="250" rx="220" ry="220" fill="#FFFFFF" opacity="0.03" filter="url(#outerGlow)"/>
-  <rect x="15" y="27" width="470" height="470" rx="110" fill="#000" opacity="0.4"/>
-  <rect x="17" y="17" width="466" height="466" rx="108" fill="#000000"/>
-  <rect x="15" y="15" width="470" height="470" rx="110" fill="url(#bgBase)"/>
-  <rect x="15" y="15" width="470" height="470" rx="110" fill="url(#bgGlow)" clip-path="url(#badgeClip)"/>
-  <rect x="15" y="15" width="470" height="470" rx="110" fill="url(#bevelIn)" clip-path="url(#badgeClip)"/>
-  <path d="M20 110 C20 50 50 20 110 20 L390 20 C450 20 480 50 480 110" fill="none" stroke="url(#glassEdge)" stroke-width="5"/>
-  <rect x="18" y="18" width="464" height="464" rx="106" fill="url(#glassOverlay)"/>
-  <ellipse cx="250" cy="250" rx="130" ry="130" fill="#FFFFFF" opacity="0.04" filter="url(#floatGlow)"/>
+  <ellipse cx="250" cy="255" rx="235" ry="235" fill="#000" opacity="0.25"/>
+  <rect x="15" y="15" width="470" height="470" rx="110" fill="#0A0A0A"/>
+  <rect x="15" y="15" width="470" height="470" rx="110" fill="url(#bgGlow)" clip-path="url(#badge)"/>
 
-  <g filter="url(#sShadow)">
-    <path d="M158 128 C158 80 342 80 342 128 C342 178 158 168 158 245 C158 322 342 312 342 362 C342 410 158 410 158 362"
-          fill="none" stroke="#050505" stroke-width="110" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(14, 18)"/>
-    <path d="M158 128 C158 80 342 80 342 128 C342 178 158 168 158 245 C158 322 342 312 342 362 C342 410 158 410 158 362"
-          fill="none" stroke="#1A1A1A" stroke-width="105" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(10, 13)"/>
-    <path d="M158 128 C158 80 342 80 342 128 C342 178 158 168 158 245 C158 322 342 312 342 362 C342 410 158 410 158 362"
-          fill="none" stroke="url(#sDark)" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(4, 5)"/>
-    <path d="M158 128 C158 80 342 80 342 128 C342 178 158 168 158 245 C158 322 342 312 342 362 C342 410 158 410 158 362"
-          fill="none" stroke="url(#sMain)" stroke-width="95" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M158 128 C158 80 342 80 342 128 C342 178 158 168 158 245 C158 322 342 312 342 362 C342 410 158 410 158 362"
-          fill="none" stroke="url(#sHighlight)" stroke-width="35" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(-3, -3.5)"/>
-  </g>
-
-  <circle cx="250" cy="250" r="185" fill="none" stroke="url(#ringAccent)" stroke-width="4" stroke-dasharray="10 20"/>
-  <g opacity="0.2">
-    <circle cx="250" cy="65" r="8" fill="#A3A3A3"/>
-    <circle cx="250" cy="435" r="8" fill="#A3A3A3"/>
-    <circle cx="65" cy="250" r="8" fill="#A3A3A3"/>
-    <circle cx="435" cy="250" r="8" fill="#A3A3A3"/>
-    <circle cx="119" cy="119" r="5" fill="#737373" opacity="0.25"/>
-    <circle cx="381" cy="119" r="5" fill="#737373" opacity="0.25"/>
-    <circle cx="119" cy="381" r="5" fill="#737373" opacity="0.25"/>
-    <circle cx="381" cy="381" r="5" fill="#737373" opacity="0.25"/>
+  <g filter="url(#floatShadow)">
+    <path d="M150 120 C150 60 350 60 350 120 C350 190 150 180 150 250 C150 320 350 310 350 380 C350 440 150 440 150 380"
+          fill="none" stroke="#D4D4D4" stroke-width="140" stroke-linecap="round" stroke-linejoin="round"
+          transform="translate(0, 8)"/>
+    <path d="M150 120 C150 60 350 60 350 120 C350 190 150 180 150 250 C150 320 350 310 350 380 C350 440 150 440 150 380"
+          fill="none" stroke="#FFFFFF" stroke-width="140" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 </svg>

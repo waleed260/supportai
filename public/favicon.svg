@@ -1,126 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
     <radialGradient id="bgGlow" cx="50%" cy="45%" r="55%">
-      <stop offset="0%" stop-color="#1A1A1A" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#262626" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0A0A0A" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="bgBase" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#000000"/>
-      <stop offset="50%" stop-color="#0A0A0A"/>
-      <stop offset="100%" stop-color="#141414"/>
-    </linearGradient>
-    <linearGradient id="bevelIn" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#262626" stop-opacity="0.25"/>
-      <stop offset="50%" stop-color="#0A0A0A" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0.5"/>
-    </linearGradient>
-    <linearGradient id="glassOverlay" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.06"/>
-      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.015"/>
-      <stop offset="70%" stop-color="#000000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0.35"/>
-    </linearGradient>
-    <linearGradient id="glassEdge" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#737373" stop-opacity="0.25"/>
-      <stop offset="50%" stop-color="#404040" stop-opacity="0.04"/>
-      <stop offset="100%" stop-color="#1A1A1A" stop-opacity="0.2"/>
-    </linearGradient>
-
-    <!-- Monochrome S gradients -->
-    <linearGradient id="sDark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#8A8A8A"/>
-      <stop offset="50%" stop-color="#404040"/>
-      <stop offset="100%" stop-color="#1A1A1A"/>
-    </linearGradient>
-    <linearGradient id="sMain" x1="0" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="40%" stop-color="#F5F5F5"/>
-      <stop offset="70%" stop-color="#D4D4D4"/>
-      <stop offset="100%" stop-color="#A3A3A3"/>
-    </linearGradient>
-    <linearGradient id="sHighlight" x1="0" y1="0" x2="1" y2="0.5">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
-      <stop offset="30%" stop-color="#FFFFFF" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="ringAccent" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#737373" stop-opacity="0.4"/>
-      <stop offset="50%" stop-color="#A3A3A3" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#262626" stop-opacity="0.06"/>
-    </linearGradient>
-
-    <filter id="badgeShadow">
-      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.7"/>
+    <filter id="floatShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.6"/>
     </filter>
-    <filter id="sShadow">
-      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.75"/>
-    </filter>
-    <filter id="floatGlow">
-      <feGaussianBlur stdDeviation="8"/>
-    </filter>
-
-    <clipPath id="badgeClip">
+    <clipPath id="badge">
       <rect width="100" height="100" rx="24"/>
     </clipPath>
   </defs>
 
-  <!-- Outer floating shadow -->
-  <rect width="100" height="100" rx="24" fill="#000" opacity="0.4" transform="translate(0, 4)" filter="url(#badgeShadow)"/>
+  <rect x="2" y="6" width="96" height="94" rx="24" fill="#000" opacity="0.3"/>
+  <rect width="100" height="100" rx="24" fill="#0A0A0A"/>
+  <rect width="100" height="100" rx="24" fill="url(#bgGlow)" clip-path="url(#badge)"/>
 
-  <!-- 3D badge depth layer -->
-  <rect x="1" y="1" width="98" height="98" rx="23" fill="#000000"/>
-
-  <!-- Base gradient body -->
-  <rect width="100" height="100" rx="24" fill="url(#bgBase)"/>
-
-  <!-- Center radial glow -->
-  <rect width="100" height="100" rx="24" fill="url(#bgGlow)" clip-path="url(#badgeClip)"/>
-
-  <!-- 3D bevel -->
-  <rect width="100" height="100" rx="24" fill="url(#bevelIn)" clip-path="url(#badgeClip)"/>
-
-  <!-- Glass edge top highlight -->
-  <path d="M3 24 C3 11 11 3 24 3 L76 3 C89 3 97 11 97 24" fill="none" stroke="url(#glassEdge)" stroke-width="1.5"/>
-
-  <!-- Glass overlay -->
-  <rect x="2" y="2" width="96" height="96" rx="22" fill="url(#glassOverlay)"/>
-
-  <!-- Floating ambient glow behind S -->
-  <ellipse cx="50" cy="50" rx="26" ry="26" fill="#FFFFFF" opacity="0.05" filter="url(#floatGlow)"/>
-
-  <!-- 3D Floating Extruded S -->
-  <g filter="url(#sShadow)">
-    <!-- Layer 1: Deep extrusion shadow -->
-    <path d="M36 28 C36 18 64 18 64 28 C64 40 36 38 36 50 C36 62 64 60 64 72 C64 82 36 82 36 72"
-          fill="none" stroke="#0A0A0A" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(2.5, 3.5)"/>
-
-    <!-- Layer 2: Mid extrusion -->
-    <path d="M36 28 C36 18 64 18 64 28 C64 40 36 38 36 50 C36 62 64 60 64 72 C64 82 36 82 36 72"
-          fill="none" stroke="#262626" stroke-width="21" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(1.8, 2.5)"/>
-
-    <!-- Layer 3: Upper extrusion face -->
-    <path d="M36 28 C36 18 64 18 64 28 C64 40 36 38 36 50 C36 62 64 60 64 72 C64 82 36 82 36 72"
-          fill="none" stroke="url(#sDark)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(0.8, 1)"/>
-
-    <!-- Layer 4: Main S top face -->
-    <path d="M36 28 C36 18 64 18 64 28 C64 40 36 38 36 50 C36 62 64 60 64 72 C64 82 36 82 36 72"
-          fill="none" stroke="url(#sMain)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
-
-    <!-- Layer 5: Bevel highlight (top-left edge shine) -->
-    <path d="M36 28 C36 18 64 18 64 28 C64 40 36 38 36 50 C36 62 64 60 64 72 C64 82 36 82 36 72"
-          fill="none" stroke="url(#sHighlight)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(-0.5, -0.6)"/>
-  </g>
-
-  <!-- Subtle orbital accent ring -->
-  <circle cx="50" cy="50" r="35" fill="none" stroke="url(#ringAccent)" stroke-width="1" stroke-dasharray="3 6"/>
-  <g opacity="0.25">
-    <circle cx="50" cy="15" r="1.8" fill="#A3A3A3"/>
-    <circle cx="50" cy="85" r="1.8" fill="#A3A3A3"/>
-    <circle cx="15" cy="50" r="1.8" fill="#A3A3A3"/>
-    <circle cx="85" cy="50" r="1.8" fill="#A3A3A3"/>
+  <g filter="url(#floatShadow)">
+    <path d="M32 26 C32 14 68 14 68 26 C68 40 32 38 32 50 C32 62 68 60 68 74 C68 86 32 86 32 74"
+          fill="none" stroke="#D4D4D4" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"
+          transform="translate(0, 1.5)"/>
+    <path d="M32 26 C32 14 68 14 68 26 C68 40 32 38 32 50 C32 62 68 60 68 74 C68 86 32 86 32 74"
+          fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 </svg>
