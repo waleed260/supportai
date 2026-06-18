@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent'
+import { limiters } from '@/lib/rate-limit'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -46,7 +47,6 @@ export async function POST(request: Request) {
 
     const from = message.from
     const text = message.text?.body || ''
-    const msgId = message.id
 
     const supabase = await createServiceRoleClient()
 
@@ -67,6 +67,14 @@ export async function POST(request: Request) {
     }
 
     const orgId = connection.organization_id
+
+    const { success: allowed, remaining, reset } = await limiters.webhook(`webhook:whatsapp:${orgId}`)
+    if (!allowed) {
+      return new NextResponse(JSON.stringify({ status: 'ok' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
+    }
 
     const { data: org } = await supabase.from('organizations').select('is_active').eq('id', orgId).single()
     if (!org?.is_active) return NextResponse.json({ status: 'ok' })

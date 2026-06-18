@@ -2,39 +2,29 @@ import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent'
 import { checkFeature } from '@/lib/feature-gate'
-
-/**
- * Simple in-memory sliding-window rate limiter.
- * Spec: "Upstash Redis rate limiter on /api/chat — 60 req/min per conversation."
- * We use an in-memory Map for dev/single-instance; swap for Upstash Redis in prod
- * by setting UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN env vars.
- */
-const rateLimitMap = new Map<string, number[]>()
-const RATE_LIMIT = 60
-const WINDOW_MS = 60_000
-
-function isRateLimited(key: string): boolean {
-  const now = Date.now()
-  const timestamps = (rateLimitMap.get(key) ?? []).filter(t => now - t < WINDOW_MS)
-  if (timestamps.length >= RATE_LIMIT) return true
-  timestamps.push(now)
-  rateLimitMap.set(key, timestamps)
-  return false
-}
+import { webchatSchema, sanitizeText } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { organization_id, message, customer_name, customer_email, conversation_id } = body
 
-    if (!organization_id || !message) {
-      return NextResponse.json({ error: 'organization_id and message are required' }, { status: 400 })
+    const parsed = webchatSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
 
-    // Rate limiting per organization (60 req/min)
-    const rateLimitKey = `webchat:${organization_id}`
-    if (isRateLimited(rateLimitKey)) {
-      return NextResponse.json({ error: 'Rate limit exceeded. Please slow down.' }, { status: 429 })
+    const { organization_id, message: rawMessage, customer_name, customer_email, conversation_id } = parsed.data
+    const message = sanitizeText(rawMessage)
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const rateKey = conversation_id || ip
+    const { success: allowed, remaining, reset } = await limiters.chat(rateKey)
+    if (!allowed) {
+      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
     }
 
     const supabase = await createServiceRoleClient()
@@ -51,7 +41,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Organization is not active' }, { status: 403 })
     }
 
-    // Check conversation limit (usage metering)
     const { data: sub } = await supabase.from('subscriptions')
       .select('plan_id')
       .eq('organization_id', organization_id)
@@ -77,7 +66,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Feature gate: check plan features
     const [canCaptureLead, canAnalyzeSentiment] = await Promise.all([
       checkFeature(organization_id, 'lead_capture'),
       checkFeature(organization_id, 'sentiment_analysis'),
@@ -86,7 +74,6 @@ export async function POST(request: Request) {
     let conversationId: string
 
     if (conversation_id) {
-      // Resume existing conversation by ID
       conversationId = conversation_id
     } else {
       const { data: existingConvo } = await supabase.from('conversations')
@@ -123,7 +110,6 @@ export async function POST(request: Request) {
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
 
-    // Build agent config with feature-gated overrides
     const agentConfig = agent
       ? {
           ...agent,

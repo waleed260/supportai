@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
+import { integrationsPostSchema, integrationsPatchSchema } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -28,9 +30,20 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { provider, credentials, settings } = body
+  const parsed = integrationsPostSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+  }
 
-  if (!provider) return NextResponse.json({ error: 'provider is required' }, { status: 400 })
+  const { provider, credentials, settings } = parsed.data
+
+  const { success, remaining, reset } = await limiters.api(`integrations:${membership.organization_id}`)
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+    })
+  }
 
   const svc = await createServiceRoleClient()
   const { data, error } = await svc.from('org_integrations').upsert({
@@ -58,7 +71,20 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const { provider, is_enabled, credentials, settings } = body
+  const parsed = integrationsPatchSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+  }
+
+  const { provider, is_enabled, credentials, settings } = parsed.data
+
+  const { success, remaining, reset } = await limiters.api(`integrations:${membership.organization_id}`)
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+    })
+  }
 
   const svc = await createServiceRoleClient()
   const updateData: Record<string, any> = {}

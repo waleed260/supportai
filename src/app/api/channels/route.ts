@@ -2,12 +2,9 @@ import { NextResponse } from 'next/server'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
 import { safeEncryptCredentials, safeDecryptCredentials } from '@/lib/crypto'
 import { logAudit } from '@/lib/audit'
+import { channelsPostSchema, channelsPatchSchema } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
-/**
- * GET /api/channels
- * Returns channel connections for the authenticated user's organization.
- * Credentials are decrypted before returning (never expose raw encrypted string to client).
- */
 export async function GET() {
   const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -33,11 +30,6 @@ export async function GET() {
   return NextResponse.json(data ?? [])
 }
 
-/**
- * POST /api/channels
- * Creates or updates a channel connection with encrypted credentials.
- * Body: { channel, name, credentials, webhook_url }
- */
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -56,11 +48,21 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { channel, name, credentials, webhook_url, config } = body
+  const parsed = channelsPostSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+  }
 
-  if (!channel) return NextResponse.json({ error: 'channel is required' }, { status: 400 })
+  const { channel, name, credentials, webhook_url, config } = parsed.data
 
-  // Encrypt sensitive credentials before storing
+  const { success, remaining, reset } = await limiters.api(`channels:${membership.organization_id}`)
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+    })
+  }
+
   const encryptedCreds = credentials ? safeEncryptCredentials(credentials) : '{}'
 
   const svc = await createServiceRoleClient()
@@ -93,11 +95,6 @@ export async function POST(request: Request) {
   return NextResponse.json(data)
 }
 
-/**
- * PATCH /api/channels
- * Update connection status or credentials for a channel.
- * Body: { channel, is_connected?, credentials?, webhook_url? }
- */
 export async function PATCH(request: Request) {
   const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -116,8 +113,20 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const { channel, is_connected, credentials, webhook_url, config } = body
-  if (!channel) return NextResponse.json({ error: 'channel is required' }, { status: 400 })
+  const parsed = channelsPatchSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+  }
+
+  const { channel, is_connected, credentials, webhook_url, config } = parsed.data
+
+  const { success, remaining, reset } = await limiters.api(`channels:${membership.organization_id}`)
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+    })
+  }
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
   if (is_connected !== undefined) updates.is_connected = is_connected
@@ -138,10 +147,6 @@ export async function PATCH(request: Request) {
   return NextResponse.json(data)
 }
 
-/**
- * DELETE /api/channels?channel=whatsapp
- * Disconnects a channel (sets is_connected=false, clears credentials).
- */
 export async function DELETE(request: Request) {
   const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()

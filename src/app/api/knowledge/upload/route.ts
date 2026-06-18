@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
+import { knowledgeUploadSchema, sanitizeText } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   try {
@@ -20,15 +22,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No organization membership found' }, { status: 403 })
     }
 
+    const { success, remaining, reset } = await limiters.knowledgeUpload(membership.organization_id)
+    if (!success) {
+      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
+    }
+
     const organization_id = membership.organization_id
     const formData = await request.formData()
     const file = formData.get('file') as File
     const name = formData.get('name') as string
     const type = formData.get('type') as string
 
-    if (!file || !name) {
-      return NextResponse.json({ error: 'file and name are required' }, { status: 400 })
+    const parsed = knowledgeUploadSchema.safeParse({ name, type })
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
+
+    if (!file) {
+      return NextResponse.json({ error: [{ path: ['file'], message: 'file is required' }] }, { status: 400 })
+    }
+
+    const safeName = sanitizeText(parsed.data.name, 255)
 
     const svc = await createServiceRoleClient()
 
@@ -48,8 +65,8 @@ export async function POST(request: Request) {
 
     const { data: source, error: dbError } = await svc.from('knowledge_sources').insert({
       organization_id,
-      name,
-      type: type || ext,
+      name: safeName,
+      type: parsed.data.type || ext,
       file_path: filePath,
       status: 'pending',
     }).select().single()

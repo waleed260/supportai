@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateEmbedding, chunkText, extractTextFromUrl } from '@/lib/ai/embeddings'
+import { knowledgeProcessSchema } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   try {
@@ -8,17 +10,26 @@ export async function POST(request: Request) {
     const knowledge_source_id = formData.get('knowledge_source_id') as string
     const file = formData.get('file') as File | null
 
-    if (!knowledge_source_id) {
-      return NextResponse.json({ error: 'knowledge_source_id is required' }, { status: 400 })
+    const parsed = knowledgeProcessSchema.safeParse({ knowledge_source_id })
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
 
     const supabase = await createServiceRoleClient()
 
     const { data: source } = await supabase.from('knowledge_sources')
-      .select('*').eq('id', knowledge_source_id).single()
+      .select('*').eq('id', parsed.data.knowledge_source_id).single()
 
     if (!source) {
       return NextResponse.json({ error: 'Knowledge source not found' }, { status: 404 })
+    }
+
+    const { success, remaining, reset } = await limiters.knowledgeProcess(source.organization_id)
+    if (!success) {
+      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
     }
 
     await supabase.from('knowledge_sources')

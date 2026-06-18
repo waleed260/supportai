@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { escalationsPatchSchema } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -25,9 +27,20 @@ export async function PATCH(request: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { id, status, resolved_by } = body
+  const parsed = escalationsPatchSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+  }
 
-  if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
+  const { id, status, resolved_by } = parsed.data
+
+  const { success, remaining, reset } = await limiters.api(`escalations:${id}`)
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+    })
+  }
 
   const updates: Record<string, unknown> = { resolved_at: new Date().toISOString() }
   if (status) updates.status = status

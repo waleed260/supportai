@@ -1,10 +1,28 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateSlug } from '@/lib/utils'
+import { registerSchema, sanitizeText } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name, companyName, companySize } = await request.json()
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+    const { success: allowed, remaining, reset } = await limiters.auth(`auth:register:${ip}`)
+    if (!allowed) {
+      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
+    }
+
+    const body = await request.json()
+    const parsed = registerSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+    }
+
+    const { email, password, name, companyName, companySize } = parsed.data
     const supabase = await createServiceRoleClient()
 
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -34,11 +52,10 @@ export async function POST(request: Request) {
     }
 
     let slug = generateSlug(companyName)
-    // Spec: new clients start as 'pending' until approved by super_admin
     let { data: org, error: orgError } = await supabase.from('organizations').insert({
-      name: companyName,
+      name: sanitizeText(companyName, 255),
       slug,
-      company_size: companySize,
+      company_size: companySize || null,
       status: 'pending',
       is_active: false,
     }).select().single()
@@ -46,9 +63,9 @@ export async function POST(request: Request) {
     if (orgError?.code === '23505') {
       slug = `${slug}-${Date.now().toString(36)}`
       const result = await supabase.from('organizations').insert({
-        name: companyName,
+        name: sanitizeText(companyName, 255),
         slug,
-        company_size: companySize,
+        company_size: companySize || null,
         status: 'pending',
         is_active: false,
       }).select().single()

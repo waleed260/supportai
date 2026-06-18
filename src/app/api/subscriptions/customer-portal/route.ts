@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { limiters } from '@/lib/rate-limit'
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31' as any })
 }
 
-/**
- * POST /api/subscriptions/customer-portal
- * Creates a Stripe Billing Portal session so clients can self-serve
- * plan changes, cancel, and update payment methods.
- * Spec: "Customer portal: stripe.billingPortal.sessions.create() for self-serve plan changes"
- */
 export async function POST() {
   try {
     const stripe = getStripe()
@@ -27,7 +22,14 @@ export async function POST() {
       .single()
     if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 403 })
 
-    // Get the Stripe customer ID from existing subscription
+    const { success: allowed, remaining, reset } = await limiters.api(`portal:${membership.organization_id}`)
+    if (!allowed) {
+      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
+    }
+
     const { data: sub } = await supabase
       .from('subscriptions')
       .select('stripe_customer_id')

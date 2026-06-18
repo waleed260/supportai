@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { conversationsPostSchema, sanitizeText } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -28,8 +30,21 @@ export async function POST(request: Request) {
   if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 403 })
 
   const body = await request.json()
+  const parsed = conversationsPostSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+  }
+
+  const { success, remaining, reset } = await limiters.api(`conversations:${membership.organization_id}`)
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+      status: 429,
+      headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+    })
+  }
+
   const { data, error } = await supabase.from('conversations').insert({
-    ...body,
+    ...parsed.data,
     organization_id: membership.organization_id,
   }).select().single()
 
