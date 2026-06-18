@@ -1,36 +1,49 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuthContext } from '@/contexts/auth-context'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDate, getStatusColor, getSentimentColor } from '@/lib/utils'
-import { Search, MessageSquare, ExternalLink } from 'lucide-react'
+import { Search, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import type { Conversation } from '@/types'
 
 export default function AdminConversationsPage() {
   const { membership } = useAuthContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(50)
+  const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<string>('all')
   const [search, setSearch] = useState('')
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  const fetchConversations = useCallback(async (orgId: string) => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+      const res = await fetch(`/api/conversations?${params}`)
+      if (res.ok) {
+        const json = await res.json()
+        setConversations(json.data)
+        setTotal(json.total)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }, [page, pageSize])
 
   useEffect(() => {
     if (!membership) return
     fetchConversations(membership.organization_id)
-  }, [membership])
-
-  const fetchConversations = async (orgId: string) => {
-    const supabase = createClient()
-    let query = supabase.from('conversations').select('*').eq('organization_id', orgId).order('updated_at', { ascending: false })
-    const { data } = await query
-    if (data) setConversations(data)
-  }
+  }, [membership, fetchConversations])
 
   const filtered = conversations.filter(c => {
     if (filter !== 'all' && c.status !== filter) return false
@@ -95,7 +108,7 @@ export default function AdminConversationsPage() {
                   <TableCell className="text-sm text-muted-foreground">{formatDate(c.updated_at)}</TableCell>
                 </TableRow>
               ))}
-              {filtered.length === 0 && (
+              {!loading && filtered.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                     No conversations found
@@ -106,6 +119,22 @@ export default function AdminConversationsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+            </Button>
+            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+              Next <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
