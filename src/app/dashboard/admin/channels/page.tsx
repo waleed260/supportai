@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,41 +16,48 @@ const channelConfig: { channel: ConversationChannel; label: string; icon: typeof
   { channel: 'facebook', label: 'Facebook Messenger', icon: MessageSquare, phase: 'Phase 2' },
 ]
 
+async function apiFetch(path: string, options?: RequestInit) {
+  const res = await fetch(path, options)
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || data.error?.[0]?.message || 'Request failed')
+  return data
+}
+
 export default function ChannelsPage() {
   const { membership } = useAuthContext()
   const [connections, setConnections] = useState<ChannelConnection[]>([])
 
-  useEffect(() => {
+  const loadConnections = useCallback(async () => {
     if (!membership) return
-    const fetch = async () => {
-      const supabase = createClient()
-      const { data } = await supabase.from('channel_connections')
-        .select('*').eq('organization_id', membership.organization_id)
-      if (data) setConnections(data)
+    try {
+      const data = await apiFetch('/api/channels')
+      setConnections(data)
+    } catch (e: unknown) {
+      toast.error('Failed to load channels')
     }
-    fetch()
   }, [membership])
+
+  useEffect(() => { loadConnections() }, [loadConnections])
 
   const toggleConnection = async (channel: ConversationChannel) => {
     if (!membership) return
-    const orgId = membership.organization_id
-    const supabase = createClient()
     const existing = connections.find(c => c.channel === channel)
     if (existing) {
       toast.info(`${channel} integration details would go here`)
     } else {
-      const { error } = await supabase.from('channel_connections').insert({
-        organization_id: orgId,
-        channel,
-        name: channelConfig.find(c => c.channel === channel)?.label,
-        is_connected: true,
-      })
-      if (error) toast.error('Failed to connect')
-      else {
+      try {
+        await apiFetch('/api/channels', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel,
+            name: channelConfig.find(c => c.channel === channel)?.label,
+          }),
+        })
         toast.success(`${channel} connected!`)
-        const { data } = await supabase.from('channel_connections')
-          .select('*').eq('organization_id', orgId)
-        if (data) setConnections(data)
+        await loadConnections()
+      } catch {
+        toast.error('Failed to connect')
       }
     }
   }
