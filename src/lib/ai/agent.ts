@@ -166,8 +166,10 @@ export async function generateAIResponse(params: {
     }
   }
 
+  const model = process.env.ANTHROPIC_MODEL || 'anthropic/claude-3.5-sonnet'
+
   const response = await getOpenRouter().chat.completions.create({
-    model: 'anthropic/claude-3.5-sonnet',
+    model,
     max_tokens: 1024,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT + personalitySection + knowledgeContext + memoryContext },

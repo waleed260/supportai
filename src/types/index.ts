@@ -15,6 +15,9 @@ export interface Organization {
   company_size?: string
   industry?: string
   is_active: boolean
+  status?: string
+  approved_at?: string
+  approved_by?: string
   created_at: string
   updated_at: string
 }

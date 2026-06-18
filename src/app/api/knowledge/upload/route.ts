@@ -9,25 +9,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { data: membership } = await supabase.from('memberships')
+      .select('organization_id')
+      .eq('user_id', session.user.id)
+      .eq('is_active', true)
+      .limit(1)
+      .single()
+
+    if (!membership) {
+      return NextResponse.json({ error: 'No organization membership found' }, { status: 403 })
+    }
+
+    const organization_id = membership.organization_id
     const formData = await request.formData()
     const file = formData.get('file') as File
-    const organization_id = formData.get('organization_id') as string
     const name = formData.get('name') as string
     const type = formData.get('type') as string
 
-    if (!file || !organization_id || !name) {
-      return NextResponse.json({ error: 'file, organization_id, and name are required' }, { status: 400 })
-    }
-
-    const { data: membership } = await supabase.from('memberships')
-      .select('role')
-      .eq('user_id', session.user.id)
-      .eq('organization_id', organization_id)
-      .eq('is_active', true)
-      .maybeSingle()
-
-    if (!membership) {
-      return NextResponse.json({ error: 'You do not belong to this organization' }, { status: 403 })
+    if (!file || !name) {
+      return NextResponse.json({ error: 'file and name are required' }, { status: 400 })
     }
 
     const svc = await createServiceRoleClient()

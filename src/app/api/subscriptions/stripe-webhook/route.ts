@@ -39,6 +39,24 @@ export async function POST(request: Request) {
         break
       }
 
+      // Spec requirement: handle customer.subscription.created
+      case 'customer.subscription.created': {
+        const sub = data as { id: string; status: string; metadata?: Record<string, string>; customer?: string; current_period_start: number; current_period_end: number; cancel_at_period_end: boolean }
+        const organizationId = sub.metadata?.organization_id
+        if (organizationId) {
+          await supabase.from('subscriptions').upsert({
+            organization_id: organizationId,
+            stripe_subscription_id: sub.id,
+            stripe_customer_id: sub.customer,
+            status: sub.status,
+            current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
+            current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+            cancel_at_period_end: sub.cancel_at_period_end,
+          }, { onConflict: 'stripe_subscription_id' })
+        }
+        break
+      }
+
       case 'invoice.paid':
       case 'invoice.payment_succeeded': {
         const invoice = data as { subscription?: string }
@@ -46,6 +64,17 @@ export async function POST(request: Request) {
           const subscription = await stripe.subscriptions.retrieve(invoice.subscription)
           await supabase.from('subscriptions')
             .update({ status: subscription.status })
+            .eq('stripe_subscription_id', invoice.subscription)
+        }
+        break
+      }
+
+      // Spec requirement: invoice.payment_failed → mark as past_due
+      case 'invoice.payment_failed': {
+        const invoice = data as { subscription?: string; customer_email?: string }
+        if (invoice.subscription) {
+          await supabase.from('subscriptions')
+            .update({ status: 'past_due' })
             .eq('stripe_subscription_id', invoice.subscription)
         }
         break

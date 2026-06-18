@@ -20,17 +20,20 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text()
-    const body = JSON.parse(rawBody)
 
+    const signature = request.headers.get('x-hub-signature-256') || ''
     const appSecret = process.env.META_APP_SECRET
-    if (appSecret) {
-      const signature = request.headers.get('x-hub-signature-256') || ''
-      const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
-      if (signature !== expected) {
-        console.error('WhatsApp webhook: invalid signature')
-        return NextResponse.json({ status: 'ok' })
-      }
+    if (!appSecret) {
+      console.error('WhatsApp webhook: META_APP_SECRET not configured')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
+    const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
+    if (!signature || signature !== expected) {
+      console.error('WhatsApp webhook: invalid or missing signature')
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    }
+
+    const body = JSON.parse(rawBody)
 
     const entry = body.entry?.[0]
     const change = entry?.changes?.[0]
@@ -50,10 +53,16 @@ export async function POST(request: Request) {
     const { data: connection } = await supabase.from('channel_connections')
       .select('organization_id')
       .eq('channel', 'whatsapp')
-      .filter('credentials->>phone_number_id', 'eq', String(phoneNumberId))
+      .filter('config->>phone_number_id', 'eq', String(phoneNumberId))
       .maybeSingle()
 
     if (!connection) {
+      console.warn({
+        msg: 'webhook_no_connection',
+        org_id: 'unknown',
+        channel: 'whatsapp',
+        external_id: phoneNumberId,
+      })
       return NextResponse.json({ status: 'ok' })
     }
 

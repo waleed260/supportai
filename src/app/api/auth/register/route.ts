@@ -34,10 +34,12 @@ export async function POST(request: Request) {
     }
 
     let slug = generateSlug(companyName)
+    // Spec: new clients start as 'pending' until approved by super_admin
     let { data: org, error: orgError } = await supabase.from('organizations').insert({
       name: companyName,
       slug,
       company_size: companySize,
+      status: 'pending',
       is_active: false,
     }).select().single()
 
@@ -47,6 +49,7 @@ export async function POST(request: Request) {
         name: companyName,
         slug,
         company_size: companySize,
+        status: 'pending',
         is_active: false,
       }).select().single()
       org = result.data
@@ -81,7 +84,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create widget settings' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, user: authData.user })
+    return NextResponse.json({
+      success: true,
+      user: authData.user,
+      message: 'Registration successful. Your account is pending approval by our team.',
+    })
   } catch (error) {
     console.error('Registration error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

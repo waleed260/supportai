@@ -49,14 +49,22 @@ export async function middleware(request: NextRequest) {
     const role = membership?.role
 
     const superAdminPaths = ['/dashboard/super-admin']
-    const adminPaths = ['/dashboard/admin', '/dashboard/settings', '/dashboard/team']
-    const teamPaths = ['/dashboard/team']
+    const adminOnlyPaths = ['/dashboard/admin']
 
     const onSuperAdminPath = superAdminPaths.some(p => pathname.startsWith(p))
+    const onAdminPath = adminOnlyPaths.some(p => pathname.startsWith(p))
 
+    // Block non-super-admins from super-admin panel
     if (onSuperAdminPath && role !== 'super_admin') {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard/admin'
+      return NextResponse.redirect(url)
+    }
+
+    // Block team_members from client admin panel — send to team dashboard
+    if (onAdminPath && role === 'team_member') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard/team'
       return NextResponse.redirect(url)
     }
   }

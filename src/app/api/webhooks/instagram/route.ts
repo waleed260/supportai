@@ -20,17 +20,20 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text()
-    const body = JSON.parse(rawBody)
 
+    const signature = request.headers.get('x-hub-signature-256') || ''
     const appSecret = process.env.META_APP_SECRET
-    if (appSecret) {
-      const signature = request.headers.get('x-hub-signature-256') || ''
-      const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
-      if (signature !== expected) {
-        console.error('Instagram webhook: invalid signature')
-        return NextResponse.json({ status: 'ok' })
-      }
+    if (!appSecret) {
+      console.error('Instagram webhook: META_APP_SECRET not configured')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
+    const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex')
+    if (!signature || signature !== expected) {
+      console.error('Instagram webhook: invalid or missing signature')
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    }
+
+    const body = JSON.parse(rawBody)
 
     const entry = body.entry?.[0]
     const messaging = entry?.messaging?.[0]
@@ -48,10 +51,16 @@ export async function POST(request: Request) {
     const { data: connection } = await supabase.from('channel_connections')
       .select('organization_id')
       .eq('channel', 'instagram')
-      .filter('credentials->>business_account_id', 'eq', String(businessAccountId))
+      .filter('config->>business_account_id', 'eq', String(businessAccountId))
       .maybeSingle()
 
     if (!connection) {
+      console.warn({
+        msg: 'webhook_no_connection',
+        org_id: 'unknown',
+        channel: 'instagram',
+        external_id: businessAccountId,
+      })
       return NextResponse.json({ status: 'ok' })
     }
 
