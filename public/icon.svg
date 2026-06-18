@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="pulse" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <!-- Background badge -->
+  <rect x="20" y="20" width="460" height="460" rx="100" fill="url(#bg)"/>
+  <!-- Outer neural orbit ring -->
+  <circle cx="250" cy="250" r="170" fill="none" stroke="#6366f1" stroke-width="4" stroke-dasharray="10 14" opacity="0.4"/>
+  <!-- Orbital nodes with connection lines -->
+  <g opacity="0.5">
+    <circle cx="250" cy="80" r="8" fill="#818cf8"/>
+    <circle cx="250" cy="420" r="8" fill="#818cf8"/>
+    <circle cx="80" cy="250" r="8" fill="#818cf8"/>
+    <circle cx="420" cy="250" r="8" fill="#818cf8"/>
+    <line x1="250" y1="80" x2="250" y2="420" stroke="#6366f1" stroke-width="1" stroke-dasharray="3 6" opacity="0.3"/>
+    <line x1="80" y1="250" x2="420" y2="250" stroke="#6366f1" stroke-width="1" stroke-dasharray="3 6" opacity="0.3"/>
+  </g>
+  <!-- Stylized S letterform — flowing ribbon -->
+  <path d="M190 180c0-16 14-30 30-30h60c16 0 30 14 30 30s-14 30-30 30h-60c-16 0-30 14-30 30s14 30 30 30h60c16 0 30 14 30 30s-14 30-30 30h-60c-16 0-30-14-30-30"
+        fill="none" stroke="url(#glow)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
+  <!-- Chat bubble tail at bottom right -->
+  <path d="M310 330l-24 36v-24" fill="none" stroke="url(#glow)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Neural connection dots along the S -->
+  <circle cx="190" cy="180" r="9" fill="#fcd34d"/>
+  <circle cx="240" cy="210" r="7" fill="#fcd34d" opacity="0.8"/>
+  <circle cx="310" cy="240" r="9" fill="#fcd34d"/>
+  <circle cx="250" cy="270" r="7" fill="#fcd34d" opacity="0.8"/>
+  <circle cx="190" cy="300" r="9" fill="#fcd34d"/>
+  <circle cx="310" cy="330" r="9" fill="#fcd34d"/>
+  <!-- Center node glow -->
+  <circle cx="250" cy="250" r="20" fill="url(#pulse)" opacity="0.15"/>
+  <!-- Accent diagonal nodes -->
+  <circle cx="160" cy="140" r="6" fill="#a78bfa" opacity="0.5"/>
+  <circle cx="340" cy="360" r="6" fill="#a78bfa" opacity="0.5"/>
+  <circle cx="340" cy="140" r="5" fill="#a78bfa" opacity="0.35"/>
+  <circle cx="160" cy="360" r="5" fill="#a78bfa" opacity="0.35"/>
+</svg>

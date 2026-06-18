@@ -122,10 +122,10 @@ export default function AgentConfigPage() {
               <Select value={agent.model} onValueChange={v => update('model', v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="claude-sonnet-5-20250101">Claude Sonnet (Fast)</SelectItem>
-                  <SelectItem value="claude-haiku-4-5-20251001">Claude Haiku (Cheap)</SelectItem>
-                  <SelectItem value="gpt-4o">GPT-4o</SelectItem>
-                  <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
+                  <SelectItem value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Recommended)</SelectItem>
+                  <SelectItem value="anthropic/claude-3-haiku">Claude 3 Haiku (Fast)</SelectItem>
+                  <SelectItem value="openai/gpt-4o">GPT-4o</SelectItem>
+                  <SelectItem value="google/gemini-pro">Gemini Pro</SelectItem>
                 </SelectContent>
               </Select>
             </div>

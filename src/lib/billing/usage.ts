@@ -1,4 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import type { PostgrestSingleResponse } from '@supabase/supabase-js'
 
 export type UsageResult = {
   allowed: boolean

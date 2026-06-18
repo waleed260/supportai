@@ -150,6 +150,7 @@ export async function generateAIResponse(params: {
     sentiment_analysis_enabled?: boolean
     lead_capture_enabled?: boolean
     sales_mode_enabled?: boolean
+    model?: string
   }
   channelConversationId?: string
 }) {
@@ -177,7 +178,7 @@ export async function generateAIResponse(params: {
     }
   }
 
-  const model = process.env.ANTHROPIC_MODEL || 'anthropic/claude-3.5-sonnet'
+  const model = params.agentConfig?.model || process.env.ANTHROPIC_MODEL || 'anthropic/claude-3.5-sonnet'
 
   const response = await getOpenRouter().chat.completions.create({
     model,

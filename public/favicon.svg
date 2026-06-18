@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Deep indigo badge -->
+  <rect width="100" height="100" rx="22" fill="url(#bg)"/>
+  <!-- Neural ring (outer orbit) -->
+  <circle cx="50" cy="50" r="32" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.5"/>
+  <!-- Orbital nodes -->
+  <circle cx="50" cy="18" r="2.5" fill="#818cf8" opacity="0.6"/>
+  <circle cx="50" cy="82" r="2.5" fill="#818cf8" opacity="0.6"/>
+  <circle cx="18" cy="50" r="2.5" fill="#818cf8" opacity="0.6"/>
+  <circle cx="82" cy="50" r="2.5" fill="#818cf8" opacity="0.6"/>
+  <!-- Helix/S motif — two interlocking arcs forming an S and a chat bubble -->
+  <path d="M42 32c0-3 2.5-5.5 5.5-5.5h5c3 0 5.5 2.5 5.5 5.5 0 3-2.5 5.5-5.5 5.5h-5"
+        fill="none" stroke="url(#glow)" stroke-width="3.5" stroke-linecap="round" filter="url(#shadow)"/>
+  <path d="M47.5 43h5c3 0 5.5 2.5 5.5 5.5s-2.5 5.5-5.5 5.5h-5c-3 0-5.5-2.5-5.5-5.5"
+        fill="none" stroke="url(#glow)" stroke-width="3.5" stroke-linecap="round" filter="url(#shadow)"/>
+  <!-- Chat bubble tail at bottom right of S -->
+  <path d="M58 62l-4 6v-4" fill="none" stroke="url(#glow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Neural connection dots along the S -->
+  <circle cx="42" cy="32" r="2" fill="#fcd34d"/>
+  <circle cx="53" cy="37" r="1.8" fill="#fcd34d"/>
+  <circle cx="47.5" cy="49" r="2" fill="#fcd34d"/>
+  <circle cx="58" cy="54" r="1.8" fill="#fcd34d"/>
+  <circle cx="58" cy="62" r="2" fill="#fcd34d"/>
+  <!-- Subtle inner glow node -->
+  <circle cx="50" cy="50" r="3" fill="#a78bfa" opacity="0.3"/>
+</svg>

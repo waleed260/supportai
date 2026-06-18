@@ -34,9 +34,6 @@ export async function POST(request: Request) {
 
     const agent = await getAgentConfig(organization_id)
 
-    const { data: widget } = await supabase.from('widget_settings')
-      .select('*').eq('organization_id', organization_id).single()
-
     const { data: org } = await supabase.from('organizations')
       .select('is_active').eq('id', organization_id).single()
     if (!org?.is_active) {

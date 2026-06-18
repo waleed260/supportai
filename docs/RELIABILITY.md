@@ -6,7 +6,7 @@
 |---|---|
 | Current plan | **Pro** (paid tier) |
 | PITR window | **7 days** (Supabase Pro includes 7-day PITR) |
-| Daily backup retention | 30 days (Supabase retains daily snapshots for 30 days) |
+| Daily backup retention | 30 days (Vercel Cron nightly export — Supabase Pro provides 7-day PITR; nightly exports in storage bucket provide secondary retention beyond PITR window) |
 | Automated daily export | Scheduled via Vercel Cron Job at 06:00 UTC (`GET /api/cron/export`) |
 
 **If on the Free tier:** PITR is **not available**. Only a single daily backup is
@@ -64,15 +64,35 @@ days) that a point-in-time recovery may not cleanly handle.
 - The function has a 300-second (5 minute) timeout.
 
 **To restore from a nightly export:**
+
+Since the `backups` bucket is private (`public: false`), you must use a
+**signed URL** to download the export file. Generate one in the Supabase
+Dashboard (Storage → backups → daily → ... → Get URL) or via the API:
+
 ```bash
-# 1. Download the desired export file
-curl -O "https://PROJECT.supabase.co/storage/v1/object/public/backups/backups/daily/2026-06-17T06-00-00.json"
+# 1. Generate a signed URL (valid for 60 minutes)
+SIGNED_URL=$(curl -s -X POST "https://PROJECT.supabase.co/storage/v1/object/sign/backups/backups/daily/2026-06-17T06-00-00.json" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"expiresIn": 3600}' | jq -r '.signedURL')
 
-# 2. Extract and import a specific table
-cat 2026-06-17T06-00-00.json | jq '.exports[] | select(.table == "organizations") | .rows[]' > orgs.json
+# 2. Download the export
+curl -sS "$SIGNED_URL" -o /tmp/backup-restore.json
 
-# 3. Bulk insert (use with caution — check for conflicts first)
-psql "$DATABASE_URL" -c "\copy organizations from 'orgs.json' json"
+# 3. Restore a specific table using json_populate_recordset
+psql "$DATABASE_URL" -c "
+  INSERT INTO organizations
+  SELECT * FROM json_populate_recordset(
+    null::organizations,
+    '$(jq -c '.exports[] | select(.table == "organizations") | .rows' /tmp/backup-restore.json)'
+  )
+  ON CONFLICT DO NOTHING;
+"
+```
+
+For a full restore, use the automated script:
+```bash
+./scripts/restore-from-backup.sh /tmp/backup-restore.json "$DATABASE_URL"
 ```
 
 **To set up the `backups` bucket:**
@@ -162,3 +182,103 @@ An untested backup is not a verified backup. Every quarter:
 | `SUPABASE_SERVICE_ROLE_KEY` | Used by the export script to read all tables |
 
 Both must be set in both Vercel and local `.env.local` for the export to work.
+
+## 9. Sentry Alert Rules (Manual Setup)
+
+Sentry alert rules must be configured in the Sentry dashboard — they cannot be
+defined in code. Configure these three alerts on the project's **Alerts** page:
+
+### Alert 1: Webhook Errors (Highest Priority)
+
+| Field | Value |
+|---|---|
+| Name | `Webhook Handler Errors` |
+| Trigger | `Errors` |
+| Environment | `production` |
+| Filter | `url` matches `*/api/webhooks/*` |
+| Action | Send email + Slack/webhook to on-call |
+| Threshold | 1 error in 5 minutes |
+
+**Why:** Webhook handlers silently return 200 to Meta even after failures. This
+alert is your only signal that a client's messages are being silently dropped.
+
+### Alert 2: Error Rate Spike
+
+| Field | Value |
+|---|---|
+| Name | `High Error Rate` |
+| Trigger | `Errors` |
+| Environment | `production` |
+| Filter | *(none — all routes)* |
+| Action | Send email + Slack |
+| Threshold | `count() > 10` over `5 minutes` |
+
+**Why:** Catches unexpected failures outside webhooks (auth, billing, etc.).
+
+### Alert 3: Stripe Webhook Signature Failures
+
+| Field | Value |
+|---|---|
+| Name | `Stripe Signature Failures` |
+| Trigger | `Errors` |
+| Filter | `transaction` contains `stripe-webhook` |
+| Action | Send email + Slack immediately |
+| Threshold | 1 error in 5 minutes |
+
+**Why:** Signature failures on Stripe webhooks may indicate an attack or a
+misconfigured webhook endpoint. Investigate promptly.
+
+## 10. Restore-from-Backup Test Script
+
+Run this script periodically (at least quarterly, next: 2026-09-01) against a
+staging Supabase project to verify the backup export is restorable:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ──────────────────────────────────────────────
+# Restore test — verify nightly backup integrity
+# Usage: ./scripts/test-restore.sh <staging-db-url> <backup-file-url>
+# ──────────────────────────────────────────────
+
+STAGING_DB_URL="${1:?Usage: $0 <staging-db-url> <backup-file-url>}"
+BACKUP_URL="${2:?Usage: $0 <staging-db-url> <backup-file-url>}"
+
+echo "=== Step 1: Download backup ==="
+curl -sS "$BACKUP_URL" -o /tmp/restore-test.json
+echo "Downloaded $(wc -c < /tmp/restore-test.json) bytes"
+
+echo ""
+echo "=== Step 2: Validate JSON structure ==="
+jq -e '.timestamp and .exports | length > 0' /tmp/restore-test.json > /dev/null
+echo "Valid — $(jq '.exports | length' /tmp/restore-test.json) tables"
+
+echo ""
+echo "=== Step 3: Row count summary ==="
+jq -r '.exports[] | "\(.table): \(.rowCount) rows \(if .error then "ERROR: \(.error)" else "" end)"' /tmp/restore-test.json
+
+echo ""
+echo "=== Step 4: Restore a critical table (conversations) ==="
+JSON_ARRAY=$(jq -c '.exports[] | select(.table == "conversations") | .rows' /tmp/restore-test.json)
+psql "$STAGING_DB_URL" -c "
+  INSERT INTO conversations
+  SELECT * FROM json_populate_recordset(null::conversations, '$JSON_ARRAY')
+  ON CONFLICT DO NOTHING;
+" 2>&1 || echo "WARNING: Direct restore failed — table may have FK constraints. Try restoring in dependency order."
+
+echo ""
+echo "=== Step 5: Verify row count matches ==="
+ORIG_COUNT=$(jq '.exports[] | select(.table == "conversations") | .rowCount' /tmp/restore-test.json)
+RESTORED_COUNT=$(psql "$STAGING_DB_URL" -t -c "select count(*) from conversations" | tr -d ' ')
+if [ "$ORIG_COUNT" -eq "$RESTORED_COUNT" ]; then
+  echo "PASS: conversations restored $RESTORED_COUNT/$ORIG_COUNT rows"
+else
+  echo "FAIL: expected $ORIG_COUNT rows, got $RESTORED_COUNT"
+  exit 1
+fi
+
+echo ""
+echo "=== Restore test complete ==="
+echo "Next scheduled test: 2026-09-01"
+```

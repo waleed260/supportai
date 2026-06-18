@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <circle cx="90" cy="90" r="62" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="4 6" opacity="0.45"/>
+  <!-- Stylized S ribbon -->
+  <path d="M64 62c0-6 5-11 11-11h22c6 0 11 5 11 11s-5 11-11 11H86c-6 0-11 5-11 11s5 11 11 11h22c6 0 11 5 11 11s-5 11-11 11H86c-6 0-11-5-11-11"
+        fill="none" stroke="url(#glow)" stroke-width="5.5" stroke-linecap="round" filter="url(#shadow)"/>
+  <!-- Chat tail -->
+  <path d="M119 120l-9 13v-9" fill="none" stroke="url(#glow)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Nodes -->
+  <circle cx="64" cy="62" r="3.5" fill="#fcd34d"/>
+  <circle cx="97" cy="73" r="2.8" fill="#fcd34d" opacity="0.8"/>
+  <circle cx="119" cy="84" r="3.5" fill="#fcd34d"/>
+  <circle cx="86" cy="95" r="2.8" fill="#fcd34d" opacity="0.8"/>
+  <circle cx="64" cy="106" r="3.5" fill="#fcd34d"/>
+  <circle cx="119" cy="120" r="3.5" fill="#fcd34d"/>
+</svg>

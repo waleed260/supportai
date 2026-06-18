@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { generateEmbedding } from '@/lib/ai/embeddings'
-import { chunkText, splitIntoChunks } from '@/lib/knowledge/chunking'
+import { generateEmbedding, extractTextFromUrl } from '@/lib/ai/embeddings'
+import { chunkText } from '@/lib/knowledge/chunking'
+import { knowledgeProcessSchema } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
 import { log } from '@/lib/logger'
 
