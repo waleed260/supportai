@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="mask-icon" href="/apple-touch-icon.svg" color="#312e81" />
+        <link rel="mask-icon" href="/apple-touch-icon.svg" color="#000000" />
       </head>
       <body className={inter.className}>
         {children}
