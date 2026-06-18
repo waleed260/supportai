@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent'
+import { generateAIResponse, storeMessage, storeSentiment, getAgentConfig } from '@/lib/ai/agent'
 import { checkFeature } from '@/lib/feature-gate'
 import { webchatSchema, sanitizeText } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
@@ -30,8 +30,7 @@ export async function POST(request: Request) {
 
     const supabase = await createServiceRoleClient()
 
-    const { data: agent } = await supabase.from('ai_agents')
-      .select('*').eq('organization_id', organization_id).single()
+    const agent = await getAgentConfig(organization_id)
 
     const { data: widget } = await supabase.from('widget_settings')
       .select('*').eq('organization_id', organization_id).single()

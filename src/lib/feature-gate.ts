@@ -9,6 +9,7 @@
  */
 
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { cachedQuery, cacheDel } from '@/lib/cache'
 
 export type PlanFeature =
   | 'lead_capture'
@@ -26,39 +27,12 @@ export async function checkFeature(
   organizationId: string,
   feature: PlanFeature
 ): Promise<boolean> {
-  try {
-    const supabase = await createServiceRoleClient()
-
-    const { data: sub } = await supabase
-      .from('subscriptions')
-      .select('plan_id')
-      .eq('organization_id', organizationId)
-      .in('status', ['active', 'trialing'])
-      .limit(1)
-      .maybeSingle()
-
-    if (!sub?.plan_id) return false
-
-    const { data: plan } = await supabase
-      .from('subscription_plans')
-      .select('features')
-      .eq('id', sub.plan_id)
-      .single()
-
-    if (!plan?.features) return false
-
-    return Boolean((plan.features as Record<string, boolean>)[feature])
-  } catch {
-    return false
-  }
+  const features = await getPlanFeatures(organizationId)
+  return features[feature]
 }
 
-/**
- * Returns the full feature set for an org's current plan.
- * Returns all-false defaults if no active subscription.
- */
 export async function getPlanFeatures(
-  organizationId: string
+  organizationId: string,
 ): Promise<Record<PlanFeature, boolean>> {
   const defaults: Record<PlanFeature, boolean> = {
     lead_capture: false,
@@ -69,28 +43,39 @@ export async function getPlanFeatures(
     crm_integrations: false,
   }
 
-  try {
-    const supabase = await createServiceRoleClient()
+  const result = await cachedQuery(
+    `plan_features:${organizationId}`,
+    3600,
+    async () => {
+      try {
+        const supabase = await createServiceRoleClient()
 
-    const { data: sub } = await supabase
-      .from('subscriptions')
-      .select('plan_id')
-      .eq('organization_id', organizationId)
-      .in('status', ['active', 'trialing'])
-      .limit(1)
-      .maybeSingle()
+        const { data: sub } = await supabase
+          .from('subscriptions')
+          .select('plan_id')
+          .eq('organization_id', organizationId)
+          .in('status', ['active', 'trialing'])
+          .limit(1)
+          .maybeSingle()
 
-    if (!sub?.plan_id) return defaults
+        if (!sub?.plan_id) return defaults
 
-    const { data: plan } = await supabase
-      .from('subscription_plans')
-      .select('features')
-      .eq('id', sub.plan_id)
-      .single()
+        const { data: plan } = await supabase
+          .from('subscription_plans')
+          .select('features')
+          .eq('id', sub.plan_id)
+          .single()
 
-    if (!plan?.features) return defaults
-    return { ...defaults, ...(plan.features as Record<PlanFeature, boolean>) }
-  } catch {
-    return defaults
-  }
+        if (!plan?.features) return defaults
+        return { ...defaults, ...(plan.features as Record<PlanFeature, boolean>) }
+      } catch {
+        return defaults
+      }
+    },
+  )
+  return result ?? defaults
+}
+
+export async function invalidatePlanFeatures(organizationId: string) {
+  await cacheDel(`plan_features:${organizationId}`)
 }

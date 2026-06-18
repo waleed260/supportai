@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { generateAIResponse, storeMessage, storeSentiment } from '@/lib/ai/agent'
+import { generateAIResponse, storeMessage, storeSentiment, getAgentConfig } from '@/lib/ai/agent'
 import { limiters } from '@/lib/rate-limit'
 import { checkUsageLimit } from '@/lib/billing/usage'
+import { cachedQuery } from '@/lib/cache'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -51,11 +52,18 @@ export async function POST(request: Request) {
 
     const supabase = await createServiceRoleClient()
 
-    const { data: connection } = await supabase.from('channel_connections')
-      .select('organization_id')
-      .eq('channel', 'whatsapp')
-      .filter('config->>phone_number_id', 'eq', String(phoneNumberId))
-      .maybeSingle()
+    const connection = await cachedQuery(
+      `channel_conn:whatsapp:${phoneNumberId}`,
+      300,
+      async () => {
+        const { data: conn } = await supabase.from('channel_connections')
+          .select('organization_id')
+          .eq('channel', 'whatsapp')
+          .filter('config->>phone_number_id', 'eq', String(phoneNumberId))
+          .maybeSingle()
+        return conn
+      },
+    )
 
     if (!connection) {
       console.warn({
@@ -147,8 +155,7 @@ export async function POST(request: Request) {
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
 
-    const { data: agent } = await supabase.from('ai_agents')
-      .select('*').eq('organization_id', orgId).single()
+    const agent = await getAgentConfig(orgId)
 
     const response = await generateAIResponse({
       organizationId: orgId,

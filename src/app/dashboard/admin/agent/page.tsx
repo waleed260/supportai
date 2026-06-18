@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,12 +31,25 @@ export default function AgentConfigPage() {
     fetch()
   }, [membership])
 
+  const invalidateAgentCache = useCallback(async () => {
+    try {
+      await fetch('/api/cache/invalidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pattern: 'agent_config' }),
+      })
+    } catch {}
+  }, [])
+
   const update = async (key: string, value: unknown) => {
     if (!agent) return
     const supabase = createClient()
     const { error } = await supabase.from('ai_agents').update({ [key]: value }).eq('id', agent.id)
     if (error) toast.error('Failed to update')
-    else setAgent(prev => prev ? { ...prev, [key]: value } : prev)
+    else {
+      setAgent(prev => prev ? { ...prev, [key]: value } : prev)
+      invalidateAgentCache()
+    }
   }
 
   if (loading) return <div>Loading...</div>

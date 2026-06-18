@@ -2,6 +2,7 @@ import OpenAI from 'openai'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateEmbedding } from './embeddings'
 import { syncLeadToCrm } from '@/lib/integrations/crm'
+import { cachedQuery, cacheDel } from '@/lib/cache'
 
 function getOpenRouter() {
   return new OpenAI({
@@ -52,13 +53,23 @@ ${instructions ? `Custom Instructions: ${instructions}` : ''}`
 }
 
 export async function getAgentConfig(organizationId: string) {
-  const supabase = await createServiceRoleClient()
-  const { data: agent } = await supabase
-    .from('ai_agents')
-    .select('*')
-    .eq('organization_id', organizationId)
-    .single()
-  return agent
+  return cachedQuery(
+    `agent_config:${organizationId}`,
+    300,
+    async () => {
+      const supabase = await createServiceRoleClient()
+      const { data: agent } = await supabase
+        .from('ai_agents')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .single()
+      return agent
+    },
+  )
+}
+
+export async function invalidateAgentConfig(organizationId: string) {
+  await cacheDel(`agent_config:${organizationId}`)
 }
 
 export async function getRelevantDocuments(organizationId: string, query: string, limit = 5) {
