@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../../hooks/useAuth'
 import { api } from '../../lib/api'
 import { useRealtimeSubscription } from '../../hooks/useRealtime'
+import { InboxSkeleton } from '../../components/Skeleton'
 import type { Conversation, ConversationChannel, ConversationStatus } from '../../types'
 
 const channelColors: Record<ConversationChannel, string> = {
@@ -29,7 +30,7 @@ export default function InboxScreen({ navigation }: { navigation: any }) {
   const [search, setSearch] = useState('')
   const [refreshing, setRefreshing] = useState(false)
 
-  const { data: conversations, refetch } = useQuery({
+  const { data: conversations, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['conversations', organizationId],
     queryFn: () => api.getConversations(organizationId!),
     enabled: !!organizationId,
@@ -67,7 +68,7 @@ export default function InboxScreen({ navigation }: { navigation: any }) {
 
   const renderItem = ({ item }: { item: Conversation }) => (
     <TouchableOpacity
-      className="flex-row items-center px-4 py-3.5 border-b border-gray-100 bg-white active:bg-gray-50"
+      className="flex-row items-center px-4 py-3.5 border-b border-gray-100 bg-white active:bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
       onPress={() => navigation.navigate('ConversationDetail', { id: item.id })}
     >
       <View className="w-10 h-10 rounded-full items-center justify-center mr-3" style={{ backgroundColor: channelColors[item.channel] || '#94a3b8' }}>
@@ -75,32 +76,35 @@ export default function InboxScreen({ navigation }: { navigation: any }) {
       </View>
       <View className="flex-1">
         <View className="flex-row items-center justify-between">
-          <Text className="font-semibold text-gray-900 text-sm">{item.customer_name || 'Anonymous'}</Text>
+          <Text className="font-semibold text-gray-900 text-sm dark:text-gray-100">{item.customer_name || 'Anonymous'}</Text>
           <View className="flex-row items-center gap-1.5">
             <View className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sentimentColors[item.sentiment] || '#94a3b8' }} />
-            <Text className="text-xs text-gray-400">
+            <Text className="text-xs text-gray-400 dark:text-gray-500">
               {new Date(item.updated_at || item.created_at).toLocaleDateString()}
             </Text>
           </View>
         </View>
-        <Text className="text-sm text-gray-500 mt-0.5" numberOfLines={1}>
+        <Text className="text-sm text-gray-500 mt-0.5 dark:text-gray-400" numberOfLines={1}>
           {item.messages?.[0]?.content || item.channel.replace('_', ' ')}
         </Text>
         {item.status === 'escalated' && (
-          <View className="bg-red-100 self-start px-2 py-0.5 rounded mt-1">
-            <Text className="text-red-600 text-xs font-medium">Escalated</Text>
+          <View className="bg-red-100 self-start px-2 py-0.5 rounded mt-1 dark:bg-red-900">
+            <Text className="text-red-600 text-xs font-medium dark:text-red-300">Escalated</Text>
           </View>
         )}
       </View>
     </TouchableOpacity>
   )
 
+  if (isLoading) return <InboxSkeleton />
+
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="bg-white px-4 pt-3 pb-2 border-b border-gray-200">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <View className="bg-white px-4 pt-3 pb-2 border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <TextInput
-          className="bg-gray-100 rounded-xl px-4 py-2.5 text-sm"
+          className="bg-gray-100 rounded-xl px-4 py-2.5 text-sm dark:bg-gray-700 dark:text-gray-100"
           placeholder="Search conversations..."
+          placeholderTextColor="#9ca3af"
           value={search}
           onChangeText={setSearch}
         />
@@ -110,33 +114,44 @@ export default function InboxScreen({ navigation }: { navigation: any }) {
         horizontal
         data={statusFilters}
         keyExtractor={s => s}
-        className="bg-white border-b border-gray-200 max-h-11"
+        className="bg-white border-b border-gray-200 max-h-11 dark:bg-gray-800 dark:border-gray-700"
         contentContainerClassName="px-3 gap-1"
         showsHorizontalScrollIndicator={false}
         renderItem={({ item: s }) => (
           <TouchableOpacity
-            className={`px-3 py-2 rounded-full ${statusFilter === s ? 'bg-primary' : 'bg-gray-100'}`}
+            className={`px-3 py-2 rounded-full ${statusFilter === s ? 'bg-primary' : 'bg-gray-100 dark:bg-gray-700'}`}
             onPress={() => setStatusFilter(s)}
           >
-            <Text className={`text-xs font-medium ${statusFilter === s ? 'text-white' : 'text-gray-600'}`}>
+            <Text className={`text-xs font-medium ${statusFilter === s ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
               {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
             </Text>
           </TouchableOpacity>
         )}
       />
 
-      <FlashList
-        data={filtered}
-        keyExtractor={(c: Conversation) => c.id}
-        renderItem={renderItem}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListEmptyComponent={
-          <View className="flex-1 items-center justify-center py-20">
-            <Text className="text-4xl mb-3">💬</Text>
-            <Text className="text-gray-500 text-base">No conversations found</Text>
-          </View>
-        }
-      />
+      {isError ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-4xl mb-3">⚠️</Text>
+          <Text className="text-gray-500 text-base text-center dark:text-gray-400">Failed to load conversations</Text>
+          <Text className="text-gray-400 text-sm mt-1 text-center dark:text-gray-500">{(error as Error)?.message || 'Check your connection'}</Text>
+          <TouchableOpacity className="bg-primary px-6 py-2.5 rounded-xl mt-4" onPress={() => refetch()}>
+            <Text className="text-white font-semibold">Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlashList
+          data={filtered}
+          keyExtractor={(c: Conversation) => c.id}
+          renderItem={renderItem}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center py-20">
+              <Text className="text-4xl mb-3">💬</Text>
+              <Text className="text-gray-500 text-base dark:text-gray-400">No conversations found</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   )
 }

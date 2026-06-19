@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/react-native'
 import { AuthProvider } from './src/hooks/useAuth'
 import { ThemeProvider } from './src/hooks/useTheme'
 import { useNotifications } from './src/hooks/useNotifications'
+import { useNotificationHandler } from './src/hooks/useNotificationHandler'
 import ErrorBoundary from './src/components/ErrorBoundary'
 import RootNavigator from './src/navigation/RootNavigator'
 import './global.css'
@@ -31,27 +32,20 @@ const linking: LinkingOptions<any> = {
   prefixes: ['supportai://', 'https://supportai.app'],
   config: {
     screens: {
-      Main: {
-        screens: {
-          Inbox: {
-            screens: {
-              ConversationDetail: 'conversation/:id',
-            },
-          },
-          Escalations: {
-            screens: {
-              EscalationsList: 'escalations',
-              ConversationDetail: 'escalation/:conversation_id',
-            },
-          },
-        },
-      },
+      Login: 'login',
+      Register: 'register',
+      ForgotPassword: 'forgot-password',
+      ResetPassword: 'reset-password',
+      ConversationDetail: 'conversation/:id',
+      InboxList: 'inbox',
+      EscalationsList: 'escalations',
     },
   },
 }
 
 function AppContent() {
   useNotifications()
+  useNotificationHandler()
   return (
     <NavigationContainer linking={linking}>
       <RootNavigator />
