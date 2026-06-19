@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { View, Text, FlatList, TouchableOpacity, RefreshControl, TextInput } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../../hooks/useAuth'
 import { api } from '../../lib/api'
@@ -124,9 +125,9 @@ export default function InboxScreen({ navigation }: { navigation: any }) {
         )}
       />
 
-      <FlatList
+      <FlashList
         data={filtered}
-        keyExtractor={c => c.id}
+        keyExtractor={(c: Conversation) => c.id}
         renderItem={renderItem}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={

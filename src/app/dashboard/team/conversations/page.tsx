@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
+import { useRealtimeSubscription } from '@/hooks/use-realtime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,21 @@ export default function TeamConversationsPage() {
     }
     fetch()
   }, [membership])
+
+  useRealtimeSubscription({
+    table: 'conversations',
+    filter: membership ? `organization_id=eq.${membership.organization_id}` : undefined,
+    callback: () => {
+      if (!membership) return
+      const supabase = createClient()
+      supabase.from('conversations')
+        .select('*').eq('organization_id', membership.organization_id)
+        .in('status', ['active', 'escalated', 'waiting'])
+        .order('updated_at', { ascending: false })
+        .then(({ data }) => { if (data) setConversations(data) })
+    },
+    deps: [membership],
+  })
 
   const takeOver = async (conversationId: string) => {
     const supabase = createClient()

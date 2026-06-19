@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { useAuthContext } from '@/contexts/auth-context'
+import { useRealtimeSubscription } from '@/hooks/use-realtime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,6 +39,16 @@ export default function ConversationDetailPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useRealtimeSubscription({
+    table: 'messages',
+    filter: `conversation_id=eq.${id}`,
+    event: 'INSERT',
+    callback: useCallback((payload: any) => {
+      setMessages(prev => [...prev, payload.new as Message])
+    }, []),
+    deps: [id],
+  })
 
   const sendReply = async () => {
     if (!newMessage.trim() || !user) return

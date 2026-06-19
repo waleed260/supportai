@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { View, Text, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../lib/api'
 import { useAuth } from '../../hooks/useAuth'
@@ -18,7 +19,7 @@ export default function ConversationDetailScreen({ route }: { route: any }) {
   const queryClient = useQueryClient()
   const { organizationId } = useAuth()
   const [input, setInput] = useState('')
-  const flatListRef = useRef<FlatList>(null)
+  const flatListRef = useRef<any>(null)
 
   const { data: conversation } = useQuery({
     queryKey: ['conversation', id],
@@ -81,12 +82,12 @@ export default function ConversationDetailScreen({ route }: { route: any }) {
         </View>
       )}
 
-      <FlatList
+      <FlashList
         ref={flatListRef}
         data={messages ?? []}
-        keyExtractor={m => m.id}
+        keyExtractor={(m: Message) => m.id}
         renderItem={renderMessage}
-        contentContainerClassName="py-4"
+        contentContainerStyle={{ paddingVertical: 16 }}
         ListEmptyComponent={
           <View className="items-center py-10">
             <Text className="text-gray-400">No messages yet</Text>

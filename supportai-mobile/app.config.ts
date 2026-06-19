@@ -32,6 +32,7 @@ export default ({ config }: { config: Record<string, unknown> }) => ({
     plugins: [
       'expo-secure-store',
       'expo-local-authentication',
+      '@sentry/react-native',
       [
         'expo-notifications',
         {

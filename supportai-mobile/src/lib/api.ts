@@ -115,4 +115,22 @@ export const api = {
     if (!res.ok) throw new Error(data.error || 'Registration failed')
     return data
   },
+
+  async registerDeviceToken(expoPushToken: string, platform: string, organizationId: string) {
+    return fetchApi('/notifications/register-device', {
+      method: 'POST',
+      body: JSON.stringify({ expo_push_token: expoPushToken, platform, organization_id: organizationId }),
+    })
+  },
+
+  async fetchNotificationPreferences(orgId: string): Promise<{ preferences: { escalation_alerts: boolean; usage_alerts: boolean; billing_alerts: boolean } }> {
+    return fetchApi(`/notifications/preferences?organization_id=${orgId}`)
+  },
+
+  async updateNotificationPreferences(orgId: string, prefs: { escalation_alerts?: boolean; usage_alerts?: boolean; billing_alerts?: boolean }) {
+    return fetchApi('/notifications/preferences', {
+      method: 'PUT',
+      body: JSON.stringify({ organization_id: orgId, ...prefs }),
+    })
+  },
 }

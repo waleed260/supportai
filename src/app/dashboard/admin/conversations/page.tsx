@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useAuthContext } from '@/contexts/auth-context'
+import { useRealtimeSubscription } from '@/hooks/use-realtime'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,6 +45,15 @@ export default function AdminConversationsPage() {
     if (!membership) return
     fetchConversations(membership.organization_id)
   }, [membership, fetchConversations])
+
+  useRealtimeSubscription({
+    table: 'conversations',
+    filter: membership ? `organization_id=eq.${membership.organization_id}` : undefined,
+    callback: useCallback(() => {
+      if (membership) fetchConversations(membership.organization_id)
+    }, [membership, fetchConversations]),
+    deps: [membership],
+  })
 
   const filtered = conversations.filter(c => {
     if (filter !== 'all' && c.status !== filter) return false
