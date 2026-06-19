@@ -86,6 +86,12 @@ export default function RegisterPage() {
               Already have an account?{' '}
               <Link href="/login" className="text-primary hover:underline">Sign in</Link>
             </p>
+            <p className="text-xs text-muted-foreground">
+              By creating an account, you agree to our{' '}
+              <Link href="/terms" className="text-primary hover:underline">Terms</Link>
+              {' '}and{' '}
+              <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+            </p>
           </CardFooter>
         </form>
       </Card>

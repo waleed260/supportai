@@ -1,0 +1,8 @@
+# PGP Key for SupportAI
+# If you have discovered a security vulnerability, please encrypt your report
+# using this key and email it to security@supportai.app
+# 
+# To generate your own PGP key: gpg --full-generate-key
+# Then export: gpg --armor --export your@email.com > pgp-key.txt
+# 
+# Place the exported key text here.

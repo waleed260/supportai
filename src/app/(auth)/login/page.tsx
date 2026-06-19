@@ -58,6 +58,12 @@ export default function LoginPage() {
               Don't have an account?{' '}
               <Link href="/register" className="text-primary hover:underline">Register</Link>
             </p>
+            <p className="text-xs text-muted-foreground">
+              By signing in, you agree to our{' '}
+              <Link href="/terms" className="text-primary hover:underline">Terms</Link>
+              {' '}and{' '}
+              <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+            </p>
           </CardFooter>
         </form>
       </Card>

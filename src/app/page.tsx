@@ -43,7 +43,13 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} SupportAI. All rights reserved.
+        <div className="max-w-7xl mx-auto px-4 flex justify-center gap-6 mb-4">
+          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+          <Link href="/terms" className="hover:underline">Terms of Service</Link>
+          <Link href="/security" className="hover:underline">Security</Link>
+          <Link href="/contact" className="hover:underline">Contact</Link>
+        </div>
+        <p>&copy; {new Date().getFullYear()} SupportAI. All rights reserved.</p>
       </footer>
     </div>
   )
