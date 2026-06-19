@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -17,6 +19,7 @@ export default function RegisterPage() {
   const [companyName, setCompanyName] = useState('')
   const [companySize, setCompanySize] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const [emailExists, setEmailExists] = useState(false)
   const router = useRouter()
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -31,7 +34,11 @@ export default function RegisterPage() {
     const data = await res.json()
 
     if (!res.ok) {
-      toast.error(data.error || 'Registration failed')
+      if (res.status === 409 && data.code === 'email_exists') {
+        setEmailExists(true)
+      } else {
+        toast.error(data.error || 'Registration failed')
+      }
       setLoading(false)
       return
     }
@@ -49,6 +56,17 @@ export default function RegisterPage() {
         </CardHeader>
         <form onSubmit={handleRegister}>
           <CardContent className="space-y-4">
+            {emailExists && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  This email is already registered.{' '}
+                  <Link href="/login" className="font-medium underline underline-offset-4">
+                    Sign in instead
+                  </Link>
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Your Name</Label>
               <Input id="name" value={name} onChange={e => setName(e.target.value)} required />

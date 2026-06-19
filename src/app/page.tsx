@@ -1,5 +1,53 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { CheckCircle } from 'lucide-react'
+
+const plans = [
+  {
+    name: 'Starter',
+    price: 29,
+    description: 'Basic AI customer support for small businesses',
+    features: [
+      '500 conversations/mo',
+      '1 team seat',
+      'Web Chat + WhatsApp',
+      'Knowledge base (5 docs)',
+    ],
+    missing: ['Lead capture', 'Sentiment analysis', 'Advanced analytics'],
+    popular: false,
+  },
+  {
+    name: 'Growth',
+    price: 99,
+    description: 'Multi-channel support with lead capture',
+    features: [
+      '2,000 conversations/mo',
+      '3 team seats',
+      'Web Chat + WhatsApp + Instagram + Facebook',
+      'Knowledge base (20 docs)',
+      'Lead capture',
+      'Sentiment analysis',
+    ],
+    missing: ['Advanced analytics'],
+    popular: true,
+  },
+  {
+    name: 'Pro',
+    price: 299,
+    description: 'Enterprise AI with full feature access',
+    features: [
+      '10,000 conversations/mo',
+      '50 team seats',
+      'All channels + Email & Telegram',
+      'Knowledge base (100 docs)',
+      'Lead capture & sentiment analysis',
+      'Advanced analytics & priority support',
+    ],
+    missing: [],
+    popular: false,
+  },
+]
 
 export default function LandingPage() {
   return (
@@ -40,6 +88,67 @@ export default function LandingPage() {
             <p className="text-muted-foreground">{f.desc}</p>
           </div>
         ))}
+      </section>
+
+      <section className="bg-white py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-2">Simple, Transparent Pricing</h2>
+          <p className="text-muted-foreground text-center mb-12 max-w-xl mx-auto">
+            Choose the plan that fits your business. Start with a free trial — no credit card required.
+          </p>
+          <div className="grid md:grid-cols-3 gap-8">
+            {plans.map(plan => (
+              <div
+                key={plan.name}
+                className={`relative rounded-2xl border p-8 flex flex-col ${
+                  plan.popular
+                    ? 'border-blue-500 shadow-lg ring-1 ring-blue-500'
+                    : 'border-gray-200 shadow-sm'
+                }`}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600">
+                    Most Popular
+                  </Badge>
+                )}
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold mb-1">{plan.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold">${plan.price}</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    or ${plan.price * 10}/year (save ~17%)
+                  </p>
+                </div>
+                <div className="space-y-3 text-sm flex-1 mb-8">
+                  {plan.features.map(f => (
+                    <div key={f} className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                  {plan.missing.map(f => (
+                    <div key={f} className="flex items-start gap-2 text-muted-foreground/50">
+                      <CheckCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                      <span className="line-through">{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/register" className="mt-auto">
+                  <Button
+                    className="w-full"
+                    variant={plan.popular ? 'default' : 'outline'}
+                    size="lg"
+                  >
+                    {plan.popular ? 'Start Free Trial' : 'Get Started'}
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">

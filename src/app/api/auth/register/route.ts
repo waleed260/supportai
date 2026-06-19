@@ -35,6 +35,12 @@ export async function POST(request: Request) {
     })
 
     if (authError) {
+      if (authError.message?.toLowerCase().includes('already registered') || authError.message?.toLowerCase().includes('already exists')) {
+        return NextResponse.json({
+          error: 'This email is already registered. Please sign in instead.',
+          code: 'email_exists',
+        }, { status: 409 })
+      }
       return NextResponse.json({ error: authError.message }, { status: 400 })
     }
 

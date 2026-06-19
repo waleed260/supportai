@@ -1,21 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" fill="none">
   <defs>
-    <filter id="s3d">
-      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.15"/>
-    </filter>
     <clipPath id="badge">
       <rect width="180" height="180" rx="42"/>
     </clipPath>
   </defs>
-
-  <rect width="180" height="180" rx="42" fill="#FFFFFF"/>
-  <rect x="2" y="2" width="176" height="176" rx="40" fill="none" stroke="#E5E5E5" stroke-width="2"/>
-
-  <g filter="url(#s3d)">
-    <path d="M50 43 C50 22 130 22 130 43 C130 72 50 68 50 90 C50 115 130 112 130 137"
-          fill="none" stroke="#A0A0A0" stroke-width="50" stroke-linecap="round" stroke-linejoin="round"
-          transform="translate(3, 4)"/>
-    <path d="M50 43 C50 22 130 22 130 43 C130 72 50 68 50 90 C50 115 130 112 130 137"
-          fill="none" stroke="#000000" stroke-width="50" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="180" height="180" rx="42" fill="#2563eb"/>
+  <g transform="translate(90,90) scale(4.5) translate(-16.5,-16)">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.0752 0C7.21095 0 0 7.18587 0 16.0501V30.3853C0 31.2771 0.722918 32 1.61468 32H16.1002C24.9367 32 32.1002 24.8366 32.1002 16C32.1002 7.16344 24.9117 0 16.0752 0ZM24.802 19.402C26.697 19.402 28.2332 17.8658 28.2332 15.9708C28.2332 14.0758 26.697 12.5396 24.802 12.5396C22.907 12.5396 21.3708 14.0758 21.3708 15.9708C21.3708 17.8658 22.907 19.402 24.802 19.402ZM14.6182 19.4022C16.5133 19.4022 18.0494 17.866 18.0494 15.971C18.0494 14.076 16.5133 12.5398 14.6182 12.5398C12.7233 12.5398 11.1871 14.076 11.1871 15.971C11.1871 17.866 12.7233 19.4022 14.6182 19.4022Z" fill="white"/>
   </g>
 </svg>
