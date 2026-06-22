@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Sparkles, ArrowRight, Building2, Users, User, Mail, Lock } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function RegisterPage() {
@@ -48,71 +47,104 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">SupportAI</CardTitle>
-          <CardDescription>Create your account</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleRegister}>
-          <CardContent className="space-y-4">
-            {emailExists && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  This email is already registered.{' '}
-                  <Link href="/login" className="font-medium underline underline-offset-4">
-                    Sign in instead
-                  </Link>
-                </AlertDescription>
-              </Alert>
-            )}
+    <div className="relative z-10 w-full max-w-sm mx-auto px-4 py-8">
+      <div className="rounded-xs border border-primary/20 bg-background/70 backdrop-blur-xl shadow-2xl shadow-primary/5 p-8 animate-fade-in">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-xs">
+            <Sparkles className="h-3 w-3 text-primary" aria-hidden="true" />
+            Get Started
+          </div>
+          <h1 className="text-xl font-bold mb-1" style={{ fontFamily: 'var(--font-syne)' }}>
+            Create your <span className="text-primary">account</span>
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Start your 14-day free trial — no credit card required
+          </p>
+        </div>
+
+        <form onSubmit={handleRegister} className="space-y-4">
+          {emailExists && (
+            <Alert variant="destructive" className="rounded-xs py-3">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-sm">
+                This email is already registered.{' '}
+                <Link href="/login" className="font-medium underline underline-offset-4">
+                  Sign in instead
+                </Link>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
+              <Input id="name" value={name} onChange={e => setName(e.target.value)} required className="h-11 pl-10" placeholder="John Doe" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
+              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="h-11 pl-10" placeholder="you@company.com" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
+              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="h-11 pl-10" placeholder="Min. 6 characters" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Your Name</Label>
-              <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
+              <Label htmlFor="company" className="text-sm font-medium">Company</Label>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
+                <Input id="company" value={companyName} onChange={e => setCompanyName(e.target.value)} required className="h-11 pl-10" placeholder="Acme Inc" />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+              <Label htmlFor="size" className="text-sm font-medium">Size</Label>
+              <div className="relative">
+                <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" aria-hidden="true" />
+                <Select value={companySize} onValueChange={(v: string | null) => v && setCompanySize(v)}>
+                  <SelectTrigger className="h-11 pl-10"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-10">1-10 employees</SelectItem>
+                    <SelectItem value="11-50">11-50 employees</SelectItem>
+                    <SelectItem value="51-200">51-200 employees</SelectItem>
+                    <SelectItem value="201+">201+ employees</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="company">Company Name</Label>
-              <Input id="company" value={companyName} onChange={e => setCompanyName(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="size">Company Size</Label>
-              <Select value={companySize} onValueChange={(v: string | null) => v && setCompanySize(v)}>
-                <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1-10">1-10 employees</SelectItem>
-                  <SelectItem value="11-50">11-50 employees</SelectItem>
-                  <SelectItem value="51-200">51-200 employees</SelectItem>
-                  <SelectItem value="201+">201+ employees</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create Account'}
-            </Button>
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/login" className="text-primary hover:underline">Sign in</Link>
-            </p>
-            <p className="text-xs text-muted-foreground">
-              By creating an account, you agree to our{' '}
-              <Link href="/terms" className="text-primary hover:underline">Terms</Link>
-              {' '}and{' '}
-              <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
-            </p>
-          </CardFooter>
+          </div>
+
+          <Button type="submit" className="w-full h-11 gap-2 rounded-xs text-base mt-2" disabled={loading}>
+            {loading ? 'Creating account...' : 'Create Account'}
+            {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+          </Button>
         </form>
-      </Card>
+
+        <div className="mt-6 pt-6 border-t border-border/50 text-center space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <Link href="/login" className="text-primary font-medium hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs transition-colors">
+              Sign in
+            </Link>
+          </p>
+          <p className="text-xs text-muted-foreground/60">
+            By creating an account, you agree to our{' '}
+            <Link href="/terms" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs">Terms</Link>
+            {' '}and{' '}
+            <Link href="/privacy" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs">Privacy Policy</Link>
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
