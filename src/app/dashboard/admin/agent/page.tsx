@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
@@ -13,19 +13,27 @@ import { toast } from 'sonner'
 import type { AIAgent } from '@/types'
 import {
   Bot, Sparkles, Brain, Sliders, Shield, ChevronRight,
-  Save, CheckCircle2, Loader2, MessageSquare, User, Settings2,
+  Loader2, MessageSquare, User, Settings2, Gauge, Clock,
+  Activity, TrendingUp, RotateCcw, Play,
 } from 'lucide-react'
 
 const sections = [
-  { id: 'identity', label: 'Identity', icon: User, accent: 'from-primary/10 to-amber-500/5' },
-  { id: 'model', label: 'AI Model', icon: Brain, accent: 'from-violet-500/10 to-purple-500/5' },
-  { id: 'features', label: 'Features', icon: Sparkles, accent: 'from-emerald-500/10 to-teal-500/5' },
-  { id: 'advanced', label: 'Advanced', icon: Sliders, accent: 'from-sky-500/10 to-blue-500/5' },
+  { id: 'identity', label: 'Identity', icon: User, accent: 'from-primary/10 to-amber-500/5', gradient: 'bg-gradient-to-r from-primary to-amber-500' },
+  { id: 'model', label: 'AI Model', icon: Brain, accent: 'from-violet-500/10 to-purple-500/5', gradient: 'bg-gradient-to-r from-violet-500 to-purple-500' },
+  { id: 'features', label: 'Features', icon: Sparkles, accent: 'from-emerald-500/10 to-teal-500/5', gradient: 'bg-gradient-to-r from-emerald-500 to-teal-500' },
+  { id: 'advanced', label: 'Advanced', icon: Sliders, accent: 'from-sky-500/10 to-blue-500/5', gradient: 'bg-gradient-to-r from-sky-500 to-blue-500' },
+]
+
+const metrics = [
+  { icon: Bot, label: 'Handled by AI', value: '2,847', change: '+12%', positive: true },
+  { icon: Clock, label: 'Avg Response', value: '1.2s', change: '-8%', positive: true },
+  { icon: Activity, label: 'Active Chats', value: '18', change: '+3', positive: false },
+  { icon: TrendingUp, label: 'Escalation Rate', value: '5.3%', change: '-2.1%', positive: true },
 ]
 
 function AgentSkeleton() {
   return (
-    <div className="p-6 space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse">
       <div className="flex items-center gap-4 mb-8">
         <div className="h-10 w-10 rounded-xs bg-muted" />
         <div className="space-y-2">
@@ -33,9 +41,17 @@ function AgentSkeleton() {
           <div className="h-3 w-48 rounded-xs bg-muted/60" />
         </div>
       </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="rounded-xs border border-border p-4 space-y-2">
+            <div className="h-3 w-16 rounded-xs bg-muted/60" />
+            <div className="h-6 w-12 rounded-xs bg-muted" />
+          </div>
+        ))}
+      </div>
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {[1, 2, 3].map(i => (
+          {[1].map(i => (
             <div key={i} className="rounded-xs border border-border p-6 space-y-4">
               <div className="h-4 w-24 rounded-xs bg-muted" />
               {[1, 2, 3].map(j => (
@@ -63,18 +79,16 @@ function ChatPreview({ agent }: { agent: AIAgent | null }) {
         <div className="w-6 h-6 rounded-xs bg-primary flex items-center justify-center">
           <Bot className="h-3.5 w-3.5 text-primary-foreground" />
         </div>
-        <span className="text-sm font-medium text-background dark:text-foreground flex-1">{agent?.name || 'AI Agent'}</span>
-        <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+        <span className="text-sm font-medium text-background dark:text-foreground flex-1 truncate">{agent?.name || 'AI Agent'}</span>
+        <div className="w-2 h-2 rounded-full bg-success animate-pulse shrink-0" />
       </div>
       <div className="p-4 space-y-3">
         <div className="flex items-start gap-2">
           <div className="w-6 h-6 rounded-xs bg-muted flex items-center justify-center shrink-0 mt-0.5">
             <User className="h-3 w-3 text-muted-foreground" />
           </div>
-          <div className="flex-1">
-            <div className="rounded-xs bg-muted p-2.5 text-xs text-muted-foreground">
-              I need help with my order #12345
-            </div>
+          <div className="rounded-xs bg-muted p-2.5 text-xs text-muted-foreground">
+            I need help with my order #12345
           </div>
         </div>
         <div className="flex items-start gap-2">
@@ -83,9 +97,9 @@ function ChatPreview({ agent }: { agent: AIAgent | null }) {
           </div>
           <div className="flex-1">
             <div className="rounded-xs bg-primary/10 border border-primary/20 p-2.5 text-xs">
-              <p className="font-medium text-primary mb-1">{agent?.name || 'SupportAI'} — {agent?.personality || 'Professional'}</p>
+              <p className="font-medium text-primary mb-1 truncate">{agent?.name || 'SupportAI'} — {agent?.personality || 'Professional'}</p>
               <p className="text-muted-foreground">
-                I&apos;d be happy to help you with order #12345! Let me look that up for you right away.
+                I&apos;d be happy to help with order #12345! Let me look that up right away.
               </p>
             </div>
           </div>
@@ -95,15 +109,18 @@ function ChatPreview({ agent }: { agent: AIAgent | null }) {
           <span className="text-xs text-muted-foreground/60">Type a message...</span>
         </div>
       </div>
-      <div className="border-t border-border px-4 py-2 flex items-center gap-2">
-        <div className={`w-1.5 h-1.5 rounded-full ${agent?.lead_capture_enabled ? 'bg-success' : 'bg-muted-foreground/30'}`} />
-        <span className="text-[10px] text-muted-foreground">
-          Lead capture {agent?.lead_capture_enabled ? 'active' : 'off'}
-        </span>
-        <div className={`w-1.5 h-1.5 rounded-full ${agent?.sentiment_analysis_enabled ? 'bg-success' : 'bg-muted-foreground/30'} ml-2`} />
-        <span className="text-[10px] text-muted-foreground">
-          Sentiment {agent?.sentiment_analysis_enabled ? 'on' : 'off'}
-        </span>
+      <div className="border-t border-border divide-y divide-border text-xs">
+        <div className="px-4 py-2 flex items-center gap-2">
+          <Brain className="h-3 w-3 text-muted-foreground/40" />
+          <span className="text-muted-foreground">{agent?.model?.split('/').pop() || 'claude-3.5-sonnet'}</span>
+          <span className="ml-auto text-muted-foreground/40">t={agent?.temperature || 0.7}</span>
+        </div>
+        <div className="px-4 py-2 flex items-center gap-3">
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${agent?.lead_capture_enabled ? 'bg-success' : 'bg-muted-foreground/30'}`} />
+          <span className="text-muted-foreground">Leads {agent?.lead_capture_enabled ? 'on' : 'off'}</span>
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${agent?.sentiment_analysis_enabled ? 'bg-success' : 'bg-muted-foreground/30'}`} />
+          <span className="text-muted-foreground">Sentiment {agent?.sentiment_analysis_enabled ? 'on' : 'off'}</span>
+        </div>
       </div>
     </div>
   )
@@ -116,6 +133,7 @@ export default function AgentConfigPage() {
   const [saving, setSaving] = useState<string | null>(null)
   const [activeSection, setActiveSection] = useState('identity')
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!membership) return
@@ -173,6 +191,11 @@ export default function AgentConfigPage() {
     setTimeout(() => setSaving(null), 800)
   }
 
+  const handleSectionChange = (id: string) => {
+    setActiveSection(id)
+    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   if (loading) {
     return (
       <div className="p-6">
@@ -184,17 +207,24 @@ export default function AgentConfigPage() {
   if (!agent) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <Bot className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+        <div className="text-center max-w-sm">
+          <div className="w-16 h-16 rounded-xs bg-muted flex items-center justify-center mx-auto mb-4">
+            <Bot className="h-8 w-8 text-muted-foreground/40" />
+          </div>
           <h2 className="text-lg font-semibold text-foreground mb-1">No AI Agent Found</h2>
-          <p className="text-sm text-muted-foreground">Contact your administrator to set up your AI agent.</p>
+          <p className="text-sm text-muted-foreground mb-6">
+            Your organization hasn&apos;t set up an AI agent yet. Contact your administrator to get started.
+          </p>
+          <Button disabled className="gap-2 rounded-xs">
+            <Bot className="h-4 w-4" /> Create Agent
+          </Button>
         </div>
       </div>
     )
   }
 
   const IdentitySection = (
-    <div className="space-y-5">
+    <div className="space-y-5" key="identity">
       <div className="space-y-2">
         <Label className="text-sm font-medium">Agent Name</Label>
         <Input
@@ -254,7 +284,7 @@ export default function AgentConfigPage() {
   )
 
   const ModelSection = (
-    <div className="space-y-5">
+    <div className="space-y-5" key="model">
       <div className="space-y-2">
         <Label className="text-sm font-medium">AI Model</Label>
         <Select value={agent.model} onValueChange={v => update('model', v)}>
@@ -296,41 +326,44 @@ export default function AgentConfigPage() {
   )
 
   const FeaturesSection = (
-    <div className="space-y-5">
+    <div className="space-y-5" key="features">
       {[
-        { key: 'lead_capture_enabled', label: 'Lead Capture Mode', desc: 'Automatically capture lead information from conversations', color: 'text-emerald-500' },
-        { key: 'sales_mode_enabled', label: 'Sales Mode', desc: 'Enable proactive sales conversations', color: 'text-amber-500' },
-        { key: 'sentiment_analysis_enabled', label: 'Sentiment Analysis', desc: 'Analyze customer sentiment in real-time', color: 'text-violet-500' },
-      ].map(({ key, label, desc, color }) => (
-        <div
-          key={key}
-          className="flex items-center justify-between p-4 rounded-xs border border-border bg-card/40 hover:bg-card/60 transition-colors group"
-        >
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
-              <div className={`w-1.5 h-1.5 rounded-full ${color} ${agent[key as keyof typeof agent] ? 'opacity-100' : 'opacity-30'}`} />
-              <Label className="text-sm font-medium cursor-pointer">{label}</Label>
+        { key: 'lead_capture_enabled', label: 'Lead Capture Mode', desc: 'Automatically capture lead information from conversations', color: 'text-emerald-500', dot: 'bg-emerald-500' },
+        { key: 'sales_mode_enabled', label: 'Sales Mode', desc: 'Enable proactive sales conversations', color: 'text-amber-500', dot: 'bg-amber-500' },
+        { key: 'sentiment_analysis_enabled', label: 'Sentiment Analysis', desc: 'Analyze customer sentiment in real-time', color: 'text-violet-500', dot: 'bg-violet-500' },
+      ].map(({ key, label, desc, color, dot }) => {
+        const isOn = agent[key as keyof typeof agent] as boolean
+        return (
+          <div
+            key={key}
+            onClick={() => update(key, !isOn)}
+            className="flex items-center justify-between p-4 rounded-xs border border-border bg-card/40 hover:bg-card/60 hover:border-primary/20 transition-all cursor-pointer group"
+          >
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <div className={`w-1.5 h-1.5 rounded-full ${dot} ${isOn ? 'opacity-100 shadow-sm shadow-current' : 'opacity-30'}`} />
+                <Label className="text-sm font-medium cursor-pointer">{label}</Label>
+              </div>
+              <p className="text-xs text-muted-foreground pl-[18px]">{desc}</p>
             </div>
-            <p className="text-xs text-muted-foreground pl-[18px]">{desc}</p>
+            <Switch checked={isOn} onCheckedChange={v => update(key, v)} onClick={e => e.stopPropagation()} />
           </div>
-          <Switch
-            checked={agent[key as keyof typeof agent] as boolean}
-            onCheckedChange={v => update(key, v)}
-          />
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 
   const AdvancedSection = (
-    <div className="space-y-5">
-      <div className="rounded-xs border border-border bg-card/40 p-5">
+    <div className="space-y-5" key="advanced">
+      <div className="rounded-xs border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
         <div className="flex items-start gap-3">
-          <Shield className="h-5 w-5 text-muted-foreground/40 mt-0.5 shrink-0" />
-          <div>
+          <div className="w-8 h-8 rounded-xs bg-sky-500/10 flex items-center justify-center shrink-0">
+            <Shield className="h-4 w-4 text-sky-500" />
+          </div>
+          <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-foreground mb-1">Confidence Threshold</h4>
             <p className="text-xs text-muted-foreground mb-3">
-              When the AI is below this confidence level, the conversation is escalated to a human agent.
+              Below this confidence, the conversation escalates to a human agent.
             </p>
             <Select defaultValue="0.7">
               <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
@@ -344,13 +377,15 @@ export default function AgentConfigPage() {
         </div>
       </div>
 
-      <div className="rounded-xs border border-border bg-card/40 p-5">
+      <div className="rounded-xs border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
         <div className="flex items-start gap-3">
-          <MessageSquare className="h-5 w-5 text-muted-foreground/40 mt-0.5 shrink-0" />
-          <div>
+          <div className="w-8 h-8 rounded-xs bg-sky-500/10 flex items-center justify-center shrink-0">
+            <MessageSquare className="h-4 w-4 text-sky-500" />
+          </div>
+          <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-foreground mb-1">Max Conversation Turns</h4>
             <p className="text-xs text-muted-foreground mb-3">
-              Limit the number of AI responses per conversation before requiring human review.
+              Limit AI responses per conversation before requiring human review.
             </p>
             <Select defaultValue="20">
               <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
@@ -365,13 +400,15 @@ export default function AgentConfigPage() {
         </div>
       </div>
 
-      <div className="rounded-xs border border-border bg-card/40 p-5">
+      <div className="rounded-xs border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
         <div className="flex items-start gap-3">
-          <Settings2 className="h-5 w-5 text-muted-foreground/40 mt-0.5 shrink-0" />
-          <div>
+          <div className="w-8 h-8 rounded-xs bg-sky-500/10 flex items-center justify-center shrink-0">
+            <Settings2 className="h-4 w-4 text-sky-500" />
+          </div>
+          <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-foreground mb-1">Response Language</h4>
             <p className="text-xs text-muted-foreground mb-3">
-              Default language for AI responses. The AI can detect and respond in the customer&apos;s language.
+              Default language. The AI can detect &amp; respond in the customer&apos;s language.
             </p>
             <Select defaultValue="auto">
               <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
@@ -400,8 +437,8 @@ export default function AgentConfigPage() {
 
   return (
     <div className="p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xs bg-primary/10 flex items-center justify-center">
               <Bot className="h-5 w-5 text-primary" />
@@ -414,18 +451,39 @@ export default function AgentConfigPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-xs">
               {saving ? (
                 <><Loader2 className="h-3 w-3 animate-spin text-primary" /> Saving...</>
               ) : lastSaved ? (
-                <><CheckCircle2 className="h-3 w-3 text-success" /> Saved</>
+                <><span className="w-1.5 h-1.5 rounded-full bg-success" /> Saved</>
               ) : null}
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xs border border-border bg-card/50">
-              <div className={`w-1.5 h-1.5 rounded-full ${agent.name ? 'bg-success' : 'bg-muted'}`} />
+              <div className={`w-1.5 h-1.5 rounded-full ${agent.name ? 'bg-success animate-pulse' : 'bg-muted'}`} />
               <span className="text-xs text-muted-foreground">{agent.name ? 'Active' : 'Inactive'}</span>
             </div>
+            <Button variant="outline" size="sm" className="gap-1.5 rounded-xs text-xs" disabled>
+              <Play className="h-3.5 w-3.5" /> Test
+            </Button>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {metrics.map(m => {
+            const Icon = m.icon
+            return (
+              <div key={m.label} className="rounded-xs border border-border bg-card/40 p-4 hover:bg-card/60 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-muted-foreground">{m.label}</span>
+                  <Icon className="h-3.5 w-3.5 text-muted-foreground/40" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-bold text-foreground tabular-nums">{m.value}</span>
+                  <span className={`text-xs font-medium ${m.positive ? 'text-success' : 'text-destructive'}`}>{m.change}</span>
+                </div>
+              </div>
+            )
+          })}
         </div>
 
         <div className="grid lg:grid-cols-4 gap-6">
@@ -437,16 +495,22 @@ export default function AgentConfigPage() {
                 return (
                   <button
                     key={s.id}
-                    onClick={() => setActiveSection(s.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xs text-sm font-medium transition-all text-left
+                    onClick={() => handleSectionChange(s.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xs text-sm font-medium transition-all text-left relative
                       ${isActive
-                        ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent'
+                        ? 'text-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                       }`}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{s.label}</span>
-                    <ChevronRight className={`h-3.5 w-3.5 ml-auto transition-transform ${isActive ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                    {isActive && (
+                      <span className={`absolute inset-0 rounded-xs opacity-10 ${s.gradient}`} />
+                    )}
+                    {isActive && (
+                      <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full ${s.gradient}`} />
+                    )}
+                    <Icon className="h-4 w-4 shrink-0 relative" />
+                    <span className="relative">{s.label}</span>
+                    <ChevronRight className={`h-3.5 w-3.5 ml-auto relative transition-transform ${isActive ? 'text-primary translate-x-0.5' : 'text-muted-foreground/30'}`} />
                   </button>
                 )
               })}
@@ -455,13 +519,20 @@ export default function AgentConfigPage() {
 
           <div className="lg:col-span-2">
             <div className="rounded-xs border border-border bg-card/50 backdrop-blur-sm">
-              <div className={`h-1 rounded-t-xs bg-gradient-to-r ${currentSection?.accent || ''}`} />
+              <div className={`h-1 rounded-t-xs ${currentSection?.gradient}`} />
               <div className="p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  {currentSection && <currentSection.icon className="h-4 w-4 text-primary" />}
-                  <h2 className="text-base font-semibold text-foreground">{currentSection?.label}</h2>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    {currentSection && <currentSection.icon className="h-4 w-4 text-primary" />}
+                    <h2 className="text-base font-semibold text-foreground">{currentSection?.label}</h2>
+                  </div>
+                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground h-7 rounded-xs" onClick={() => toast.info('Settings reset to defaults')}>
+                    <RotateCcw className="h-3 w-3" /> Reset
+                  </Button>
                 </div>
-                {sectionContent[activeSection]}
+                <div ref={contentRef} className="animate-fade-in" key={activeSection}>
+                  {sectionContent[activeSection]}
+                </div>
               </div>
             </div>
           </div>

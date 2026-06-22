@@ -47,24 +47,26 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative z-10 w-full max-w-sm mx-auto px-4 py-8">
-      <div className="rounded-xs border border-primary/20 bg-background/70 backdrop-blur-xl shadow-2xl shadow-primary/5 p-8 animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-xs">
-            <Sparkles className="h-3 w-3 text-primary" aria-hidden="true" />
-            Get Started
+    <div className="relative z-10 w-full max-w-sm mx-auto px-4 py-6">
+      <div className="rounded-xs border border-primary/20 bg-background/70 backdrop-blur-xl shadow-2xl shadow-primary/5 animate-fade-in">
+        <div className="p-8 pb-0">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xs border border-primary/20 bg-primary/5 text-muted-foreground mb-5 text-[11px] font-medium tracking-wide uppercase">
+              <Sparkles className="h-3 w-3 text-primary" aria-hidden="true" />
+              Get Started
+            </div>
+            <h1 className="text-xl font-bold mb-1" style={{ fontFamily: 'var(--font-syne)' }}>
+              Create your <span className="text-primary">account</span>
+            </h1>
+            <p className="text-sm text-muted-foreground/80">
+              Start your 14-day free trial — no credit card required
+            </p>
           </div>
-          <h1 className="text-xl font-bold mb-1" style={{ fontFamily: 'var(--font-syne)' }}>
-            Create your <span className="text-primary">account</span>
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Start your 14-day free trial — no credit card required
-          </p>
         </div>
 
-        <form onSubmit={handleRegister} className="space-y-4">
+        <form onSubmit={handleRegister} className="p-8 space-y-3.5">
           {emailExists && (
-            <Alert variant="destructive" className="rounded-xs py-3">
+            <Alert variant="destructive" className="rounded-xs py-2.5">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="text-sm">
                 This email is already registered.{' '}
@@ -75,7 +77,7 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
@@ -83,7 +85,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="email" className="text-sm font-medium">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
@@ -91,7 +93,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="password" className="text-sm font-medium">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
@@ -99,15 +101,15 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
               <Label htmlFor="company" className="text-sm font-medium">Company</Label>
               <div className="relative">
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
                 <Input id="company" value={companyName} onChange={e => setCompanyName(e.target.value)} required className="h-11 pl-10" placeholder="Acme Inc" />
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="size" className="text-sm font-medium">Size</Label>
               <div className="relative">
                 <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" aria-hidden="true" />
@@ -124,20 +126,21 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-11 gap-2 rounded-xs text-base mt-2" disabled={loading}>
+          <Button type="submit" className="w-full h-11 gap-2 rounded-xs text-base" disabled={loading}>
             {loading ? 'Creating account...' : 'Create Account'}
             {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </Button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-border/50 text-center space-y-3">
+        <div className="px-8 pb-8 pt-0 text-center space-y-3">
+          <div className="border-t border-border/50" />
           <p className="text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/login" className="text-primary font-medium hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs transition-colors">
               Sign in
             </Link>
           </p>
-          <p className="text-xs text-muted-foreground/60">
+          <p className="text-[11px] text-muted-foreground/50">
             By creating an account, you agree to our{' '}
             <Link href="/terms" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs">Terms</Link>
             {' '}and{' '}

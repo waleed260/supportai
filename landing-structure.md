@@ -1,0 +1,436 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Main navigation" [ref=e3]:
+      - generic [ref=e4]:
+        - link "SupportAI" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]:
+          - link "Features" [ref=e7] [cursor=pointer]:
+            - /url: "#features"
+          - link "Pricing" [ref=e8] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "About" [ref=e9] [cursor=pointer]:
+            - /url: "#about"
+        - generic [ref=e10]:
+          - button "Switch to dark mode" [ref=e11]:
+            - img [ref=e12]
+          - link "Sign In" [ref=e14] [cursor=pointer]:
+            - /url: /login
+            - button "Sign In" [ref=e15]
+          - link "Get Started" [ref=e16] [cursor=pointer]:
+            - /url: /register
+            - button "Get Started" [ref=e17]
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - img [ref=e28]
+        - text: AI-Powered Customer Support Platform
+      - heading "AI Customer Support That Actually Works" [level=1] [ref=e31]:
+        - text: AI Customer Support
+        - generic [ref=e32]:
+          - text: That
+          - generic [ref=e33]: Actually Works
+      - paragraph [ref=e35]: Deploy intelligent AI agents across WhatsApp, Instagram, Facebook, and your website. Automate support, capture leads, and delight customers — all from one dashboard.
+      - generic [ref=e36]:
+        - link "Start Free Trial" [ref=e37] [cursor=pointer]:
+          - /url: /register
+          - button "Start Free Trial" [ref=e38]:
+            - text: Start Free Trial
+            - img
+        - link "View Demo" [ref=e39] [cursor=pointer]:
+          - /url: /login
+          - button "View Demo" [ref=e40]
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - img [ref=e44]
+          - generic [ref=e46]:
+            - generic [ref=e47]: 10K+
+            - generic [ref=e48]: Conversations
+        - generic [ref=e49]:
+          - img [ref=e51]
+          - generic [ref=e53]:
+            - generic [ref=e54]: 500+
+            - generic [ref=e55]: Companies
+        - generic [ref=e56]:
+          - img [ref=e58]
+          - generic [ref=e61]:
+            - generic [ref=e62]: 99.9%
+            - generic [ref=e63]: Uptime
+      - generic [ref=e85]:
+        - generic [ref=e86]:
+          - generic [ref=e87]: SC
+          - generic [ref=e91]: AI
+        - generic [ref=e92]:
+          - generic [ref=e93]: MR
+          - generic [ref=e97]: AI
+        - generic [ref=e98]:
+          - generic [ref=e99]: EW
+          - generic [ref=e103]: Human
+        - generic [ref=e104]:
+          - generic [ref=e105]: JP
+          - generic [ref=e109]: AI
+    - generic [ref=e112]:
+      - generic [ref=e113]:
+        - generic [ref=e114]:
+          - img [ref=e115]
+          - text: Platform Features
+        - heading "Everything you need to scale support" [level=2] [ref=e118]
+        - paragraph [ref=e119]: From AI-powered responses to real-time analytics — our platform gives you the tools to deliver exceptional customer service.
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - img [ref=e124]
+          - generic [ref=e127]:
+            - img [ref=e129]
+            - heading "Multi-Channel Inbox" [level=3] [ref=e131]
+            - paragraph [ref=e132]: Unify WhatsApp, Instagram, Facebook, and web chat into one intelligent inbox. Never miss a message.
+        - generic [ref=e133]:
+          - img [ref=e136]
+          - generic [ref=e139]:
+            - img [ref=e141]
+            - heading "AI-Powered Agents" [level=3] [ref=e144]
+            - paragraph [ref=e145]: Claude-powered agents with RAG from your knowledge base. Smart, context-aware responses every time.
+        - generic [ref=e146]:
+          - img [ref=e149]
+          - generic [ref=e152]:
+            - img [ref=e154]
+            - heading "Smart Analytics" [level=3] [ref=e156]
+            - paragraph [ref=e157]: Sentiment tracking, lead scoring, and performance metrics. Know exactly how your support team is doing.
+        - generic [ref=e158]:
+          - img [ref=e161]
+          - generic [ref=e164]:
+            - img [ref=e166]
+            - heading "Omnichannel Reach" [level=3] [ref=e169]
+            - paragraph [ref=e170]: Meet customers where they are. Seamless integration with all major messaging platforms.
+        - generic [ref=e171]:
+          - img [ref=e174]
+          - generic [ref=e177]:
+            - img [ref=e179]
+            - heading "Team Collaboration" [level=3] [ref=e184]
+            - paragraph [ref=e185]: Assign conversations, share notes, and work together. Built for teams of any size.
+        - generic [ref=e186]:
+          - img [ref=e189]
+          - generic [ref=e192]:
+            - img [ref=e194]
+            - heading "Enterprise Security" [level=3] [ref=e196]
+            - paragraph [ref=e197]: SOC 2 compliant, end-to-end encrypted, and GDPR ready. Your data stays yours.
+    - generic [ref=e202]:
+      - generic [ref=e203]:
+        - generic [ref=e204]: 10K+
+        - generic [ref=e205]: Conversations Automated
+      - generic [ref=e206]:
+        - generic [ref=e207]: 500+
+        - generic [ref=e208]: Active Companies
+      - generic [ref=e209]:
+        - generic [ref=e210]: 50K+
+        - generic [ref=e211]: Hours Saved
+      - generic [ref=e212]:
+        - generic [ref=e213]: 99.9%
+        - generic [ref=e214]: Platform Uptime
+    - generic [ref=e217]:
+      - generic [ref=e218]:
+        - generic [ref=e219]:
+          - img [ref=e220]
+          - text: Simple Pricing
+        - heading "Transparent pricing for every team" [level=2] [ref=e223]
+        - paragraph [ref=e224]: Start with a free trial — no credit card required. Upgrade when you grow.
+        - radiogroup "Billing frequency" [ref=e225]:
+          - radio "Monthly" [checked] [ref=e226]
+          - radio "Annual Save ~17%" [ref=e227]
+      - generic [ref=e228]:
+        - generic [ref=e229]:
+          - generic [ref=e230]:
+            - heading "Starter" [level=3] [ref=e231]
+            - paragraph [ref=e232]: Basic AI customer support for small businesses
+            - generic [ref=e233]:
+              - generic [ref=e234]: $29
+              - generic [ref=e235]: /month
+          - generic [ref=e236]:
+            - generic [ref=e237]:
+              - img [ref=e239]
+              - generic [ref=e241]: 500 conversations/mo
+            - generic [ref=e242]:
+              - img [ref=e244]
+              - generic [ref=e246]: 1 team seat
+            - generic [ref=e247]:
+              - img [ref=e249]
+              - generic [ref=e251]: Web Chat + WhatsApp
+            - generic [ref=e252]:
+              - img [ref=e254]
+              - generic [ref=e256]: Knowledge base (5 docs)
+            - generic [ref=e257]:
+              - img [ref=e259]
+              - generic [ref=e261]: Lead capture
+            - generic [ref=e262]:
+              - img [ref=e264]
+              - generic [ref=e266]: Sentiment analysis
+            - generic [ref=e267]:
+              - img [ref=e269]
+              - generic [ref=e271]: Advanced analytics
+          - link "Get Started" [ref=e272] [cursor=pointer]:
+            - /url: /register
+            - button "Get Started" [ref=e273]
+        - generic [ref=e274]:
+          - generic [ref=e276]: Most Popular
+          - generic [ref=e277]:
+            - heading "Growth" [level=3] [ref=e278]
+            - paragraph [ref=e279]: Multi-channel support with lead capture
+            - generic [ref=e280]:
+              - generic [ref=e281]: $99
+              - generic [ref=e282]: /month
+          - generic [ref=e283]:
+            - generic [ref=e284]:
+              - img [ref=e286]
+              - generic [ref=e288]: 2,000 conversations/mo
+            - generic [ref=e289]:
+              - img [ref=e291]
+              - generic [ref=e293]: 3 team seats
+            - generic [ref=e294]:
+              - img [ref=e296]
+              - generic [ref=e298]: Web Chat + WhatsApp + Instagram + Facebook
+            - generic [ref=e299]:
+              - img [ref=e301]
+              - generic [ref=e303]: Knowledge base (20 docs)
+            - generic [ref=e304]:
+              - img [ref=e306]
+              - generic [ref=e308]: Lead capture
+            - generic [ref=e309]:
+              - img [ref=e311]
+              - generic [ref=e313]: Sentiment analysis
+            - generic [ref=e314]:
+              - img [ref=e316]
+              - generic [ref=e318]: Advanced analytics & priority support
+          - link "Start Free Trial" [ref=e319] [cursor=pointer]:
+            - /url: /register
+            - button "Start Free Trial" [ref=e320]
+        - generic [ref=e321]:
+          - generic [ref=e322]:
+            - heading "Pro" [level=3] [ref=e323]
+            - paragraph [ref=e324]: Enterprise AI with full feature access
+            - generic [ref=e325]:
+              - generic [ref=e326]: $299
+              - generic [ref=e327]: /month
+          - generic [ref=e328]:
+            - generic [ref=e329]:
+              - img [ref=e331]
+              - generic [ref=e333]: 10,000 conversations/mo
+            - generic [ref=e334]:
+              - img [ref=e336]
+              - generic [ref=e338]: 50 team seats
+            - generic [ref=e339]:
+              - img [ref=e341]
+              - generic [ref=e343]: All channels + Email & Telegram
+            - generic [ref=e344]:
+              - img [ref=e346]
+              - generic [ref=e348]: Knowledge base (100 docs)
+            - generic [ref=e349]:
+              - img [ref=e351]
+              - generic [ref=e353]: Lead capture & sentiment analysis
+            - generic [ref=e354]:
+              - img [ref=e356]
+              - generic [ref=e358]: Advanced analytics & priority support
+          - link "Get Started" [ref=e359] [cursor=pointer]:
+            - /url: /register
+            - button "Get Started" [ref=e360]
+    - generic [ref=e363]:
+      - generic [ref=e364]:
+        - generic [ref=e365]:
+          - img [ref=e366]
+          - text: Testimonials
+        - heading "Loved by support teams" [level=2] [ref=e369]
+        - paragraph [ref=e370]: See what our customers say about transforming their customer support experience.
+      - generic [ref=e371]:
+        - figure "Sarah Chen CEO, Bloom Retail" [ref=e373]:
+          - generic [ref=e374]:
+            - img [ref=e375]
+            - img [ref=e377]
+            - img [ref=e379]
+            - img [ref=e381]
+            - img [ref=e383]
+          - blockquote [ref=e385]: “SupportAI transformed our customer support. We went from 12-hour response times to instant answers. Our customers noticed immediately.”
+          - generic [ref=e386]:
+            - generic [ref=e387]: SC
+            - generic [ref=e388]:
+              - generic [ref=e389]: Sarah Chen
+              - generic [ref=e390]: CEO, Bloom Retail
+        - figure "Marcus Rivera CTO, TechFlow" [ref=e392]:
+          - generic [ref=e393]:
+            - img [ref=e394]
+            - img [ref=e396]
+            - img [ref=e398]
+            - img [ref=e400]
+            - img [ref=e402]
+          - blockquote [ref=e404]: “The AI agents handle 80% of our inquiries autonomously. Our support team focuses on complex issues while the bot handles the rest.”
+          - generic [ref=e405]:
+            - generic [ref=e406]: MR
+            - generic [ref=e407]:
+              - generic [ref=e408]: Marcus Rivera
+              - generic [ref=e409]: CTO, TechFlow
+        - figure "Emma Watson Operations Lead, Nexus" [ref=e411]:
+          - generic [ref=e412]:
+            - img [ref=e413]
+            - img [ref=e415]
+            - img [ref=e417]
+            - img [ref=e419]
+            - img [ref=e421]
+          - blockquote [ref=e423]: “Multi-channel support was a nightmare before SupportAI. Now everything is in one place, and the analytics are incredible.”
+          - generic [ref=e424]:
+            - generic [ref=e425]: EW
+            - generic [ref=e426]:
+              - generic [ref=e427]: Emma Watson
+              - generic [ref=e428]: Operations Lead, Nexus
+        - figure "James Park VP Support, CloudScale" [ref=e430]:
+          - generic [ref=e431]:
+            - img [ref=e432]
+            - img [ref=e434]
+            - img [ref=e436]
+            - img [ref=e438]
+            - img [ref=e440]
+          - blockquote [ref=e442]: “We reduced support costs by 60% while improving CSAT scores by 35%. The ROI was immediate and tangible.”
+          - generic [ref=e443]:
+            - generic [ref=e444]: JP
+            - generic [ref=e445]:
+              - generic [ref=e446]: James Park
+              - generic [ref=e447]: VP Support, CloudScale
+        - figure "Lisa Thompson Head of CX, Finova" [ref=e449]:
+          - generic [ref=e450]:
+            - img [ref=e451]
+            - img [ref=e453]
+            - img [ref=e455]
+            - img [ref=e457]
+            - img [ref=e459]
+          - blockquote [ref=e461]: “The lead capture feature alone paid for our subscription in the first week. It is like having a sales team working 24/7.”
+          - generic [ref=e462]:
+            - generic [ref=e463]: LT
+            - generic [ref=e464]:
+              - generic [ref=e465]: Lisa Thompson
+              - generic [ref=e466]: Head of CX, Finova
+        - figure "David Kim Founder, LaunchPad" [ref=e468]:
+          - generic [ref=e469]:
+            - img [ref=e470]
+            - img [ref=e472]
+            - img [ref=e474]
+            - img [ref=e476]
+            - img [ref=e478]
+          - blockquote [ref=e480]: “Setup took 10 minutes. The AI was already answering customer questions accurately by lunchtime. Unbelievable.”
+          - generic [ref=e481]:
+            - generic [ref=e482]: DK
+            - generic [ref=e483]:
+              - generic [ref=e484]: David Kim
+              - generic [ref=e485]: Founder, LaunchPad
+    - generic [ref=e488]:
+      - generic [ref=e489]:
+        - generic [ref=e490]:
+          - img [ref=e491]
+          - text: FAQ
+        - heading "Frequently asked questions" [level=2] [ref=e494]
+        - paragraph [ref=e495]: Everything you need to know about SupportAI.
+      - list [ref=e496]:
+        - listitem [ref=e497]:
+          - heading "How does the AI agent work?" [level=3] [ref=e498]:
+            - button "How does the AI agent work?" [ref=e499]:
+              - generic [ref=e500]: How does the AI agent work?
+              - img [ref=e502]
+          - region:
+            - generic [ref=e503]: Our AI agents are powered by Claude (Anthropic) with RAG (Retrieval Augmented Generation) from your knowledge base. They understand context, learn from your existing conversations, and provide accurate, on-brand responses automatically.
+        - listitem [ref=e504]:
+          - heading "Can I integrate with my existing tools?" [level=3] [ref=e505]:
+            - button "Can I integrate with my existing tools?" [ref=e506]:
+              - generic [ref=e507]: Can I integrate with my existing tools?
+              - img [ref=e509]
+          - region:
+            - generic [ref=e510]: Yes! SupportAI integrates with WhatsApp, Instagram, Facebook Messenger, and your website. We also support HubSpot, Salesforce, Zoho, and Google Sheets for CRM sync. More integrations are added regularly.
+        - listitem [ref=e511]:
+          - heading "Is there a free trial?" [level=3] [ref=e512]:
+            - button "Is there a free trial?" [ref=e513]:
+              - generic [ref=e514]: Is there a free trial?
+              - img [ref=e516]
+          - region:
+            - generic [ref=e517]: Absolutely. Start with a 14-day free trial on any plan — no credit card required. You get full access to all features during the trial period. Cancel anytime with one click.
+        - listitem [ref=e518]:
+          - heading "How is pricing calculated?" [level=3] [ref=e519]:
+            - button "How is pricing calculated?" [ref=e520]:
+              - generic [ref=e521]: How is pricing calculated?
+              - img [ref=e523]
+          - region:
+            - generic [ref=e524]: Pricing is based on your plan tier and the number of conversations per month. All plans include unlimited team members within the seat limit. Annual billing saves you approximately 17% compared to monthly.
+        - listitem [ref=e525]:
+          - heading "Is my data secure?" [level=3] [ref=e526]:
+            - button "Is my data secure?" [ref=e527]:
+              - generic [ref=e528]: Is my data secure?
+              - img [ref=e530]
+          - region:
+            - generic [ref=e531]: Security is our top priority. SupportAI is SOC 2 compliant, uses end-to-end encryption, and is GDPR ready. Your data is stored securely on Supabase infrastructure and never used to train AI models.
+    - generic [ref=e539]:
+      - generic [ref=e540]:
+        - img [ref=e541]
+        - text: Get Started Today
+      - heading "Ready to transform your customer support?" [level=2] [ref=e544]
+      - paragraph [ref=e545]: Join 500+ companies already using SupportAI to automate support, capture leads, and delight customers.
+      - generic [ref=e546]:
+        - link "Start Free Trial" [ref=e547] [cursor=pointer]:
+          - /url: /register
+          - button "Start Free Trial" [ref=e548]:
+            - text: Start Free Trial
+            - img
+        - link "Talk to Sales" [ref=e549] [cursor=pointer]:
+          - /url: /contact
+          - button "Talk to Sales" [ref=e550]
+      - paragraph [ref=e551]: No credit card required. 14-day free trial.
+    - contentinfo [ref=e552]:
+      - generic [ref=e553]:
+        - generic [ref=e554]:
+          - generic [ref=e555]:
+            - generic [ref=e556]: SupportAI
+            - paragraph [ref=e557]: AI-powered customer support platform. Automate support, capture leads, and delight customers across every channel.
+          - generic [ref=e558]:
+            - heading "Product" [level=4] [ref=e559]
+            - list [ref=e560]:
+              - listitem [ref=e561]:
+                - link "Features" [ref=e562] [cursor=pointer]:
+                  - /url: "#features"
+              - listitem [ref=e563]:
+                - link "Pricing" [ref=e564] [cursor=pointer]:
+                  - /url: "#pricing"
+              - listitem [ref=e565]:
+                - link "Changelog" [ref=e566] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e567]:
+                - link "Documentation" [ref=e568] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e569]:
+            - heading "Company" [level=4] [ref=e570]
+            - list [ref=e571]:
+              - listitem [ref=e572]:
+                - link "About" [ref=e573] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e574]:
+                - link "Blog" [ref=e575] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e576]:
+                - link "Careers" [ref=e577] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e578]:
+                - link "Contact" [ref=e579] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e580]:
+            - heading "Legal" [level=4] [ref=e581]
+            - list [ref=e582]:
+              - listitem [ref=e583]:
+                - link "Privacy Policy" [ref=e584] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e585]:
+                - link "Terms of Service" [ref=e586] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e587]:
+                - link "Security" [ref=e588] [cursor=pointer]:
+                  - /url: /security
+        - generic [ref=e589]:
+          - paragraph [ref=e590]: © 2026 SupportAI. All rights reserved.
+          - navigation "Legal links" [ref=e591]:
+            - link "Privacy" [ref=e592] [cursor=pointer]:
+              - /url: /privacy
+            - link "Terms" [ref=e593] [cursor=pointer]:
+              - /url: /terms
+            - link "Security" [ref=e594] [cursor=pointer]:
+              - /url: /security
+  - region "Notifications alt+T"
+  - alert [ref=e595]

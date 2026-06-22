@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Sparkles, MessageSquare, BarChart3, Bot } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react'
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden pt-16">
+    <section className="relative min-h-[90dvh] flex items-center justify-center overflow-hidden pt-24 pb-16">
       <div className="absolute inset-0 bg-gradient-to-br from-[#fff7ed] via-background to-amber-50 dark:from-background dark:via-background dark:to-[#1a1f2e]" aria-hidden="true" />
 
       <div className="absolute inset-0 opacity-50 dark:opacity-70" aria-hidden="true">
@@ -56,29 +56,7 @@ export function HeroSection() {
           </Link>
         </div>
 
-        <div className="mt-16 flex flex-wrap justify-center gap-8 animate-fade-in-up delay-500">
-          {[
-            { value: '10K+', label: 'Conversations', icon: MessageSquare },
-            { value: '500+', label: 'Companies', icon: BarChart3 },
-            { value: '99.9%', label: 'Uptime', icon: Bot },
-          ].map(stat => {
-            const Icon = stat.icon
-            return (
-              <div key={stat.label} className="flex items-center gap-3 text-left">
-                <div className="w-10 h-10 rounded-xs bg-primary/10 flex items-center justify-center shrink-0">
-                  <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-primary tabular-nums">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground">{stat.label}</div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        <div className="mt-20 max-w-4xl mx-auto animate-scale-in delay-700 relative">
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none" aria-hidden="true" />
+        <div className="mt-16 max-w-4xl mx-auto animate-scale-in delay-500">
           <div className="rounded-xs border border-border/50 overflow-hidden shadow-2xl shadow-primary/10 dark:shadow-primary/5">
             <div className="h-8 bg-muted border-b border-border flex items-center px-4 gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
