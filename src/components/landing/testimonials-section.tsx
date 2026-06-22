@@ -91,8 +91,8 @@ export function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
-          {testimonials.slice(0, 3).map((t, i) => (
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {testimonials.map((t, i) => (
             <div
               key={t.name}
               className={`${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'}`}
@@ -100,14 +100,6 @@ export function TestimonialsSection() {
               <TestimonialCard t={t} index={i} />
             </div>
           ))}
-        </div>
-
-        <div className={`relative overflow-hidden ${inView ? 'animate-fade-in-up delay-500' : 'opacity-0'}`}>
-          <div className="flex gap-6 animate-marquee hover:[animation-play-state:paused]">
-            {[...testimonials, ...testimonials].map((t, i) => (
-              <TestimonialCard key={`${t.name}-${i}`} t={t} index={i} />
-            ))}
-          </div>
         </div>
       </div>
     </section>
