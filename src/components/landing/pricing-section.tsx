@@ -62,34 +62,38 @@ export function PricingSection() {
 
   return (
     <section id="pricing" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-50/30 to-transparent dark:via-[#121824]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/30 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
-        <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#f57c00]/20 bg-white/50 dark:bg-white/5 text-sm text-muted-foreground mb-4">
-            <Sparkles className="h-4 w-4 text-[#f57c00]" />
+        <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-sm">
+            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Simple Pricing
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Transparent pricing{' '}
-            <span className="text-[#f57c00]">for every team</span>
+            <span className="text-primary">for every team</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
             Start with a free trial — no credit card required. Upgrade when you grow.
           </p>
 
-          <div className="inline-flex items-center gap-3 p-1 rounded-full border border-[#f57c00]/20 bg-white/60 dark:bg-white/5 shadow-sm">
+          <div className="inline-flex items-center gap-3 p-1 rounded-xs border border-primary/20 bg-card/60 shadow-sm" role="radiogroup" aria-label="Billing frequency">
             <button
               onClick={() => setAnnual(false)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                !annual ? 'bg-[#f57c00] text-white shadow-md' : 'text-muted-foreground hover:text-[#121824] dark:hover:text-white'
+              role="radio"
+              aria-checked={!annual}
+              className={`px-5 py-2 rounded-xs text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                !annual ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setAnnual(true)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                annual ? 'bg-[#f57c00] text-white shadow-md' : 'text-muted-foreground hover:text-[#121824] dark:hover:text-white'
+              role="radio"
+              aria-checked={annual}
+              className={`px-5 py-2 rounded-xs text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                annual ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Annual <span className="text-xs opacity-80">Save ~17%</span>
@@ -103,17 +107,17 @@ export function PricingSection() {
             return (
               <div
                 key={plan.name}
-                className={`relative rounded-3xl border p-8 flex flex-col transition-all duration-300 ${
+                className={`relative rounded-xs border p-8 flex flex-col transition-all duration-400 ${
                   inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
                 } ${
                   plan.popular
-                    ? 'border-[#f57c00]/50 dark:border-[#f57c00]/40 shadow-xl shadow-[#f57c00]/10 scale-105 md:scale-105 bg-white dark:bg-[#1a1f2e]'
-                    : 'border-gray-200/80 dark:border-white/10 shadow-sm bg-white/80 dark:bg-[#121824]/60 hover:shadow-lg hover:border-[#f57c00]/30'
+                    ? 'border-primary/50 dark:border-primary/40 shadow-xl shadow-primary/10 scale-105 md:scale-105 bg-card'
+                    : 'border-border shadow-sm bg-card/60 hover:shadow-lg hover:border-primary/30'
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-[#f57c00] text-white px-4 py-1 shadow-lg shadow-[#f57c00]/25 rounded-full">
+                    <Badge className="bg-primary text-primary-foreground px-4 py-1 shadow-lg shadow-primary/25 rounded-xs">
                       Most Popular
                     </Badge>
                   </div>
@@ -123,27 +127,27 @@ export function PricingSection() {
                   <h3 className="text-xl font-semibold mb-1" style={{ fontFamily: 'var(--font-syne)' }}>{plan.name}</h3>
                   <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">${Math.round(price)}</span>
+                    <span className="text-3xl md:text-4xl font-bold">${Math.round(price)}</span>
                     <span className="text-muted-foreground">/month</span>
                   </div>
                   {annual && (
-                    <p className="text-xs text-[#f57c00] font-medium mt-1">${plan.yearlyPrice}/year billed annually</p>
+                    <p className="text-xs text-primary font-medium mt-1">${plan.yearlyPrice}/year billed annually</p>
                   )}
                 </div>
 
                 <div className="space-y-3 text-sm flex-1 mb-8">
                   {plan.features.map(f => (
                     <div key={f} className="flex items-start gap-3">
-                      <div className="mt-0.5 w-5 h-5 rounded-full bg-[#f57c00] flex items-center justify-center shrink-0 shadow-sm">
-                        <Check className="h-3 w-3 text-white" />
+                      <div className="mt-0.5 w-5 h-5 rounded-xs bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                        <Check className="h-3 w-3 text-primary-foreground" aria-hidden="true" />
                       </div>
                       <span>{f}</span>
                     </div>
                   ))}
                   {plan.missing.map(f => (
                     <div key={f} className="flex items-start gap-3 text-muted-foreground/50">
-                      <div className="mt-0.5 w-5 h-5 rounded-full border border-muted-foreground/20 flex items-center justify-center shrink-0">
-                        <Check className="h-3 w-3" />
+                      <div className="mt-0.5 w-5 h-5 rounded-xs border border-border flex items-center justify-center shrink-0">
+                        <Check className="h-3 w-3" aria-hidden="true" />
                       </div>
                       <span className="line-through">{f}</span>
                     </div>
@@ -152,7 +156,7 @@ export function PricingSection() {
 
                 <Link href="/register" className="mt-auto">
                   <Button
-                    className={`w-full h-12 text-base rounded-full ${plan.popular ? 'shadow-lg shadow-[#f57c00]/25' : ''}`}
+                    className={`w-full h-12 text-base rounded-xs ${plan.popular ? 'shadow-lg shadow-primary/25' : ''}`}
                     variant={plan.popular ? 'default' : 'outline'}
                   >
                     {plan.popular ? 'Start Free Trial' : 'Get Started'}

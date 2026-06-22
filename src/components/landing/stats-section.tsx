@@ -14,19 +14,19 @@ export function StatsSection() {
 
   return (
     <section className="py-20 relative">
-      <div className="absolute inset-0 bg-[#121824] dark:bg-black" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmNTdjMDAiIGZpbGwtb3BhY2l0eT0iMC4wOCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')]" />
+      <div className="absolute inset-0 bg-foreground dark:bg-black" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmNTdjMDAiIGZpbGwtb3BhY2l0eT0iMC4wOCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')]" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {stats.map((stat, i) => (
             <div
               key={stat.label}
-              className={`text-white transition-all duration-700 ${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0 translate-y-4'}`}
+              className={`transition-all duration-400 ${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0 translate-y-4'}`}
             >
-              <div className="text-4xl md:text-5xl font-bold mb-2 tabular-nums text-[#f57c00]">
+              <div className="text-3xl md:text-4xl font-bold mb-2 tabular-nums text-primary">
                 {inView ? `${stat.value >= 1000 ? Math.floor(stat.value / 1000) + 'K' : stat.value}${stat.suffix}` : '0'}
               </div>
-              <div className="text-white/60 text-sm md:text-base">{stat.label}</div>
+              <div className="text-muted-foreground text-sm md:text-base">{stat.label}</div>
             </div>
           ))}
         </div>

@@ -33,49 +33,56 @@ export function FAQSection() {
 
   return (
     <section className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-50/20 to-transparent dark:via-[#121824]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/20 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-3xl mx-auto px-4">
-        <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#f57c00]/20 bg-white/50 dark:bg-white/5 text-sm text-muted-foreground mb-4">
-            <Sparkles className="h-4 w-4 text-[#f57c00]" />
+        <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-sm">
+            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             FAQ
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Frequently asked{' '}
-            <span className="text-[#f57c00]">questions</span>
+            <span className="text-primary">questions</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             Everything you need to know about SupportAI.
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3" role="list">
           {faqs.map((faq, i) => {
             const isOpen = openIndex === i
             return (
               <div
                 key={i}
-                className={`rounded-2xl border transition-all duration-300 ${
+                className={`rounded-xs border transition-all duration-400 ${
                   inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
                 } ${
                   isOpen
-                    ? 'border-[#f57c00]/30 bg-white dark:bg-[#1a1f2e] shadow-md'
-                    : 'border-gray-200/60 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10'
+                    ? 'border-primary/30 bg-card shadow-md'
+                    : 'border-border bg-card/50 hover:bg-card/80'
                 }`}
+                role="listitem"
               >
-                <button
-                  onClick={() => setOpenIndex(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between p-5 text-left"
-                >
-                  <span className="font-medium text-sm md:text-base">{faq.q}</span>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ml-4 transition-all duration-300 ${
-                    isOpen ? 'bg-[#f57c00] text-white rotate-90' : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {isOpen ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-                  </div>
-                </button>
+                <h3>
+                  <button
+                    onClick={() => setOpenIndex(isOpen ? null : i)}
+                    className="w-full flex items-center justify-between p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xs"
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-panel-${i}`}
+                  >
+                    <span className="font-medium text-sm md:text-base text-foreground">{faq.q}</span>
+                    <div className={`w-6 h-6 rounded-xs flex items-center justify-center shrink-0 ml-4 transition-all duration-200 ${
+                      isOpen ? 'bg-primary text-primary-foreground rotate-90' : 'bg-muted text-muted-foreground'
+                    }`} aria-hidden="true">
+                      {isOpen ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    </div>
+                  </button>
+                </h3>
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${
+                  id={`faq-panel-${i}`}
+                  role="region"
+                  className={`overflow-hidden transition-all duration-400 ${
                     isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >

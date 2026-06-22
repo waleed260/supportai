@@ -9,7 +9,7 @@ const features = [
     desc: 'Unify WhatsApp, Instagram, Facebook, and web chat into one intelligent inbox. Never miss a message.',
     icon: MessageSquare,
     className: 'md:col-span-2 md:row-span-1',
-    gradient: 'from-[#f57c00]/10 to-amber-500/5 dark:from-[#f57c00]/15 dark:to-amber-500/10',
+    gradient: 'from-primary/10 to-amber-500/5 dark:from-primary/15 dark:to-amber-500/10',
     delay: 'delay-100',
   },
   {
@@ -49,7 +49,7 @@ const features = [
     desc: 'SOC 2 compliant, end-to-end encrypted, and GDPR ready. Your data stays yours.',
     icon: Shield,
     className: 'md:col-span-2 md:row-span-1',
-    gradient: 'from-[#f57c00]/10 to-amber-500/5 dark:from-[#f57c00]/15 dark:to-amber-500/10',
+    gradient: 'from-primary/10 to-amber-500/5 dark:from-primary/15 dark:to-amber-500/10',
     delay: 'delay-700',
   },
 ]
@@ -59,16 +59,16 @@ export function FeaturesBento() {
 
   return (
     <section id="features" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-50/30 to-transparent dark:via-[#121824]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/30 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
-        <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#f57c00]/20 bg-white/50 dark:bg-white/5 text-sm text-muted-foreground mb-4">
-            <Sparkles className="h-4 w-4 text-[#f57c00]" />
+        <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-sm">
+            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Platform Features
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Everything you need to{' '}
-            <span className="text-[#f57c00]">scale support</span>
+            <span className="text-primary">scale support</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             From AI-powered responses to real-time analytics — our platform gives you the tools to deliver exceptional customer service.
@@ -81,12 +81,12 @@ export function FeaturesBento() {
             return (
               <div
                 key={f.title}
-                className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${f.gradient} p-6 hover:shadow-lg hover:border-[#f57c00]/30 dark:border-white/10 dark:hover:border-[#f57c00]/30 transition-all duration-300 group ${f.className} ${inView ? `animate-fade-in-up ${f.delay}` : 'opacity-0'}`}
+                className={`relative overflow-hidden rounded-xs border bg-gradient-to-br ${f.gradient} p-6 hover:shadow-lg hover:border-primary/30 dark:border-border dark:hover:border-primary/30 transition-all duration-400 group ${f.className} ${inView ? `animate-fade-in-up ${f.delay}` : 'opacity-0'}`}
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 rounded-bl-full" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 rounded-bl-full" aria-hidden="true" />
                 <div className="relative h-full flex flex-col">
-                  <div className="mb-3 w-10 h-10 rounded-xl bg-[#f57c00] flex items-center justify-center shadow-lg shadow-[#f57c00]/20 group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="h-5 w-5 text-white" />
+                  <div className="mb-3 w-10 h-10 rounded-xs bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-200">
+                    <Icon className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-semibold mb-1">{f.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed flex-1">{f.desc}</p>
