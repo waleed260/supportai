@@ -21,9 +21,7 @@ const defaultFlags: FeatureFlags = {
 export const useFeatureStore = create<FeatureStore>((set, get) => ({
   flags: defaultFlags,
   isLoading: true,
-  setFlags: (flags) => set((s) => ({
-    flags: { ...s.flags, ...flags },
-  })),
+  setFlags: (flags) => set({ flags: { ...get().flags, ...flags } as FeatureFlags }),
   setLoading: (isLoading) => set({ isLoading }),
   isEnabled: (flag) => get().flags[flag],
 }))

@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef, type DependencyList } from 'react'
+import { useEffect, useCallback, useRef, useState, type DependencyList } from 'react'
 import type { RealtimePostgresChangesPayload, SupabaseClient } from '@supabase/supabase-js'
 
 export function useRealtimeSubscription<T extends Record<string, unknown>>(
@@ -25,7 +25,7 @@ export function useRealtimeSubscription<T extends Record<string, unknown>>(
 }
 
 export function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>()
+  const ref = useRef<T | undefined>(undefined)
   useEffect(() => { ref.current = value }, [value])
   return ref.current
 }
@@ -53,7 +53,7 @@ export function useInterval(callback: () => void, delay: number | null) {
 }
 
 export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = React.useState(value)
+  const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay)
@@ -62,5 +62,3 @@ export function useDebounce<T>(value: T, delay: number): T {
 
   return debouncedValue
 }
-
-import React from 'react'

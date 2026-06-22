@@ -1,22 +1,28 @@
-import * as Speech from 'expo-speech'
 import { Platform } from 'react-native'
+
+let Speech: typeof import('expo-speech') | null = null
+
+async function initSpeech() {
+  if (!Speech) {
+    Speech = await import('expo-speech')
+  }
+  return Speech
+}
 
 export async function speakText(text: string, language?: string) {
   if (Platform.OS === 'web') return
-  const voices = await Speech.getVoicesAsync()
-  const voice = language
-    ? voices.find(v => v.language.startsWith(language))
-    : undefined
-  Speech.speak(text, {
-    voice: voice?.identifier,
+  const speech = await initSpeech()
+  speech.speak(text, {
     language: language ?? 'en',
     rate: 1.0,
     pitch: 1.0,
   })
 }
 
-export function stopSpeaking() {
-  Speech.stop()
+export async function stopSpeaking() {
+  if (Platform.OS === 'web') return
+  const speech = await initSpeech()
+  speech.stop()
 }
 
 export function isSpeakingAvailable(): boolean {

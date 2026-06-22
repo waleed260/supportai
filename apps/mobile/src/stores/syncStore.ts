@@ -18,6 +18,7 @@ interface SyncStore {
   pendingOperations: SyncOperation[]
   failedOperations: SyncOperation[]
   networkStatus: 'online' | 'offline' | 'poor'
+  organizationId: string | null
   setIsSyncing: (isSyncing: boolean) => void
   setLastSyncTimestamp: (timestamp: string) => void
   addOperation: (op: SyncOperation) => void
@@ -32,6 +33,7 @@ export const useSyncStore = create<SyncStore>((set) => ({
   pendingOperations: [],
   failedOperations: [],
   networkStatus: 'online',
+  organizationId: null,
   setIsSyncing: (isSyncing) => set({ isSyncing }),
   setLastSyncTimestamp: (lastSyncTimestamp) => set({ lastSyncTimestamp }),
   addOperation: (op) => set((s) => ({
