@@ -24,7 +24,6 @@
     "@supportai/api-client": "*",
     "@supportai/config": "*",
     "@supportai/types": "*",
-    "@supportai/ui": "*",
     "@tanstack/react-query": "^5.101.0",
     "babel-preset-expo": "^56.0.15",
     "expo": "~56.0.12",

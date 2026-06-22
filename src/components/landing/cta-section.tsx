@@ -10,19 +10,19 @@ export function CTASection() {
 
   return (
     <section className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-foreground dark:bg-black" aria-hidden="true" />
+      <div className="absolute inset-0 bg-foreground" aria-hidden="true" />
       <div className="absolute inset-0 opacity-30" aria-hidden="true">
         <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-primary/40 blur-3xl animate-gradient-shift" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-amber-500/30 blur-3xl animate-gradient-shift-slow" />
       </div>
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmNTdjMDAiIGZpbGwtb3BhY2l0eT0iMC4wNiI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23a64d00%22 fill-opacity=%220.06%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden="true" />
       <div ref={ref} className="relative max-w-4xl mx-auto px-4 text-center">
         <div className={`transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/30 bg-primary/10 backdrop-blur-sm text-primary-foreground/80 mb-8 text-sm">
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Get Started Today
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+          <h2 className="text-xl2 md:text-2xl font-bold text-primary-foreground mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Ready to transform your{' '}
             <span className="text-primary">customer support</span>?
           </h2>

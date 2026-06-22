@@ -1,171 +1,304 @@
 'use client'
 
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Check, Sparkles } from 'lucide-react'
-import { useState } from 'react'
-import { useInView } from '@/hooks/use-in-view'
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { TimelineContent } from "@/components/ui/timeline-animation"
+import { VerticalCutReveal } from "@/components/ui/vertical-cut-reveal"
+import { cn } from "@/lib/utils"
+import NumberFlow from "@number-flow/react"
+import { Bot, CheckCheck, MessageSquare, Users, Database, Globe, Shield } from "lucide-react"
+import { motion } from "motion/react"
+import { useRef, useState } from "react"
+import Link from "next/link"
 
 const plans = [
   {
-    name: 'Starter',
+    name: "Starter",
+    description: "Great for small businesses and startups looking to get started with AI support",
     monthlyPrice: 29,
     yearlyPrice: 290,
-    description: 'Basic AI customer support for small businesses',
+    buttonText: "Get started",
+    buttonVariant: "outline" as const,
     features: [
-      '500 conversations/mo',
-      '1 team seat',
-      'Web Chat + WhatsApp',
-      'Knowledge base (5 docs)',
+      { text: "500 conversations/mo", icon: <MessageSquare size={20} /> },
+      { text: "1 team seat", icon: <Users size={20} /> },
+      { text: "Web Chat + WhatsApp", icon: <Globe size={20} /> },
     ],
-    missing: ['Lead capture', 'Sentiment analysis', 'Advanced analytics'],
+    includes: [
+      "Free includes:",
+      "AI-powered responses",
+      "Knowledge base (5 docs)",
+      "Basic analytics dashboard",
+      "Email support",
+      "Standard response templates",
+    ],
     popular: false,
   },
   {
-    name: 'Growth',
+    name: "Growth",
+    description: "Best value for growing businesses that need multi-channel AI support",
     monthlyPrice: 99,
     yearlyPrice: 990,
-    description: 'Multi-channel support with lead capture',
-    features: [
-      '2,000 conversations/mo',
-      '3 team seats',
-      'Web Chat + WhatsApp + Instagram + Facebook',
-      'Knowledge base (20 docs)',
-      'Lead capture',
-      'Sentiment analysis',
-    ],
-    missing: ['Advanced analytics & priority support'],
+    buttonText: "Start Free Trial",
+    buttonVariant: "default" as const,
     popular: true,
+    features: [
+      { text: "2,000 conversations/mo", icon: <MessageSquare size={20} /> },
+      { text: "3 team seats", icon: <Users size={20} /> },
+      { text: "All channels + Instagram + Facebook", icon: <Globe size={20} /> },
+    ],
+    includes: [
+      "Everything in Starter, plus:",
+      "Lead capture & scoring",
+      "Sentiment analysis",
+      "Knowledge base (20 docs)",
+      "Advanced analytics",
+      "Priority email support",
+    ],
   },
   {
-    name: 'Pro',
+    name: "Enterprise",
+    description: "Advanced plan with unlimited access and premium features for large teams",
     monthlyPrice: 299,
     yearlyPrice: 2990,
-    description: 'Enterprise AI with full feature access',
+    buttonText: "Contact Sales",
+    buttonVariant: "outline" as const,
     features: [
-      '10,000 conversations/mo',
-      '50 team seats',
-      'All channels + Email & Telegram',
-      'Knowledge base (100 docs)',
-      'Lead capture & sentiment analysis',
-      'Advanced analytics & priority support',
+      { text: "10,000 conversations/mo", icon: <MessageSquare size={20} /> },
+      { text: "50 team seats", icon: <Users size={20} /> },
+      { text: "All channels + Email & Telegram", icon: <Globe size={20} /> },
     ],
-    missing: [],
+    includes: [
+      "Everything in Growth, plus:",
+      "Unlimited knowledge base",
+      "Custom AI training",
+      "SOC 2 compliance",
+      "Dedicated account manager",
+      "99.99% uptime SLA",
+    ],
     popular: false,
   },
 ]
 
-export function PricingSection() {
-  const [annual, setAnnual] = useState(false)
-  const { ref, inView } = useInView(0.1)
+function PricingSwitch({
+  onSwitch,
+  className,
+}: {
+  onSwitch: (value: string) => void
+  className?: string
+}) {
+  const [selected, setSelected] = useState("0")
 
   return (
-    <section id="pricing" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/30 to-transparent dark:via-background" aria-hidden="true" />
-      <div ref={ref} className="relative max-w-7xl mx-auto px-4">
-        <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-sm">
-            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-            Simple Pricing
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
-            Transparent pricing{' '}
-            <span className="text-primary">for every team</span>
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
-            Start with a free trial — no credit card required. Upgrade when you grow.
-          </p>
+    <div className={cn("flex justify-center", className)}>
+      <div className="relative z-10 mx-auto flex w-fit rounded-xl bg-muted/50 border border-border p-1">
+        <button
+          onClick={() => { setSelected("0"); onSwitch("0") }}
+          className={cn(
+            "relative z-10 w-fit cursor-pointer h-12 rounded-xl sm:px-6 px-3 sm:py-2 py-1 font-medium transition-colors sm:text-base text-sm",
+            selected === "0" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {selected === "0" && (
+            <motion.span
+              layoutId="pricing-switch"
+              className="absolute inset-0 h-full w-full rounded-xl border-2 shadow-sm shadow-primary/30 border-primary bg-primary"
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            />
+          )}
+          <span className="relative">Monthly Billing</span>
+        </button>
 
-          <div className="inline-flex items-center gap-3 p-1 rounded-xs border border-primary/20 bg-card/60 shadow-sm backdrop-blur-sm" role="radiogroup" aria-label="Billing frequency">
-            <button
-              onClick={() => setAnnual(false)}
-              role="radio"
-              aria-checked={!annual}
-              className={`px-5 py-2 rounded-xs text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                !annual ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setAnnual(true)}
-              role="radio"
-              aria-checked={annual}
-              className={`px-5 py-2 rounded-xs text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                annual ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Annual <span className="text-xs opacity-80">Save ~17%</span>
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={() => { setSelected("1"); onSwitch("1") }}
+          className={cn(
+            "relative z-10 w-fit cursor-pointer h-12 flex-shrink-0 rounded-xl sm:px-6 px-3 sm:py-2 py-1 font-medium transition-colors sm:text-base text-sm",
+            selected === "1" ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {selected === "1" && (
+            <motion.span
+              layoutId="pricing-switch"
+              className="absolute inset-0 h-full w-full rounded-xl border-2 shadow-sm shadow-primary/30 border-primary bg-primary"
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            />
+          )}
+          <span className="relative flex items-center gap-2">
+            Yearly Billing
+            <span className="rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
+              Save ~17%
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  )
+}
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {plans.map((plan, i) => {
-            const price = annual ? plan.yearlyPrice / 12 : plan.monthlyPrice
-            return (
-              <div
-                key={plan.name}
-                className={`relative rounded-xs border p-8 flex flex-col transition-all duration-400 ${
-                  inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
-                } ${
+export function PricingSection() {
+  const [isYearly, setIsYearly] = useState(false)
+  const pricingRef = useRef<HTMLDivElement>(null)
+
+  const revealVariants = {
+    visible: (i: number) => ({
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      transition: {
+        delay: i * 0.4,
+        duration: 0.5,
+      },
+    }),
+    hidden: {
+      filter: "blur(10px)",
+      y: -20,
+      opacity: 0,
+    },
+  }
+
+  return (
+    <section id="pricing" className="pt-20 pb-24 relative min-h-screen max-w-7xl mx-auto px-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/30 to-transparent dark:via-background pointer-events-none" aria-hidden="true" />
+
+      <article className="text-left mb-6 space-y-4 max-w-2xl relative">
+        <h2 className="md:text-5xl text-4xl capitalize font-medium text-foreground mb-4">
+          <VerticalCutReveal
+            splitBy="words"
+            staggerDuration={0.15}
+            staggerFrom="first"
+            reverse
+            containerClassName="justify-start"
+            transition={{
+              type: "spring",
+              stiffness: 250,
+              damping: 40,
+              delay: 0,
+            }}
+          >
+            We've got a plan that's perfect for you
+          </VerticalCutReveal>
+        </h2>
+
+        <TimelineContent
+          as="p"
+          animationNum={0}
+          timelineRef={pricingRef}
+          customVariants={revealVariants}
+          className="md:text-base text-sm text-muted-foreground w-[80%]"
+        >
+          Trusted by hundreds of companies. Start with a free trial — no credit card required. Upgrade when you grow.
+        </TimelineContent>
+
+        <TimelineContent
+          as="div"
+          animationNum={1}
+          timelineRef={pricingRef}
+          customVariants={revealVariants}
+        >
+          <PricingSwitch onSwitch={(v) => setIsYearly(Number.parseInt(v) === 1)} className="w-fit" />
+        </TimelineContent>
+      </article>
+
+      <div className="grid md:grid-cols-3 gap-6 py-6">
+        {plans.map((plan, index) => {
+          const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice
+
+          return (
+            <TimelineContent
+              key={plan.name}
+              as="div"
+              animationNum={2 + index}
+              timelineRef={pricingRef}
+              customVariants={revealVariants}
+            >
+              <Card
+                className={cn(
+                  "relative border",
                   plan.popular
-                    ? 'border-primary/50 dark:border-primary/40 shadow-xl shadow-primary/10 scale-105 md:scale-105 bg-card'
-                    : 'border-border shadow-sm bg-card/60 hover:shadow-lg hover:border-primary/30'
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1 shadow-lg shadow-primary/25 rounded-xs">
-                      Most Popular
-                    </Badge>
-                  </div>
+                    ? "ring-2 ring-primary bg-card shadow-xl shadow-primary/10"
+                    : "bg-card/60"
                 )}
-
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold mb-1" style={{ fontFamily: 'var(--font-syne)' }}>{plan.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl md:text-4xl font-bold">${Math.round(price)}</span>
-                    <span className="text-muted-foreground">/month</span>
+              >
+                <CardHeader className="text-left">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="xl:text-2xl md:text-xl text-2xl font-semibold text-foreground mb-2">
+                        {plan.name}
+                      </h3>
+                      <p className="xl:text-sm md:text-xs text-sm text-muted-foreground mb-4">
+                        {plan.description}
+                      </p>
+                    </div>
+                    {plan.popular && (
+                      <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium shrink-0 ml-4">
+                        Popular
+                      </span>
+                    )}
                   </div>
-                  {annual && (
-                    <p className="text-xs text-primary font-medium mt-1">${plan.yearlyPrice}/year billed annually</p>
+                  <div className="flex items-baseline mt-2">
+                    <span className="text-4xl font-semibold text-foreground">
+                      $
+                      <NumberFlow
+                        value={price}
+                        className="text-4xl font-semibold"
+                      />
+                    </span>
+                    <span className="text-muted-foreground ml-1.5">
+                      /{isYearly ? "year" : "month"}
+                    </span>
+                  </div>
+                  {isYearly && (
+                    <p className="text-xs text-primary font-medium mt-1">
+                      ${plan.yearlyPrice}/year billed annually
+                    </p>
                   )}
-                </div>
+                </CardHeader>
 
-                <div className="space-y-3 text-sm flex-1 mb-8">
-                  {plan.features.map(f => (
-                    <div key={f} className="flex items-start gap-3">
-                      <div className="mt-0.5 w-5 h-5 rounded-xs bg-primary flex items-center justify-center shrink-0 shadow-sm">
-                        <Check className="h-3 w-3 text-primary-foreground" aria-hidden="true" />
-                      </div>
-                      <span>{f}</span>
-                    </div>
-                  ))}
-                  {plan.missing.map(f => (
-                    <div key={f} className="flex items-start gap-3 text-muted-foreground/50">
-                      <div className="mt-0.5 w-5 h-5 rounded-xs border border-border flex items-center justify-center shrink-0">
-                        <Check className="h-3 w-3" aria-hidden="true" />
-                      </div>
-                      <span className="line-through">{f}</span>
-                    </div>
-                  ))}
-                </div>
+                <CardContent className="pt-0 space-y-4">
+                  <Link href="/register">
+                    <button
+                      className={cn(
+                        "w-full mb-2 p-3.5 text-lg rounded-xl font-medium transition-all duration-200",
+                        plan.popular
+                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+                          : "bg-foreground text-background hover:bg-foreground/90 shadow-lg shadow-foreground/10"
+                      )}
+                    >
+                      {plan.buttonText}
+                    </button>
+                  </Link>
 
-                <Link href="/register" className="mt-auto">
-                  <Button
-                    className={`w-full h-12 text-base rounded-xs ${plan.popular ? 'shadow-lg shadow-primary/25' : ''}`}
-                    variant={plan.popular ? 'default' : 'outline'}
-                  >
-                    {plan.popular ? 'Start Free Trial' : 'Get Started'}
-                  </Button>
-                </Link>
-              </div>
-            )
-          })}
-        </div>
+                  <div className="space-y-3 pt-4 border-t border-border">
+                    <h4 className="font-semibold text-base text-foreground mb-3 uppercase tracking-wide">
+                      Features
+                    </h4>
+                    <h5 className="font-medium text-sm text-muted-foreground mb-3">
+                      {plan.includes[0]}
+                    </h5>
+                    <ul className="space-y-2.5">
+                      {plan.includes.slice(1).map((feature, featureIndex) => (
+                        <li key={featureIndex} className="flex items-center">
+                          <span className="h-6 w-6 bg-background border border-primary/40 rounded-full grid place-content-center mt-0.5 mr-3 shrink-0">
+                            <CheckCheck className="h-3.5 w-3.5 text-primary" />
+                          </span>
+                          <span className="text-sm text-muted-foreground">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2.5 pt-2">
+                    {plan.features.map((feature, i) => (
+                      <div key={i} className="flex items-center gap-3 text-sm">
+                        <span className="text-primary shrink-0">{feature.icon}</span>
+                        <span className="text-muted-foreground">{feature.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TimelineContent>
+          )
+        })}
       </div>
     </section>
   )

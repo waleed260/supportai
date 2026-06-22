@@ -155,8 +155,8 @@ export default function KnowledgeBasePage() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Knowledge Base</h2>
         <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
-          <DialogTrigger render={<Button variant="default"><Upload className="h-4 w-4 mr-2" />Add Source</Button>}>
-            Add Source
+          <DialogTrigger asChild>
+            <Button variant="default"><Upload className="h-4 w-4 mr-2" />Add Source</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Add Knowledge Source</DialogTitle></DialogHeader>

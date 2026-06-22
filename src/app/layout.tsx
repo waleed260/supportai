@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="en" className={`scroll-smooth ${sora.variable} ${syne.variable} ${satisfy.variable}`}>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="mask-icon" href="/apple-touch-icon.svg" color="#f57c00" />
+        <link rel="mask-icon" href="/apple-touch-icon.svg" color="#a64d00" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -22,7 +22,7 @@ export function HeroSection() {
           AI-Powered Customer Support Platform
         </div>
 
-        <h1 className="font-bold tracking-tight mb-6 animate-fade-in-up delay-100" style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(42px, 6vw, 72px)', lineHeight: 1.1 }}>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 animate-fade-in-up delay-100" style={{ fontFamily: 'var(--font-syne)', lineHeight: 1.1 }}>
           <span className="text-foreground">
             AI Customer Support
           </span>

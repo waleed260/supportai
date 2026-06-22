@@ -78,7 +78,7 @@ export function FeaturesBento() {
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Platform Features
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+          <h2 className="text-xl2 md:text-2xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Everything you need to{' '}
             <span className="text-primary">scale support</span>
           </h2>

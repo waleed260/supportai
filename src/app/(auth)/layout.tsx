@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-dvh flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#fff7ed] via-background to-amber-50 dark:from-background dark:via-background dark:to-[#1a1f2e]">
+    <div className="relative min-h-dvh flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#fff7ed] via-background to-amber-50 dark:from-background dark:via-background dark:to-[#1a1f2e] w-full">
       <div className="absolute inset-0 opacity-50 dark:opacity-70 pointer-events-none" aria-hidden="true">
         <div className="absolute -top-48 -right-48 w-96 h-96 rounded-full bg-primary/20 blur-3xl animate-gradient-shift" />
         <div className="absolute -bottom-48 -left-48 w-[30rem] h-[30rem] rounded-full bg-amber-400/15 blur-3xl animate-gradient-shift-slow" />

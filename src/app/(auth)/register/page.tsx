@@ -47,11 +47,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative z-10 w-full max-w-sm mx-auto px-4 py-6">
-      <div className="rounded-xs border border-primary/20 bg-background/70 backdrop-blur-xl shadow-2xl shadow-primary/5 animate-fade-in">
+    <div className="relative z-10 w-full max-w-md mx-auto px-4 py-6">
+      <div className="w-full rounded-xs border border-primary/20 bg-background/70 backdrop-blur-xl shadow-2xl shadow-primary/5 animate-fade-in">
         <div className="p-8 pb-0">
           <div className="text-center">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xs border border-primary/20 bg-primary/5 text-muted-foreground mb-5 text-[11px] font-medium tracking-wide uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xs border border-primary/20 bg-muted text-muted-foreground mb-5 text-[11px] font-medium tracking-wide uppercase">
               <Sparkles className="h-3 w-3 text-primary" aria-hidden="true" />
               Get Started
             </div>

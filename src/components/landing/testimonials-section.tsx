@@ -60,7 +60,7 @@ export function TestimonialsSection() {
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Testimonials
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+          <h2 className="text-xl2 md:text-2xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Loved by{' '}
             <span className="text-primary">support teams</span>
           </h2>

@@ -18,8 +18,8 @@ export function StatsSection() {
 
   return (
     <section className="py-20 relative">
-      <div className="absolute inset-0 bg-foreground dark:bg-black" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmNTdjMDAiIGZpbGwtb3BhY2l0eT0iMC4wOCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-surface-inverse" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23a64d00%22 fill-opacity=%220.08%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {stats.map((stat, i) => (

@@ -67,8 +67,8 @@ export default function TeamPage() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Team Members</h2>
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-          <DialogTrigger render={<Button variant="default"><Plus className="h-4 w-4 mr-2" />Add Member</Button>}>
-            Add Member
+          <DialogTrigger asChild>
+            <Button variant="default"><Plus className="h-4 w-4 mr-2" />Add Member</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Add Team Member</DialogTitle></DialogHeader>
