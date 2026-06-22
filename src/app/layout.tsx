@@ -31,7 +31,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`scroll-smooth ${sora.variable} ${syne.variable} ${satisfy.variable}`}>
+    <html lang="en" className={`scroll-smooth ${sora.variable} ${syne.variable} ${satisfy.variable}`} data-scroll-behavior="smooth">
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="mask-icon" href="/apple-touch-icon.svg" color="#a64d00" />
