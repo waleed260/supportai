@@ -2,11 +2,24 @@
   "name": "supportai",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev": "next dev",
+    "dev:mobile": "npm run dev -w apps/mobile",
     "build": "next build",
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "build:mobile": "npm run build -w apps/mobile",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:mobile": "npm run lint -w apps/mobile",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:mobile": "npm run test -w apps/mobile",
+    "clean": "turbo run clean",
+    "format": "prettier --write '**/*.{ts,tsx,json}'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
@@ -47,7 +60,9 @@
     "@types/stripe": "^8.0.416",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "prettier": "^3.5.0",
     "tailwindcss": "^4",
+    "turbo": "^2.5.0",
     "typescript": "^5"
   }
 }
