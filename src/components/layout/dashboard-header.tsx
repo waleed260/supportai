@@ -11,25 +11,32 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ user, role }: DashboardHeaderProps) {
   const initials = user?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'
-  const roleColors: Record<string, string> = {
-    super_admin: 'bg-purple-100 text-purple-800',
-    client_admin: 'bg-blue-100 text-blue-800',
-    team_member: 'bg-green-100 text-green-800',
+
+  const roleConfig = {
+    super_admin: { label: 'Super Admin', classes: 'bg-primary/10 text-primary border-primary/20' },
+    client_admin: { label: 'Admin', classes: 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400' },
+    team_member: { label: 'Team', classes: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400' },
   }
 
+  const config = roleConfig[role]
+
   return (
-    <header className="border-b bg-white px-6 py-3 flex items-center justify-between">
-      <div>
-        <h1 className="text-lg font-semibold">Dashboard</h1>
+    <header className="border-b border-border bg-background/80 backdrop-blur-xl px-6 py-3 flex items-center justify-between shrink-0">
+      <div className="flex items-center gap-3">
+        <div className="w-2 h-2 rounded-full bg-success animate-pulse" aria-hidden="true" />
+        <span className="text-sm text-muted-foreground">Online</span>
       </div>
       <div className="flex items-center gap-3">
-        <Badge className={roleColors[role]} variant="secondary">
-          {role === 'super_admin' ? 'Super Admin' : role === 'client_admin' ? 'Admin' : 'Team Member'}
+        <Badge className={`${config.classes} border text-xs font-medium rounded-xs`} variant="outline">
+          {config.label}
         </Badge>
-        <Avatar className="h-8 w-8">
-          <AvatarFallback>{initials}</AvatarFallback>
+        <Avatar className="h-8 w-8 ring-1 ring-border">
+          <AvatarFallback className="text-xs font-medium bg-primary/10 text-primary">{initials}</AvatarFallback>
         </Avatar>
-        <span className="text-sm font-medium">{user?.full_name}</span>
+        <div className="hidden sm:block">
+          <p className="text-sm font-medium text-foreground leading-tight">{user?.full_name}</p>
+          <p className="text-xs text-muted-foreground">{user?.email}</p>
+        </div>
       </div>
     </header>
   )

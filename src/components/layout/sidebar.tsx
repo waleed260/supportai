@@ -56,16 +56,18 @@ export function Sidebar({ role, organizationName, collapsed, onToggle, onSignOut
 
   return (
     <aside className={cn(
-      'border-r bg-sidebar flex flex-col transition-all duration-300',
+      'border-r border-border bg-background flex flex-col transition-all duration-300',
       collapsed ? 'w-16' : 'w-64'
     )}>
-      <div className="p-4 border-b flex items-center justify-between">
+      <div className="p-4 border-b border-border flex items-center justify-between">
         {!collapsed && (
-          <Link href="/dashboard" className="font-bold text-lg text-sidebar-primary">
-            {organizationName || 'SupportAI'}
+          <Link href="/dashboard" className="font-bold text-lg" style={{ fontFamily: 'var(--font-syne)' }}>
+            <span className="bg-gradient-to-r from-primary to-amber-500 bg-clip-text text-transparent">
+              {organizationName || 'SupportAI'}
+            </span>
           </Link>
         )}
-        <Button variant="ghost" size="icon" onClick={onToggle} className={collapsed ? 'mx-auto' : ''}>
+        <Button variant="ghost" size="icon" onClick={onToggle} className={cn('text-muted-foreground', collapsed ? 'mx-auto' : '')}>
           {collapsed ? <PanelLeft className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
       </div>
@@ -79,7 +81,13 @@ export function Sidebar({ role, organizationName, collapsed, onToggle, onSignOut
               <Link key={link.href} href={link.href}>
                 <Button
                   variant={isActive ? 'secondary' : 'ghost'}
-                  className={cn('w-full justify-start gap-3', collapsed && 'justify-center px-2')}
+                  className={cn(
+                    'w-full justify-start gap-3 text-sm',
+                    collapsed && 'justify-center px-2',
+                    isActive
+                      ? 'bg-primary/10 text-primary hover:bg-primary/15 border border-primary/20'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   {!collapsed && <span>{link.label}</span>}

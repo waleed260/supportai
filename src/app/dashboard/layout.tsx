@@ -10,7 +10,14 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-xs border-2 border-primary border-t-transparent animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!membership) return null
@@ -18,7 +25,7 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
   const role = membership.role
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-background">
       <Sidebar
         role={role}
         organizationName={membership.organization?.name}
@@ -26,9 +33,9 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
         onToggle={() => setCollapsed(!collapsed)}
         onSignOut={signOut}
       />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <DashboardHeader user={user} role={role} />
-        <main className="flex-1 bg-gray-50 p-6 overflow-auto">
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>
