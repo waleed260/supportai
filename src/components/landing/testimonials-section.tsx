@@ -1,6 +1,6 @@
 'use client'
 
-import { Quote, Sparkles } from 'lucide-react'
+import { Sparkles, Star } from 'lucide-react'
 import { useInView } from '@/hooks/use-in-view'
 
 const testimonials = [
@@ -16,7 +16,7 @@ const testimonials = [
     role: 'CTO, TechFlow',
     quote: 'The AI agents handle 80% of our inquiries autonomously. Our support team focuses on complex issues while the bot handles the rest.',
     initials: 'MR',
-    gradient: 'from-foreground to-slate-700 dark:from-amber-500 dark:to-primary',
+    gradient: 'from-amber-500 to-primary',
   },
   {
     name: 'Emma Watson',
@@ -56,7 +56,7 @@ export function TestimonialsSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/20 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-4 text-sm">
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Testimonials
           </div>
@@ -75,17 +75,21 @@ export function TestimonialsSection() {
               key={t.name}
               className={`${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'}`}
             >
-              <figure className="relative rounded-xs border border-border bg-card/60 backdrop-blur-sm p-8 h-full hover:shadow-lg hover:border-primary/30 transition-all duration-400 group">
-                <Quote className="h-8 w-8 text-primary/20 dark:text-primary/30 mb-4" aria-hidden="true" />
-                <blockquote className="text-muted-foreground leading-relaxed mb-6">
+              <figure className="relative rounded-xs border border-border bg-card/60 backdrop-blur-sm p-8 h-full transition-all duration-400 group hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="h-3.5 w-3.5 fill-primary/40 text-primary/40" aria-hidden="true" />
+                  ))}
+                </div>
+                <blockquote className="text-muted-foreground leading-relaxed mb-6 text-sm">
                   &ldquo;{t.quote}&rdquo;
                 </blockquote>
-                <figcaption className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xs bg-gradient-to-br ${t.gradient} flex items-center justify-center text-primary-foreground text-sm font-semibold group-hover:scale-110 transition-transform duration-200`} aria-hidden="true">
+                <figcaption className="flex items-center gap-3 pt-4 border-t border-border/50">
+                  <div className={`w-10 h-10 rounded-xs bg-gradient-to-br ${t.gradient} flex items-center justify-center text-primary-foreground text-sm font-semibold group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300 shrink-0`} aria-hidden="true">
                     {t.initials}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold">{t.name}</div>
+                    <div className="text-sm font-semibold text-foreground">{t.name}</div>
                     <div className="text-xs text-muted-foreground">{t.role}</div>
                   </div>
                 </figcaption>

@@ -77,7 +77,7 @@ export function PricingSection() {
             Start with a free trial — no credit card required. Upgrade when you grow.
           </p>
 
-          <div className="inline-flex items-center gap-3 p-1 rounded-xs border border-primary/20 bg-card/60 shadow-sm" role="radiogroup" aria-label="Billing frequency">
+          <div className="inline-flex items-center gap-3 p-1 rounded-xs border border-primary/20 bg-card/60 shadow-sm backdrop-blur-sm" role="radiogroup" aria-label="Billing frequency">
             <button
               onClick={() => setAnnual(false)}
               role="radio"

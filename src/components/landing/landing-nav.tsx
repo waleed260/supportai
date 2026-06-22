@@ -28,7 +28,7 @@ export function LandingNav() {
 
   return (
     <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl animate-fade-in" role="navigation" aria-label="Main navigation">
-      <div className="flex items-center justify-between px-6 py-3 rounded-sm border border-white/20 dark:border-white/10 bg-background/80 backdrop-blur-xl shadow-lg shadow-primary/5">
+      <div className="flex items-center justify-between px-6 py-3 rounded-sm border border-white/20 dark:border-white/10 bg-background/80 backdrop-blur-xl shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-shadow duration-300">
         <Link
           href="/"
           className="text-xl font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xs"

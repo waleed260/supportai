@@ -9,6 +9,10 @@ const stats = [
   { value: 99, suffix: '.9%', label: 'Platform Uptime' },
 ]
 
+function formatStat(value: number, suffix: string) {
+  return `${value >= 1000 ? Math.floor(value / 1000) + 'K' : value}${suffix}`
+}
+
 export function StatsSection() {
   const { ref, inView } = useInView(0.3)
 
@@ -24,7 +28,7 @@ export function StatsSection() {
               className={`transition-all duration-400 ${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0 translate-y-4'}`}
             >
               <div className="text-3xl md:text-4xl font-bold mb-2 tabular-nums text-primary">
-                {inView ? `${stat.value >= 1000 ? Math.floor(stat.value / 1000) + 'K' : stat.value}${stat.suffix}` : '0'}
+                {formatStat(stat.value, stat.suffix)}
               </div>
               <div className="text-muted-foreground text-sm md:text-base">{stat.label}</div>
             </div>
