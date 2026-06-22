@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useInView } from '@/hooks/use-in-view'
 
 const footerLinks = {
   Product: [
@@ -21,11 +24,13 @@ const footerLinks = {
 }
 
 export function LandingFooter() {
+  const { ref, inView } = useInView(0.1)
+
   return (
-    <footer className="border-t bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 py-16">
+    <footer className="border-t bg-slate-50 dark:bg-slate-900 dark:border-slate-800">
+      <div ref={ref} className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-4 gap-8">
-          <div className="md:col-span-1">
+          <div className={`md:col-span-1 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
             <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
               SupportAI
             </div>
@@ -33,13 +38,16 @@ export function LandingFooter() {
               AI-powered customer support platform. Automate support, capture leads, and delight customers across every channel.
             </p>
           </div>
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
+          {Object.entries(footerLinks).map(([title, links], i) => (
+            <div key={title} className={`${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'}`}>
               <h4 className="font-semibold text-sm mb-4">{title}</h4>
               <ul className="space-y-3">
                 {links.map(link => (
                   <li key={link.label}>
-                    <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
                       {link.label}
                     </Link>
                   </li>
@@ -48,7 +56,7 @@ export function LandingFooter() {
             </div>
           ))}
         </div>
-        <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className={`border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 dark:border-slate-800 ${inView ? 'animate-fade-in-up delay-500' : 'opacity-0'}`}>
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} SupportAI. All rights reserved.
           </p>

@@ -1,7 +1,8 @@
 'use client'
 
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { useInView } from '@/hooks/use-in-view'
 
 const faqs = [
   {
@@ -28,13 +29,15 @@ const faqs = [
 
 export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const { ref, inView } = useInView(0.1)
 
   return (
     <section className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/20 to-transparent" />
-      <div className="relative max-w-3xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 text-sm text-muted-foreground mb-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/20 to-transparent dark:via-indigo-950/10" />
+      <div ref={ref} className="relative max-w-3xl mx-auto px-4">
+        <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 dark:bg-slate-800/50 text-sm text-muted-foreground mb-4">
+            <Sparkles className="h-4 w-4 text-blue-500" />
             FAQ
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -54,8 +57,12 @@ export function FAQSection() {
             return (
               <div
                 key={i}
-                className={`rounded-2xl border transition-all duration-200 ${
-                  isOpen ? 'border-blue-200/50 bg-white shadow-md' : 'border-gray-200/60 bg-white/50 hover:bg-white/80'
+                className={`rounded-2xl border transition-all duration-300 ${
+                  inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
+                } ${
+                  isOpen
+                    ? 'border-blue-200/50 dark:border-blue-500/30 bg-white dark:bg-slate-800 shadow-md'
+                    : 'border-gray-200/60 dark:border-slate-700/40 bg-white/50 dark:bg-slate-800/30 hover:bg-white/80 dark:hover:bg-slate-800/50'
                 }`}
               >
                 <button
@@ -63,17 +70,23 @@ export function FAQSection() {
                   className="w-full flex items-center justify-between p-5 text-left"
                 >
                   <span className="font-medium text-sm md:text-base">{faq.q}</span>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ml-4 transition-all ${
-                    isOpen ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white' : 'bg-muted text-muted-foreground'
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ml-4 transition-all duration-300 ${
+                    isOpen
+                      ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rotate-90'
+                      : 'bg-muted text-muted-foreground'
                   }`}>
                     {isOpen ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                   </div>
                 </button>
-                {isOpen && (
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
                   <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
                     {faq.a}
                   </div>
-                )}
+                </div>
               </div>
             )
           })}

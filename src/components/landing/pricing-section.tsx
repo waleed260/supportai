@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Check, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { useInView } from '@/hooks/use-in-view'
 
 const plans = [
   {
@@ -57,13 +58,14 @@ const plans = [
 
 export function PricingSection() {
   const [annual, setAnnual] = useState(false)
+  const { ref, inView } = useInView(0.1)
 
   return (
     <section id="pricing" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/30 to-transparent" />
-      <div className="relative max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 text-sm text-muted-foreground mb-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/30 to-transparent dark:via-indigo-950/20" />
+      <div ref={ref} className="relative max-w-7xl mx-auto px-4">
+        <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 dark:bg-slate-800/50 text-sm text-muted-foreground mb-4">
             <Sparkles className="h-4 w-4 text-blue-500" />
             Simple Pricing
           </div>
@@ -77,11 +79,13 @@ export function PricingSection() {
             Start with a free trial — no credit card required. Upgrade when you grow.
           </p>
 
-          <div className="inline-flex items-center gap-3 p-1 rounded-full border bg-white/60 shadow-sm">
+          <div className="inline-flex items-center gap-3 p-1 rounded-full border bg-white/60 dark:bg-slate-800/60 shadow-sm dark:border-slate-700">
             <button
               onClick={() => setAnnual(false)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                !annual ? 'bg-blue-600 text-white shadow-md' : 'text-muted-foreground hover:text-foreground'
+                !annual
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Monthly
@@ -89,7 +93,9 @@ export function PricingSection() {
             <button
               onClick={() => setAnnual(true)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                annual ? 'bg-blue-600 text-white shadow-md' : 'text-muted-foreground hover:text-foreground'
+                annual
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Annual <span className="text-xs opacity-80">Save ~17%</span>
@@ -104,9 +110,11 @@ export function PricingSection() {
               <div
                 key={plan.name}
                 className={`relative rounded-3xl border p-8 flex flex-col transition-all duration-300 ${
+                  inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
+                } ${
                   plan.popular
-                    ? 'border-blue-500/50 shadow-xl shadow-blue-500/10 scale-105 md:scale-105 bg-white'
-                    : 'border-gray-200/80 shadow-sm bg-white/80 hover:shadow-lg hover:border-blue-200/50'
+                    ? 'border-blue-500/50 dark:border-blue-500/40 shadow-xl shadow-blue-500/10 dark:shadow-blue-500/5 scale-105 md:scale-105 bg-white dark:bg-slate-800'
+                    : 'border-gray-200/80 dark:border-slate-700/50 shadow-sm bg-white/80 dark:bg-slate-800/60 hover:shadow-lg hover:border-blue-200/50 dark:hover:border-blue-500/30'
                 }`}
               >
                 {plan.popular && (
@@ -125,7 +133,7 @@ export function PricingSection() {
                     <span className="text-muted-foreground">/month</span>
                   </div>
                   {annual && (
-                    <p className="text-xs text-blue-600 font-medium mt-1">${plan.yearlyPrice}/year billed annually</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-1">${plan.yearlyPrice}/year billed annually</p>
                   )}
                 </div>
 

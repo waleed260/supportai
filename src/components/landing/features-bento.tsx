@@ -1,4 +1,7 @@
-import { MessageSquare, Bot, BarChart3, Globe, Users, Shield } from 'lucide-react'
+'use client'
+
+import { MessageSquare, Bot, BarChart3, Globe, Users, Shield, Sparkles } from 'lucide-react'
+import { useInView } from '@/hooks/use-in-view'
 
 const features = [
   {
@@ -6,52 +9,61 @@ const features = [
     desc: 'Unify WhatsApp, Instagram, Facebook, and web chat into one intelligent inbox. Never miss a message.',
     icon: MessageSquare,
     className: 'md:col-span-2 md:row-span-1',
-    gradient: 'from-blue-500/10 to-indigo-500/5',
+    gradient: 'from-blue-500/10 to-indigo-500/5 dark:from-blue-500/15 dark:to-indigo-500/10',
+    delay: 'delay-100',
   },
   {
     title: 'AI-Powered Agents',
     desc: 'Claude-powered agents with RAG from your knowledge base. Smart, context-aware responses every time.',
     icon: Bot,
     className: 'md:col-span-1 md:row-span-2',
-    gradient: 'from-indigo-500/10 to-purple-500/5',
+    gradient: 'from-indigo-500/10 to-purple-500/5 dark:from-indigo-500/15 dark:to-purple-500/10',
+    delay: 'delay-200',
   },
   {
     title: 'Smart Analytics',
     desc: 'Sentiment tracking, lead scoring, and performance metrics. Know exactly how your support team is doing.',
     icon: BarChart3,
     className: 'md:col-span-1 md:row-span-1',
-    gradient: 'from-emerald-500/10 to-teal-500/5',
+    gradient: 'from-emerald-500/10 to-teal-500/5 dark:from-emerald-500/15 dark:to-teal-500/10',
+    delay: 'delay-300',
   },
   {
     title: 'Omnichannel Reach',
     desc: 'Meet customers where they are. Seamless integration with all major messaging platforms.',
     icon: Globe,
     className: 'md:col-span-1 md:row-span-1',
-    gradient: 'from-amber-500/10 to-orange-500/5',
+    gradient: 'from-amber-500/10 to-orange-500/5 dark:from-amber-500/15 dark:to-orange-500/10',
+    delay: 'delay-400',
   },
   {
     title: 'Team Collaboration',
     desc: 'Assign conversations, share notes, and work together. Built for teams of any size.',
     icon: Users,
     className: 'md:col-span-1 md:row-span-1',
-    gradient: 'from-rose-500/10 to-pink-500/5',
+    gradient: 'from-rose-500/10 to-pink-500/5 dark:from-rose-500/15 dark:to-pink-500/10',
+    delay: 'delay-500',
   },
   {
     title: 'Enterprise Security',
     desc: 'SOC 2 compliant, end-to-end encrypted, and GDPR ready. Your data stays yours.',
     icon: Shield,
-    className: 'md:col-span-2 md:row-span-1',
-    gradient: 'from-sky-500/10 to-cyan-500/5',
+    className: 'md:col-span-2 md:row-span-1 grid-item-last',
+    gradient: 'from-sky-500/10 to-cyan-500/5 dark:from-sky-500/15 dark:to-cyan-500/10',
+    delay: 'delay-700',
   },
 ]
 
 export function FeaturesBento() {
+  const { ref, inView } = useInView(0.05)
+
   return (
     <section id="features" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent" />
-      <div className="relative max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 text-sm text-muted-foreground mb-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent dark:via-blue-950/20" />
+      <div ref={ref} className="relative max-w-7xl mx-auto px-4">
+        <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 dark:bg-slate-800/50 text-sm text-muted-foreground mb-4">
+            <Sparkles className="h-4 w-4 text-blue-500" />
             Platform Features
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -71,11 +83,11 @@ export function FeaturesBento() {
             return (
               <div
                 key={f.title}
-                className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${f.gradient} p-6 hover:shadow-lg hover:border-blue-200/50 transition-all duration-300 group ${f.className}`}
+                className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${f.gradient} p-6 hover:shadow-lg hover:border-blue-200/50 dark:border-slate-700/50 dark:hover:border-blue-500/30 dark:hover:shadow-blue-500/5 transition-all duration-300 group ${f.className} ${inView ? `animate-fade-in-up ${f.delay}` : 'opacity-0'}`}
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/40 to-transparent rounded-bl-full" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 rounded-bl-full" />
                 <div className="relative h-full flex flex-col">
-                  <div className="mb-3 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                  <div className="mb-3 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 dark:shadow-blue-500/10 group-hover:scale-110 transition-transform duration-300">
                     <Icon className="h-5 w-5 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold mb-1">{f.title}</h3>
