@@ -62,30 +62,26 @@ export function PricingSection() {
 
   return (
     <section id="pricing" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/30 to-transparent dark:via-indigo-950/20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-50/30 to-transparent dark:via-[#121824]" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 dark:bg-slate-800/50 text-sm text-muted-foreground mb-4">
-            <Sparkles className="h-4 w-4 text-blue-500" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#f57c00]/20 bg-white/50 dark:bg-white/5 text-sm text-muted-foreground mb-4">
+            <Sparkles className="h-4 w-4 text-[#f57c00]" />
             Simple Pricing
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Transparent pricing{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              for every team
-            </span>
+            <span className="text-[#f57c00]">for every team</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
             Start with a free trial — no credit card required. Upgrade when you grow.
           </p>
 
-          <div className="inline-flex items-center gap-3 p-1 rounded-full border bg-white/60 dark:bg-slate-800/60 shadow-sm dark:border-slate-700">
+          <div className="inline-flex items-center gap-3 p-1 rounded-full border border-[#f57c00]/20 bg-white/60 dark:bg-white/5 shadow-sm">
             <button
               onClick={() => setAnnual(false)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                !annual
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-muted-foreground hover:text-foreground'
+                !annual ? 'bg-[#f57c00] text-white shadow-md' : 'text-muted-foreground hover:text-[#121824] dark:hover:text-white'
               }`}
             >
               Monthly
@@ -93,9 +89,7 @@ export function PricingSection() {
             <button
               onClick={() => setAnnual(true)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                annual
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-muted-foreground hover:text-foreground'
+                annual ? 'bg-[#f57c00] text-white shadow-md' : 'text-muted-foreground hover:text-[#121824] dark:hover:text-white'
               }`}
             >
               Annual <span className="text-xs opacity-80">Save ~17%</span>
@@ -113,34 +107,34 @@ export function PricingSection() {
                   inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
                 } ${
                   plan.popular
-                    ? 'border-blue-500/50 dark:border-blue-500/40 shadow-xl shadow-blue-500/10 dark:shadow-blue-500/5 scale-105 md:scale-105 bg-white dark:bg-slate-800'
-                    : 'border-gray-200/80 dark:border-slate-700/50 shadow-sm bg-white/80 dark:bg-slate-800/60 hover:shadow-lg hover:border-blue-200/50 dark:hover:border-blue-500/30'
+                    ? 'border-[#f57c00]/50 dark:border-[#f57c00]/40 shadow-xl shadow-[#f57c00]/10 scale-105 md:scale-105 bg-white dark:bg-[#1a1f2e]'
+                    : 'border-gray-200/80 dark:border-white/10 shadow-sm bg-white/80 dark:bg-[#121824]/60 hover:shadow-lg hover:border-[#f57c00]/30'
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-1 shadow-lg shadow-blue-500/25">
+                    <Badge className="bg-[#f57c00] text-white px-4 py-1 shadow-lg shadow-[#f57c00]/25 rounded-full">
                       Most Popular
                     </Badge>
                   </div>
                 )}
 
                 <div className="mb-8">
-                  <h3 className="text-xl font-semibold mb-1">{plan.name}</h3>
+                  <h3 className="text-xl font-semibold mb-1" style={{ fontFamily: 'var(--font-syne)' }}>{plan.name}</h3>
                   <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold">${Math.round(price)}</span>
                     <span className="text-muted-foreground">/month</span>
                   </div>
                   {annual && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-1">${plan.yearlyPrice}/year billed annually</p>
+                    <p className="text-xs text-[#f57c00] font-medium mt-1">${plan.yearlyPrice}/year billed annually</p>
                   )}
                 </div>
 
                 <div className="space-y-3 text-sm flex-1 mb-8">
                   {plan.features.map(f => (
                     <div key={f} className="flex items-start gap-3">
-                      <div className="mt-0.5 w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm">
+                      <div className="mt-0.5 w-5 h-5 rounded-full bg-[#f57c00] flex items-center justify-center shrink-0 shadow-sm">
                         <Check className="h-3 w-3 text-white" />
                       </div>
                       <span>{f}</span>
@@ -158,7 +152,7 @@ export function PricingSection() {
 
                 <Link href="/register" className="mt-auto">
                   <Button
-                    className={`w-full h-12 text-base ${plan.popular ? 'shadow-lg shadow-blue-500/25' : ''}`}
+                    className={`w-full h-12 text-base rounded-full ${plan.popular ? 'shadow-lg shadow-[#f57c00]/25' : ''}`}
                     variant={plan.popular ? 'default' : 'outline'}
                   >
                     {plan.popular ? 'Start Free Trial' : 'Get Started'}

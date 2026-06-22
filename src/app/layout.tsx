@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Sora, Syne, Satisfy } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
 
-const inter = Inter({ subsets: ['latin'] })
+const sora = Sora({ subsets: ['latin'], variable: '--font-sora' })
+const syne = Syne({ subsets: ['latin'], variable: '--font-syne', weight: ['600', '700'] })
+const satisfy = Satisfy({ subsets: ['latin'], variable: '--font-satisfy', weight: '400' })
 
 export const metadata: Metadata = {
   title: 'SupportAI - AI Customer Support Platform',
@@ -29,10 +31,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className={`scroll-smooth ${sora.variable} ${syne.variable} ${satisfy.variable}`}>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="mask-icon" href="/apple-touch-icon.svg" color="#000000" />
+        <link rel="mask-icon" href="/apple-touch-icon.svg" color="#f57c00" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -57,7 +59,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={sora.className}>
         {children}
         <Toaster richColors position="top-right" />
       </body>

@@ -27,11 +27,11 @@ export function LandingFooter() {
   const { ref, inView } = useInView(0.1)
 
   return (
-    <footer className="border-t bg-slate-50 dark:bg-slate-900 dark:border-slate-800">
+    <footer className="border-t border-gray-200 dark:border-white/10 bg-white dark:bg-[#121824]">
       <div ref={ref} className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-4 gap-8">
           <div className={`md:col-span-1 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-            <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+            <div className="text-xl font-bold text-[#f57c00] mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
               SupportAI
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
@@ -40,13 +40,13 @@ export function LandingFooter() {
           </div>
           {Object.entries(footerLinks).map(([title, links], i) => (
             <div key={title} className={`${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'}`}>
-              <h4 className="font-semibold text-sm mb-4">{title}</h4>
+              <h4 className="font-semibold text-sm mb-4 text-[#121824] dark:text-white" style={{ fontFamily: 'var(--font-syne)' }}>{title}</h4>
               <ul className="space-y-3">
                 {links.map(link => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-muted-foreground hover:text-[#f57c00] transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -56,14 +56,14 @@ export function LandingFooter() {
             </div>
           ))}
         </div>
-        <div className={`border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 dark:border-slate-800 ${inView ? 'animate-fade-in-up delay-500' : 'opacity-0'}`}>
+        <div className={`border-t border-gray-200 dark:border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 ${inView ? 'animate-fade-in-up delay-500' : 'opacity-0'}`}>
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} SupportAI. All rights reserved.
           </p>
           <div className="flex gap-4 text-sm text-muted-foreground">
-            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link href="/security" className="hover:text-foreground transition-colors">Security</Link>
+            <Link href="/privacy" className="hover:text-[#f57c00] transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#f57c00] transition-colors">Terms</Link>
+            <Link href="/security" className="hover:text-[#f57c00] transition-colors">Security</Link>
           </div>
         </div>
       </div>

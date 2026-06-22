@@ -33,18 +33,16 @@ export function FAQSection() {
 
   return (
     <section className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-50/20 to-transparent dark:via-indigo-950/10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-50/20 to-transparent dark:via-[#121824]" />
       <div ref={ref} className="relative max-w-3xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 dark:bg-slate-800/50 text-sm text-muted-foreground mb-4">
-            <Sparkles className="h-4 w-4 text-blue-500" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#f57c00]/20 bg-white/50 dark:bg-white/5 text-sm text-muted-foreground mb-4">
+            <Sparkles className="h-4 w-4 text-[#f57c00]" />
             FAQ
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Frequently asked{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              questions
-            </span>
+            <span className="text-[#f57c00]">questions</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             Everything you need to know about SupportAI.
@@ -61,8 +59,8 @@ export function FAQSection() {
                   inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
                 } ${
                   isOpen
-                    ? 'border-blue-200/50 dark:border-blue-500/30 bg-white dark:bg-slate-800 shadow-md'
-                    : 'border-gray-200/60 dark:border-slate-700/40 bg-white/50 dark:bg-slate-800/30 hover:bg-white/80 dark:hover:bg-slate-800/50'
+                    ? 'border-[#f57c00]/30 bg-white dark:bg-[#1a1f2e] shadow-md'
+                    : 'border-gray-200/60 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10'
                 }`}
               >
                 <button
@@ -71,9 +69,7 @@ export function FAQSection() {
                 >
                   <span className="font-medium text-sm md:text-base">{faq.q}</span>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ml-4 transition-all duration-300 ${
-                    isOpen
-                      ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rotate-90'
-                      : 'bg-muted text-muted-foreground'
+                    isOpen ? 'bg-[#f57c00] text-white rotate-90' : 'bg-muted text-muted-foreground'
                   }`}>
                     {isOpen ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                   </div>

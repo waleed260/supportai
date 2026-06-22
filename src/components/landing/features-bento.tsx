@@ -9,7 +9,7 @@ const features = [
     desc: 'Unify WhatsApp, Instagram, Facebook, and web chat into one intelligent inbox. Never miss a message.',
     icon: MessageSquare,
     className: 'md:col-span-2 md:row-span-1',
-    gradient: 'from-blue-500/10 to-indigo-500/5 dark:from-blue-500/15 dark:to-indigo-500/10',
+    gradient: 'from-[#f57c00]/10 to-amber-500/5 dark:from-[#f57c00]/15 dark:to-amber-500/10',
     delay: 'delay-100',
   },
   {
@@ -17,7 +17,7 @@ const features = [
     desc: 'Claude-powered agents with RAG from your knowledge base. Smart, context-aware responses every time.',
     icon: Bot,
     className: 'md:col-span-1 md:row-span-2',
-    gradient: 'from-indigo-500/10 to-purple-500/5 dark:from-indigo-500/15 dark:to-purple-500/10',
+    gradient: 'from-amber-500/10 to-orange-500/5 dark:from-amber-500/15 dark:to-orange-500/10',
     delay: 'delay-200',
   },
   {
@@ -33,7 +33,7 @@ const features = [
     desc: 'Meet customers where they are. Seamless integration with all major messaging platforms.',
     icon: Globe,
     className: 'md:col-span-1 md:row-span-1',
-    gradient: 'from-amber-500/10 to-orange-500/5 dark:from-amber-500/15 dark:to-orange-500/10',
+    gradient: 'from-sky-500/10 to-blue-500/5 dark:from-sky-500/15 dark:to-blue-500/10',
     delay: 'delay-400',
   },
   {
@@ -48,8 +48,8 @@ const features = [
     title: 'Enterprise Security',
     desc: 'SOC 2 compliant, end-to-end encrypted, and GDPR ready. Your data stays yours.',
     icon: Shield,
-    className: 'md:col-span-2 md:row-span-1 grid-item-last',
-    gradient: 'from-sky-500/10 to-cyan-500/5 dark:from-sky-500/15 dark:to-cyan-500/10',
+    className: 'md:col-span-2 md:row-span-1',
+    gradient: 'from-[#f57c00]/10 to-amber-500/5 dark:from-[#f57c00]/15 dark:to-amber-500/10',
     delay: 'delay-700',
   },
 ]
@@ -59,18 +59,16 @@ export function FeaturesBento() {
 
   return (
     <section id="features" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent dark:via-blue-950/20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-50/30 to-transparent dark:via-[#121824]" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-700 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border bg-white/50 dark:bg-slate-800/50 text-sm text-muted-foreground mb-4">
-            <Sparkles className="h-4 w-4 text-blue-500" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#f57c00]/20 bg-white/50 dark:bg-white/5 text-sm text-muted-foreground mb-4">
+            <Sparkles className="h-4 w-4 text-[#f57c00]" />
             Platform Features
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
             Everything you need to{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              scale support
-            </span>
+            <span className="text-[#f57c00]">scale support</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             From AI-powered responses to real-time analytics — our platform gives you the tools to deliver exceptional customer service.
@@ -83,11 +81,11 @@ export function FeaturesBento() {
             return (
               <div
                 key={f.title}
-                className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${f.gradient} p-6 hover:shadow-lg hover:border-blue-200/50 dark:border-slate-700/50 dark:hover:border-blue-500/30 dark:hover:shadow-blue-500/5 transition-all duration-300 group ${f.className} ${inView ? `animate-fade-in-up ${f.delay}` : 'opacity-0'}`}
+                className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${f.gradient} p-6 hover:shadow-lg hover:border-[#f57c00]/30 dark:border-white/10 dark:hover:border-[#f57c00]/30 transition-all duration-300 group ${f.className} ${inView ? `animate-fade-in-up ${f.delay}` : 'opacity-0'}`}
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 rounded-bl-full" />
                 <div className="relative h-full flex flex-col">
-                  <div className="mb-3 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 dark:shadow-blue-500/10 group-hover:scale-110 transition-transform duration-300">
+                  <div className="mb-3 w-10 h-10 rounded-xl bg-[#f57c00] flex items-center justify-center shadow-lg shadow-[#f57c00]/20 group-hover:scale-110 transition-transform duration-300">
                     <Icon className="h-5 w-5 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold mb-1">{f.title}</h3>
