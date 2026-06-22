@@ -69,28 +69,28 @@ export function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {testimonials.map((t, i) => (
             <div
               key={t.name}
               className={`${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'}`}
             >
-              <figure className="relative rounded-xs border border-border bg-card/60 backdrop-blur-sm p-8 h-full transition-all duration-400 group hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
-                <div className="flex gap-1 mb-4">
+              <figure className="relative rounded-xs border border-border bg-card/60 backdrop-blur-sm p-5 md:aspect-square flex flex-col transition-all duration-400 group hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
+                <div className="flex gap-0.5 mb-3 shrink-0">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="h-3.5 w-3.5 fill-primary/40 text-primary/40" aria-hidden="true" />
+                    <Star key={j} className="h-3 w-3 fill-primary/30 text-primary/30" aria-hidden="true" />
                   ))}
                 </div>
-                <blockquote className="text-muted-foreground leading-relaxed mb-6 text-sm">
+                <blockquote className="text-muted-foreground leading-relaxed text-sm flex-1 overflow-hidden">
                   &ldquo;{t.quote}&rdquo;
                 </blockquote>
-                <figcaption className="flex items-center gap-3 pt-4 border-t border-border/50">
-                  <div className={`w-10 h-10 rounded-xs bg-gradient-to-br ${t.gradient} flex items-center justify-center text-primary-foreground text-sm font-semibold group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300 shrink-0`} aria-hidden="true">
+                <figcaption className="flex items-center gap-3 pt-3.5 mt-3.5 border-t border-border/40 shrink-0">
+                  <div className={`w-9 h-9 rounded-xs bg-gradient-to-br ${t.gradient} flex items-center justify-center text-primary-foreground text-xs font-semibold group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300 shrink-0`} aria-hidden="true">
                     {t.initials}
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">{t.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.role}</div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-foreground truncate">{t.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{t.role}</div>
                   </div>
                 </figcaption>
               </figure>
