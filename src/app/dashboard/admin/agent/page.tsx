@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import type { AIAgent } from '@/types'
 import {
   Bot, Sparkles, Brain, Sliders, Shield, ChevronRight,
-  Loader2, MessageSquare, User, Settings2, Gauge, Clock,
+  Loader2, MessageSquare, User, Settings2, Clock,
   Activity, TrendingUp, RotateCcw, Play,
 } from 'lucide-react'
 
@@ -35,37 +35,37 @@ function AgentSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
       <div className="flex items-center gap-4 mb-8">
-        <div className="h-10 w-10 rounded-xs bg-muted" />
+        <div className="h-10 w-10 rounded-sm bg-muted" />
         <div className="space-y-2">
-          <div className="h-5 w-32 rounded-xs bg-muted" />
-          <div className="h-3 w-48 rounded-xs bg-muted/60" />
+          <div className="h-5 w-32 rounded-sm bg-muted" />
+          <div className="h-3 w-48 rounded-sm bg-muted/60" />
         </div>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="rounded-xs border border-border p-4 space-y-2">
-            <div className="h-3 w-16 rounded-xs bg-muted/60" />
-            <div className="h-6 w-12 rounded-xs bg-muted" />
+          <div key={i} className="rounded-sm border border-border p-4 space-y-2">
+            <div className="h-3 w-16 rounded-sm bg-muted/60" />
+            <div className="h-6 w-12 rounded-sm bg-muted" />
           </div>
         ))}
       </div>
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {[1].map(i => (
-            <div key={i} className="rounded-xs border border-border p-6 space-y-4">
-              <div className="h-4 w-24 rounded-xs bg-muted" />
+            <div key={i} className="rounded-sm border border-border p-6 space-y-4">
+              <div className="h-4 w-24 rounded-sm bg-muted" />
               {[1, 2, 3].map(j => (
                 <div key={j} className="space-y-2">
-                  <div className="h-3 w-16 rounded-xs bg-muted/60" />
-                  <div className="h-10 rounded-xs bg-muted" />
+                  <div className="h-3 w-16 rounded-sm bg-muted/60" />
+                  <div className="h-10 rounded-sm bg-muted" />
                 </div>
               ))}
             </div>
           ))}
         </div>
-        <div className="rounded-xs border border-border p-6 space-y-4 h-fit">
-          <div className="h-4 w-20 rounded-xs bg-muted" />
-          <div className="h-40 rounded-xs bg-muted" />
+        <div className="rounded-sm border border-border p-6 space-y-4 h-fit">
+          <div className="h-4 w-20 rounded-sm bg-muted" />
+          <div className="h-40 rounded-sm bg-muted" />
         </div>
       </div>
     </div>
@@ -74,9 +74,9 @@ function AgentSkeleton() {
 
 function ChatPreview({ agent }: { agent: AIAgent | null }) {
   return (
-    <div className="rounded-xs border border-border bg-card/50 backdrop-blur-sm overflow-hidden sticky top-6">
+    <div className="rounded-sm border border-border bg-card/50 backdrop-blur-sm overflow-hidden sticky top-6">
       <div className="h-10 bg-foreground dark:bg-black flex items-center px-4 gap-2">
-        <div className="w-6 h-6 rounded-xs bg-primary flex items-center justify-center">
+        <div className="w-6 h-6 rounded-sm bg-primary flex items-center justify-center">
           <Bot className="h-3.5 w-3.5 text-primary-foreground" />
         </div>
         <span className="text-sm font-medium text-background dark:text-foreground flex-1 truncate">{agent?.name || 'AI Agent'}</span>
@@ -84,19 +84,19 @@ function ChatPreview({ agent }: { agent: AIAgent | null }) {
       </div>
       <div className="p-4 space-y-3">
         <div className="flex items-start gap-2">
-          <div className="w-6 h-6 rounded-xs bg-muted flex items-center justify-center shrink-0 mt-0.5">
+          <div className="w-6 h-6 rounded-sm bg-muted flex items-center justify-center shrink-0 mt-0.5">
             <User className="h-3 w-3 text-muted-foreground" />
           </div>
-          <div className="rounded-xs bg-muted p-2.5 text-xs text-muted-foreground">
+          <div className="rounded-sm bg-muted p-2.5 text-xs text-muted-foreground">
             I need help with my order #12345
           </div>
         </div>
         <div className="flex items-start gap-2">
-          <div className="w-6 h-6 rounded-xs bg-primary flex items-center justify-center shrink-0 mt-0.5">
+          <div className="w-6 h-6 rounded-sm bg-primary flex items-center justify-center shrink-0 mt-0.5">
             <Bot className="h-3 w-3 text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <div className="rounded-xs bg-primary/10 border border-primary/20 p-2.5 text-xs">
+            <div className="rounded-sm bg-primary/10 border border-primary/20 p-2.5 text-xs">
               <p className="font-medium text-primary mb-1 truncate">{agent?.name || 'SupportAI'} — {agent?.personality || 'Professional'}</p>
               <p className="text-muted-foreground">
                 I&apos;d be happy to help with order #12345! Let me look that up right away.
@@ -104,7 +104,7 @@ function ChatPreview({ agent }: { agent: AIAgent | null }) {
             </div>
           </div>
         </div>
-        <div className="h-8 rounded-xs border border-border bg-background flex items-center px-3 gap-2">
+        <div className="h-8 rounded-sm border border-border bg-background flex items-center px-3 gap-2">
           <div className="h-2 w-2 rounded-full bg-border" />
           <span className="text-xs text-muted-foreground/60">Type a message...</span>
         </div>
@@ -208,14 +208,14 @@ export default function AgentConfigPage() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[60vh]">
         <div className="text-center max-w-sm">
-          <div className="w-16 h-16 rounded-xs bg-muted flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-sm bg-muted flex items-center justify-center mx-auto mb-4">
             <Bot className="h-8 w-8 text-muted-foreground/40" />
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-1">No AI Agent Found</h2>
           <p className="text-sm text-muted-foreground mb-6">
             Your organization hasn&apos;t set up an AI agent yet. Contact your administrator to get started.
           </p>
-          <Button disabled className="gap-2 rounded-xs">
+          <Button disabled className="gap-2 rounded-sm">
             <Bot className="h-4 w-4" /> Create Agent
           </Button>
         </div>
@@ -301,7 +301,7 @@ export default function AgentConfigPage() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">Temperature</Label>
-          <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-xs">{agent.temperature}</span>
+          <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded-sm">{agent.temperature}</span>
         </div>
         <input
           type="range"
@@ -310,11 +310,11 @@ export default function AgentConfigPage() {
           step="0.1"
           value={agent.temperature}
           onChange={e => update('temperature', parseFloat(e.target.value))}
-          className="w-full h-2 rounded-xs appearance-none cursor-pointer bg-muted accent-primary
+          className="w-full h-2 rounded-sm appearance-none cursor-pointer bg-muted accent-primary
             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-            [&::-webkit-slider-thumb]:rounded-xs [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md
+            [&::-webkit-slider-thumb]:rounded-sm [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-md
             [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-background
-            [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-xs
+            [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-sm
             [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-background"
         />
         <div className="flex justify-between text-xs text-muted-foreground">
@@ -337,7 +337,7 @@ export default function AgentConfigPage() {
           <div
             key={key}
             onClick={() => update(key, !isOn)}
-            className="flex items-center justify-between p-4 rounded-xs border border-border bg-card/40 hover:bg-card/60 hover:border-primary/20 transition-all cursor-pointer group"
+            className="flex items-center justify-between p-4 rounded-sm border border-border bg-card/40 hover:bg-card/60 hover:border-primary/20 transition-all cursor-pointer group"
           >
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
@@ -355,9 +355,9 @@ export default function AgentConfigPage() {
 
   const AdvancedSection = (
     <div className="space-y-5" key="advanced">
-      <div className="rounded-xs border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
+      <div className="rounded-sm border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-xs bg-sky-500/10 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-sm bg-sky-500/10 flex items-center justify-center shrink-0">
             <Shield className="h-4 w-4 text-sky-500" />
           </div>
           <div className="flex-1 min-w-0">
@@ -377,9 +377,9 @@ export default function AgentConfigPage() {
         </div>
       </div>
 
-      <div className="rounded-xs border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
+      <div className="rounded-sm border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-xs bg-sky-500/10 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-sm bg-sky-500/10 flex items-center justify-center shrink-0">
             <MessageSquare className="h-4 w-4 text-sky-500" />
           </div>
           <div className="flex-1 min-w-0">
@@ -400,9 +400,9 @@ export default function AgentConfigPage() {
         </div>
       </div>
 
-      <div className="rounded-xs border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
+      <div className="rounded-sm border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-xs bg-sky-500/10 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-sm bg-sky-500/10 flex items-center justify-center shrink-0">
             <Settings2 className="h-4 w-4 text-sky-500" />
           </div>
           <div className="flex-1 min-w-0">
@@ -440,7 +440,7 @@ export default function AgentConfigPage() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xs bg-primary/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
               <Bot className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -451,18 +451,18 @@ export default function AgentConfigPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-xs">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-sm">
               {saving ? (
                 <><Loader2 className="h-3 w-3 animate-spin text-primary" /> Saving...</>
               ) : lastSaved ? (
                 <><span className="w-1.5 h-1.5 rounded-full bg-success" /> Saved</>
               ) : null}
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xs border border-border bg-card/50">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-sm border border-border bg-card/50">
               <div className={`w-1.5 h-1.5 rounded-full ${agent.name ? 'bg-success animate-pulse' : 'bg-muted'}`} />
               <span className="text-xs text-muted-foreground">{agent.name ? 'Active' : 'Inactive'}</span>
             </div>
-            <Button variant="outline" size="sm" className="gap-1.5 rounded-xs text-xs" disabled>
+            <Button variant="outline" size="sm" className="gap-1.5 rounded-sm text-xs" disabled>
               <Play className="h-3.5 w-3.5" /> Test
             </Button>
           </div>
@@ -472,7 +472,7 @@ export default function AgentConfigPage() {
           {metrics.map(m => {
             const Icon = m.icon
             return (
-              <div key={m.label} className="rounded-xs border border-border bg-card/40 p-4 hover:bg-card/60 transition-colors">
+              <div key={m.label} className="rounded-sm border border-border bg-card/40 p-4 hover:bg-card/60 transition-colors">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-muted-foreground">{m.label}</span>
                   <Icon className="h-3.5 w-3.5 text-muted-foreground/40" />
@@ -496,14 +496,14 @@ export default function AgentConfigPage() {
                   <button
                     key={s.id}
                     onClick={() => handleSectionChange(s.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xs text-sm font-medium transition-all text-left relative
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-sm text-sm font-medium transition-all text-left relative
                       ${isActive
                         ? 'text-primary'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                       }`}
                   >
                     {isActive && (
-                      <span className={`absolute inset-0 rounded-xs opacity-10 ${s.gradient}`} />
+                      <span className={`absolute inset-0 rounded-sm opacity-10 ${s.gradient}`} />
                     )}
                     {isActive && (
                       <span className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full ${s.gradient}`} />
@@ -518,15 +518,15 @@ export default function AgentConfigPage() {
           </div>
 
           <div className="lg:col-span-2">
-            <div className="rounded-xs border border-border bg-card/50 backdrop-blur-sm">
-              <div className={`h-1 rounded-t-xs ${currentSection?.gradient}`} />
+            <div className="rounded-sm border border-border bg-card/50 backdrop-blur-sm">
+              <div className={`h-1 rounded-t-sm ${currentSection?.gradient}`} />
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
                     {currentSection && <currentSection.icon className="h-4 w-4 text-primary" />}
                     <h2 className="text-base font-semibold text-foreground">{currentSection?.label}</h2>
                   </div>
-                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground h-7 rounded-xs" onClick={() => toast.info('Settings reset to defaults')}>
+                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground h-7 rounded-sm" onClick={() => toast.info('Settings reset to defaults')}>
                     <RotateCcw className="h-3 w-3" /> Reset
                   </Button>
                 </div>

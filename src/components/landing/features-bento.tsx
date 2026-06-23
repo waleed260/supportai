@@ -74,7 +74,7 @@ export function FeaturesBento() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/30 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-4 text-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-4 text-sm">
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Platform Features
           </div>
@@ -93,14 +93,14 @@ export function FeaturesBento() {
             return (
               <div
                 key={f.title}
-                className={`relative overflow-hidden rounded-xs border bg-gradient-to-br ${f.accent} ${f.border} p-6 transition-all duration-400 group cursor-default ${f.className} ${inView ? `animate-fade-in-up ${f.delay}` : 'opacity-0'}`}
+                className={`relative overflow-hidden rounded-sm border bg-gradient-to-br ${f.accent} ${f.border} p-6 transition-all duration-400 group cursor-default ${f.className} ${inView ? `animate-fade-in-up ${f.delay}` : 'opacity-0'}`}
               >
                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-white/30 to-transparent dark:from-white/5 rounded-bl-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-400" aria-hidden="true" />
                 <div className="absolute top-0 right-0 w-16 h-16 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-400 translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0">
                   <ArrowUpRight className="h-4 w-4 text-muted-foreground/40" aria-hidden="true" />
                 </div>
                 <div className="relative h-full flex flex-col">
-                  <div className={`mb-4 w-11 h-11 rounded-xs ${f.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300`}>
+                  <div className={`mb-4 w-11 h-11 rounded-sm ${f.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300`}>
                     <Icon className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2 text-foreground">{f.title}</h3>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, TrendingUp, Users, MessageSquare } from 'lucide-react'
+import { BarChart3, TrendingUp, Users, UserPlus, MessageSquare } from 'lucide-react'
 
 export default function SuperAdminAnalytics() {
   const [stats, setStats] = useState({ orgs: 0, convos: 0, users: 0, revenue: 0 })
@@ -29,7 +29,7 @@ export default function SuperAdminAnalytics() {
   const cards = [
     { title: 'Platform Revenue', value: `$${stats.revenue}`, icon: TrendingUp, color: 'text-green-600' },
     { title: 'Active Organizations', value: stats.orgs, icon: Users, color: 'text-blue-600' },
-    { title: 'Total Users', value: stats.users, icon: Users, color: 'text-purple-600' },
+    { title: 'Total Users', value: stats.users, icon: UserPlus, color: 'text-purple-600' },
     { title: 'Total Conversations', value: stats.convos, icon: MessageSquare, color: 'text-orange-600' },
   ]
 

@@ -56,7 +56,7 @@ export function TestimonialsSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/20 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-4 text-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-4 text-sm">
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Testimonials
           </div>
@@ -75,7 +75,7 @@ export function TestimonialsSection() {
               key={t.name}
               className={`${inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'}`}
             >
-              <figure className="relative rounded-xs border border-border bg-card/60 backdrop-blur-sm p-5 md:aspect-square flex flex-col transition-all duration-400 group hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
+              <figure className="relative rounded-sm border border-border bg-card/60 backdrop-blur-sm p-5 md:aspect-square flex flex-col transition-all duration-400 group hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30">
                 <div className="flex gap-0.5 mb-3 shrink-0">
                   {[...Array(5)].map((_, j) => (
                     <Star key={j} className="h-3 w-3 fill-primary/30 text-primary/30" aria-hidden="true" />
@@ -85,7 +85,7 @@ export function TestimonialsSection() {
                   &ldquo;{t.quote}&rdquo;
                 </blockquote>
                 <figcaption className="flex items-center gap-3 pt-3.5 mt-3.5 border-t border-border/40 shrink-0">
-                  <div className={`w-9 h-9 rounded-xs bg-gradient-to-br ${t.gradient} flex items-center justify-center text-primary-foreground text-xs font-semibold group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300 shrink-0`} aria-hidden="true">
+                  <div className={`w-9 h-9 rounded-sm bg-gradient-to-br ${t.gradient} flex items-center justify-center text-primary-foreground text-xs font-semibold group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300 shrink-0`} aria-hidden="true">
                     {t.initials}
                   </div>
                   <div className="min-w-0">

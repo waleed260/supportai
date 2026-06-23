@@ -127,16 +127,21 @@ export default function KnowledgeBasePage() {
 
   const processSource = async (source: KnowledgeSource) => {
     setProcessing(true)
-    const res = await fetch('/api/knowledge/process', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ knowledge_source_id: source.id }),
-    })
-    if (res.ok) {
-      toast.success('Processing complete')
-      if (membership) fetchSources()
-    } else {
-      toast.error('Processing failed')
+    try {
+      const res = await fetch('/api/knowledge/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ knowledge_source_id: source.id }),
+      })
+      if (res.ok) {
+        toast.success('Processing complete')
+        if (membership) fetchSources()
+      } else {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.error || 'Processing failed')
+      }
+    } catch {
+      toast.error('Network error while processing')
     }
     setProcessing(false)
   }

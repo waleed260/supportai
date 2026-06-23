@@ -5,7 +5,6 @@
 
 :root {
   --color-text-primary: #121820;
-  --color-text-secondary: #ffffff;
   --color-border-strong: #9ca3af;
   --color-surface-base: #ffffff;
   --color-surface-raised: #fafafa;
@@ -27,7 +26,6 @@
 
 .dark {
   --color-text-primary: #f1f5f9;
-  --color-text-secondary: #121820;
   --color-border-strong: #9ca3af;
   --color-surface-base: #121820;
   --color-surface-raised: #1a1f2e;
@@ -68,6 +66,8 @@
   --color-ring: var(--color-accent);
   --color-surface-inverse: var(--color-surface-inverse);
   --color-border-focus: var(--color-border-focus);
+  --color-success: var(--color-success);
+  --color-success-foreground: var(--color-text-inverse);
   --color-sidebar-background: var(--color-surface-base);
   --color-sidebar-foreground: var(--color-text-muted);
   --color-sidebar-primary: var(--color-text-primary);

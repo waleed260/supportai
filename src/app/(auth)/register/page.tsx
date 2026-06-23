@@ -48,10 +48,10 @@ export default function RegisterPage() {
 
   return (
     <div className="relative z-10 w-full max-w-md mx-auto px-4 py-6">
-      <div className="w-full rounded-xs border border-primary/20 bg-background/70 backdrop-blur-xl shadow-2xl shadow-primary/5 animate-fade-in">
+      <div className="w-full rounded-sm border border-primary/20 bg-background/70 backdrop-blur-xl shadow-2xl shadow-primary/5 animate-fade-in">
         <div className="p-8 pb-0">
           <div className="text-center">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xs border border-primary/20 bg-muted text-muted-foreground mb-5 text-[11px] font-medium tracking-wide uppercase">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm border border-primary/20 bg-muted text-muted-foreground mb-5 text-[11px] font-medium tracking-wide uppercase">
               <Sparkles className="h-3 w-3 text-primary" aria-hidden="true" />
               Get Started
             </div>
@@ -66,7 +66,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleRegister} className="p-8 space-y-3.5">
           {emailExists && (
-            <Alert variant="destructive" className="rounded-xs py-2.5">
+            <Alert variant="destructive" className="rounded-sm py-2.5">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="text-sm">
                 This email is already registered.{' '}
@@ -126,7 +126,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-11 gap-2 rounded-xs text-base" disabled={loading}>
+          <Button type="submit" className="w-full h-11 gap-2 rounded-sm text-base" disabled={loading}>
             {loading ? 'Creating account...' : 'Create Account'}
             {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </Button>
@@ -136,15 +136,15 @@ export default function RegisterPage() {
           <div className="border-t border-border/50" />
           <p className="text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="text-primary font-medium hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs transition-colors">
+            <Link href="/login" className="text-primary font-medium hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm transition-colors">
               Sign in
             </Link>
           </p>
           <p className="text-[11px] text-muted-foreground/50">
             By creating an account, you agree to our{' '}
-            <Link href="/terms" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs">Terms</Link>
+            <Link href="/terms" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm">Terms</Link>
             {' '}and{' '}
-            <Link href="/privacy" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xs">Privacy Policy</Link>
+            <Link href="/privacy" className="text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm">Privacy Policy</Link>
           </p>
         </div>
       </div>

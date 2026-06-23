@@ -27,7 +27,7 @@ export function DashboardHeader({ user, role }: DashboardHeaderProps) {
         <span className="text-sm text-muted-foreground">Online</span>
       </div>
       <div className="flex items-center gap-3">
-        <Badge className={`${config.classes} border text-xs font-medium rounded-xs`} variant="outline">
+        <Badge className={`${config.classes} border text-xs font-medium rounded-sm`} variant="outline">
           {config.label}
         </Badge>
         <Avatar className="h-8 w-8 ring-1 ring-border">

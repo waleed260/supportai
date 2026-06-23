@@ -36,7 +36,7 @@ export function FAQSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/20 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-3xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-background/50 text-muted-foreground mb-4 text-sm">
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             FAQ
           </div>
@@ -55,7 +55,7 @@ export function FAQSection() {
             return (
               <div
                 key={i}
-                className={`rounded-xs border transition-all duration-400 ${
+                className={`rounded-sm border transition-all duration-400 ${
                   inView ? `animate-fade-in-up delay-${(i + 1) * 100}` : 'opacity-0'
                 } ${
                   isOpen
@@ -67,12 +67,12 @@ export function FAQSection() {
                 <h3>
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : i)}
-                    className="w-full flex items-center justify-between p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xs"
+                    className="w-full flex items-center justify-between p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
                     aria-expanded={isOpen}
                     aria-controls={`faq-panel-${i}`}
                   >
                     <span className="font-medium text-sm md:text-base text-foreground">{faq.q}</span>
-                    <div className={`w-6 h-6 rounded-xs flex items-center justify-center shrink-0 ml-4 transition-all duration-200 ${
+                    <div className={`w-6 h-6 rounded-sm flex items-center justify-center shrink-0 ml-4 transition-all duration-200 ${
                       isOpen ? 'bg-primary text-primary-foreground rotate-90' : 'bg-muted text-muted-foreground'
                     }`} aria-hidden="true">
                       {isOpen ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}

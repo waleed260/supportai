@@ -13,7 +13,7 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-xs border-2 border-primary border-t-transparent animate-spin" />
+          <div className="w-8 h-8 rounded-sm border-2 border-primary border-t-transparent animate-spin" />
           <p className="text-sm text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>

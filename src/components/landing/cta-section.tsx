@@ -18,7 +18,7 @@ export function CTASection() {
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23a64d00%22 fill-opacity=%220.06%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden="true" />
       <div ref={ref} className="relative max-w-4xl mx-auto px-4 text-center">
         <div className={`transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xs border border-primary/30 bg-primary/10 backdrop-blur-sm text-primary-foreground/80 mb-8 text-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/30 bg-primary/10 backdrop-blur-sm text-primary-foreground/80 mb-8 text-sm">
             <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
             Get Started Today
           </div>
@@ -31,12 +31,12 @@ export function CTASection() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
-              <Button size="lg" className="text-base px-10 h-12 gap-2 rounded-xs bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-200">
+              <Button size="lg" className="text-base px-10 h-12 gap-2 rounded-sm bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-200">
                 Start Free Trial <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Button>
             </Link>
             <Link href="/contact">
-              <Button size="lg" variant="outline" className="text-base px-10 h-12 gap-2 rounded-xs border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/50">
+              <Button size="lg" variant="outline" className="text-base px-10 h-12 gap-2 rounded-sm border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/50">
                 Talk to Sales
               </Button>
             </Link>

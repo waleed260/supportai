@@ -60,7 +60,14 @@ export default function IntegrationsPage() {
     }
   }
 
-  if (loading) return <div className="p-6">Loading...</div>
+  if (loading) return (
+    <div className="p-6 flex items-center justify-center min-h-[40vh]">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-sm border-2 border-primary border-t-transparent animate-spin" />
+        <p className="text-sm text-muted-foreground">Loading integrations...</p>
+      </div>
+    </div>
+  )
 
   return (
     <div>

@@ -14,16 +14,21 @@ export default function DashboardRedirect() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/login'); return }
 
-      const { data: membership } = await supabase
+      const { data: membership, error } = await supabase
         .from('memberships')
         .select('role')
         .eq('user_id', session.user.id)
         .eq('is_active', true)
         .limit(1)
-        .single()
+        .maybeSingle()
 
-      if (membership?.role === 'super_admin') router.push('/dashboard/super-admin')
-      else if (membership?.role === 'client_admin') router.push('/dashboard/admin')
+      if (error || !membership) {
+        router.push('/login')
+        return
+      }
+
+      if (membership.role === 'super_admin') router.push('/dashboard/super-admin')
+      else if (membership.role === 'client_admin') router.push('/dashboard/admin')
       else router.push('/dashboard/team')
     }
     check()
