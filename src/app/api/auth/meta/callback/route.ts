@@ -54,8 +54,9 @@ export async function GET(request: Request) {
     const stateParam = searchParams.get('state')
 
     if (error) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard/admin/channels?oauth_error=${errorReason || error}`,
+        `${appUrl}/dashboard/admin/channels?oauth_error=${errorReason || error}`,
       )
     }
 
@@ -71,7 +72,7 @@ export async function GET(request: Request) {
     }
 
     const { org_id: orgId, channel, uid: userId } = state
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
     const redirectUri = `${appUrl}/api/auth/meta/callback`
 
     const shortToken = await exchangeCodeForToken(code, redirectUri)
@@ -166,11 +167,10 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${appUrl}/dashboard/admin/channels?oauth_success=whatsapp`)
     }
 
-    return NextResponse.redirect(`${appUrl}/dashboard/admin/channels?oauth_error=Unknown channel`)
+    return NextResponse.json({ error: 'Unknown channel' }, { status: 400 })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'OAuth failed'
     log.error('Meta OAuth callback error', { error: msg })
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    return NextResponse.redirect(`${appUrl}/dashboard/admin/channels?oauth_error=${encodeURIComponent(msg)}`)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

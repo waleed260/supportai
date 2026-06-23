@@ -30,7 +30,8 @@ export async function GET(request: Request) {
   }
 
   const appId = process.env.META_APP_ID
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/meta/callback`
+  const origin = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+  const redirectUri = `${origin}/api/auth/meta/callback`
 
   if (!appId) {
     return NextResponse.json({ error: 'META_APP_ID not configured' }, { status: 500 })

@@ -28,10 +28,10 @@ export async function POST(request: Request) {
     const rawBody = await request.text()
 
     const signature = request.headers.get('x-hub-signature-256') || ''
-    const appSecret = process.env.META_APP_SECRET
+    const appSecret = process.env.META_MESSAGING_APP_SECRET || process.env.META_APP_SECRET
     if (!appSecret) {
-      log.error('META_APP_SECRET not configured', { route: '/api/webhooks/whatsapp' })
-      Sentry.captureException(new Error('META_APP_SECRET not configured'), {
+      log.error('META_MESSAGING_APP_SECRET not configured', { route: '/api/webhooks/whatsapp' })
+      Sentry.captureException(new Error('META_MESSAGING_APP_SECRET not configured'), {
         tags: { route: '/api/webhooks/whatsapp' },
       })
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
