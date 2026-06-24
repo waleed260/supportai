@@ -129,7 +129,7 @@ export default function ChannelsPage() {
   }
 
   return (
-    <div>
+    <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Channel Integrations</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {channelConfig.map(ch => {
