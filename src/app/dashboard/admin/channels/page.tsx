@@ -137,11 +137,11 @@ export default function ChannelsPage() {
           const Icon = ch.icon
           const isWebChat = ch.channel === 'web_chat'
           return (
-            <Card key={ch.channel}>
+            <Card key={ch.channel} className="h-full">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Icon className="h-8 w-8 text-muted-foreground" />
-                  <div>
+    <div className="p-6">
                     <CardTitle className="text-base">{ch.label}</CardTitle>
                     <p className="text-xs text-muted-foreground">{ch.phase}</p>
                   </div>

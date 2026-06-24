@@ -77,12 +77,12 @@ export default function IntegrationsPage() {
           const integration = getIntegration(p.id)
           const Icon = p.icon
           return (
-            <Card key={p.id} className={selected === p.id ? 'ring-2 ring-primary' : ''}>
+            <Card key={p.id} className={`h-full ${selected === p.id ? 'ring-2 ring-primary' : ''}`}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Icon className="h-6 w-6 text-muted-foreground" />
-                    <div>
+    <div className="p-6">
                       <CardTitle className="text-lg">{p.name}</CardTitle>
                       <CardDescription>{p.description}</CardDescription>
                     </div>

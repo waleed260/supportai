@@ -35,7 +35,7 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
       />
       <div className="flex-1 flex flex-col min-w-0">
         <DashboardHeader user={user} role={role} />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto pt-3">
           {children}
         </main>
       </div>

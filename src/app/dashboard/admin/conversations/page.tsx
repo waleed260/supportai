@@ -62,7 +62,7 @@ export default function AdminConversationsPage() {
   })
 
   return (
-    <div>
+    <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Conversations</h2>
 
       <div className="flex gap-4 mb-6">

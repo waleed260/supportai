@@ -63,7 +63,7 @@ export default function TeamPage() {
   }
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Team Members</h2>
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>

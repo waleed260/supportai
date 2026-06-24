@@ -69,7 +69,7 @@ export default function AdminAnalyticsPage() {
   ].filter(s => s.value > 0)
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -80,7 +80,7 @@ export default function AdminAnalyticsPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
         {kpiCards.map(c => (
-          <Card key={c.title}>
+          <Card key={c.title} className="h-full">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground">{c.title}</CardTitle>
               <c.icon className={`h-4 w-4 ${c.color}`} />

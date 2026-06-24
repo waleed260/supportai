@@ -49,7 +49,7 @@ export default function EscalationsPage() {
     : escalations.filter(e => e.resolved_at)
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Escalations</h2>
         <Select value={filter} onValueChange={(v: string | null) => v && setFilter(v)}>

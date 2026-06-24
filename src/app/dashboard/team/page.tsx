@@ -37,11 +37,11 @@ export default function TeamOverview() {
   ]
 
   return (
-    <div>
+    <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">My Dashboard</h2>
       <div className="grid gap-4 md:grid-cols-3">
         {cards.map(c => (
-          <Card key={c.title}>
+          <Card key={c.title} className="h-full">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{c.title}</CardTitle>
               <c.icon className={`h-4 w-4 ${c.color}`} />

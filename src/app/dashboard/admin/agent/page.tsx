@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, memo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
@@ -72,7 +72,7 @@ function AgentSkeleton() {
   )
 }
 
-function ChatPreview({ agent }: { agent: AIAgent | null }) {
+const ChatPreview = memo(function ChatPreview({ agent }: { agent: AIAgent | null }) {
   return (
     <div className="rounded-sm border border-border bg-card/50 backdrop-blur-sm overflow-hidden sticky top-6">
       <div className="h-10 bg-foreground dark:bg-black flex items-center px-4 gap-2">
@@ -124,7 +124,7 @@ function ChatPreview({ agent }: { agent: AIAgent | null }) {
       </div>
     </div>
   )
-}
+})
 
 export default function AgentConfigPage() {
   const { membership } = useAuthContext()
@@ -134,12 +134,13 @@ export default function AgentConfigPage() {
   const [activeSection, setActiveSection] = useState('identity')
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const supabaseRef = useRef(createClient())
+  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
   useEffect(() => {
     if (!membership) return
     const fetch = async () => {
-      const supabase = createClient()
-      const { data } = await supabase.from('ai_agents')
+      const { data } = await supabaseRef.current.from('ai_agents')
         .select('*').eq('organization_id', membership.organization_id).single()
       if (data) {
         setAgent(data)
@@ -149,6 +150,12 @@ export default function AgentConfigPage() {
     }
     fetch()
   }, [membership])
+
+  useEffect(() => {
+    return () => {
+      Object.values(debounceTimers.current).forEach(clearTimeout)
+    }
+  }, [])
 
   const invalidateAgentCache = useCallback(async () => {
     try {
@@ -177,18 +184,26 @@ export default function AgentConfigPage() {
 
   const update = async (key: string, value: unknown) => {
     if (!agent) return
-    setSaving(key)
-    const supabase = createClient()
-    const { error } = await supabase.from('ai_agents').update({ [key]: value }).eq('id', agent.id)
-    if (error) {
-      toast.error('Failed to update')
-    } else {
-      setAgent(prev => prev ? { ...prev, [key]: value } : prev)
-      setLastSaved(new Date())
-      invalidateAgentCache()
-      logAudit(key, value)
+    const agentId = agent.id
+
+    if (debounceTimers.current[key]) {
+      clearTimeout(debounceTimers.current[key])
     }
-    setTimeout(() => setSaving(null), 800)
+
+    setAgent(prev => prev ? { ...prev, [key]: value } : prev)
+
+    debounceTimers.current[key] = setTimeout(async () => {
+      setSaving(key)
+      const { error } = await supabaseRef.current.from('ai_agents').update({ [key]: value }).eq('id', agentId)
+      if (error) {
+        toast.error('Failed to update')
+      } else {
+        setLastSaved(new Date())
+        invalidateAgentCache()
+        logAudit(key, value)
+      }
+      setSaving(null)
+    }, 500)
   }
 
   const handleSectionChange = (id: string) => {
@@ -472,7 +487,7 @@ export default function AgentConfigPage() {
           {metrics.map(m => {
             const Icon = m.icon
             return (
-              <div key={m.label} className="rounded-sm border border-border bg-card/40 p-4 hover:bg-card/60 transition-colors">
+              <div key={m.label} className="rounded-sm border border-border bg-card/40 p-4 hover:bg-card/60 transition-colors h-full">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-muted-foreground">{m.label}</span>
                   <Icon className="h-3.5 w-3.5 text-muted-foreground/40" />

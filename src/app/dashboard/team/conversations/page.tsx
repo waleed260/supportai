@@ -57,7 +57,7 @@ export default function TeamConversationsPage() {
   }
 
   return (
-    <div>
+    <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Open Conversations</h2>
       <Card>
         <CardHeader><CardTitle>Waiting for Response</CardTitle></CardHeader>
