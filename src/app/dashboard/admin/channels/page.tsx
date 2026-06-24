@@ -141,7 +141,7 @@ export default function ChannelsPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Icon className="h-8 w-8 text-muted-foreground" />
-    <div className="p-6">
+                  <div>
                     <CardTitle className="text-base">{ch.label}</CardTitle>
                     <p className="text-xs text-muted-foreground">{ch.phase}</p>
                   </div>
