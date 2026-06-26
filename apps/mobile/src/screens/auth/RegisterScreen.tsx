@@ -22,8 +22,8 @@ export default function RegisterScreen({ navigation }: { navigation: any }) {
     try {
       await api.register(email, password, name, companyName, companySize || undefined)
       setSuccess(true)
-    } catch (e: any) {
-      setError(e.message || 'Registration failed')
+    } catch {
+      setError('Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }

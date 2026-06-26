@@ -8,6 +8,14 @@ export function sanitizeText(text: string, maxLen: number = 8000): string {
   return text.trim().slice(0, maxLen)
 }
 
+export function stripHtml(text: string): string {
+  return text.replace(/<[^>]*>/g, '').replace(/[<>]/g, '')
+}
+
+export function sanitizeInput(value: string, maxLen: number = 8000): string {
+  return stripHtml(value).trim().slice(0, maxLen)
+}
+
 export const webchatSchema = z.object({
   organization_id: z.string().min(1),
   message: z.string().min(1).max(8000),

@@ -48,8 +48,8 @@ export default function LoginScreen({ navigation }: { navigation: any }) {
     try {
       await signIn(emailVal, passVal)
       await AsyncStorage.setItem('biometric_credentials', JSON.stringify({ email: emailVal, password: passVal }))
-    } catch (e: any) {
-      setError(e.message || 'Login failed')
+    } catch {
+      setError('Incorrect email or password')
     } finally {
       setLoading(false)
     }

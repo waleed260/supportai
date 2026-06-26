@@ -26,7 +26,7 @@ export async function GET() {
     .eq('organization_id', membership.organization_id)
     .order('created_at', { ascending: true })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to fetch channels' }, { status: 500 })
   return NextResponse.json(data ?? [])
 }
 
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     .select('id, channel, name, is_connected, webhook_url, webhook_verified, created_at, updated_at')
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to save channel' }, { status: 500 })
 
   await logAudit({
     userId: session.user.id,
@@ -143,7 +143,7 @@ export async function PATCH(request: Request) {
     .select('id, channel, name, is_connected, webhook_url, webhook_verified, created_at, updated_at')
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to update channel' }, { status: 500 })
   return NextResponse.json(data)
 }
 
@@ -175,7 +175,7 @@ export async function DELETE(request: Request) {
     .eq('organization_id', membership.organization_id)
     .eq('channel', channel)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to disconnect channel' }, { status: 500 })
 
   await logAudit({
     userId: session.user.id,

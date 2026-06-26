@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     .order('updated_at', { ascending: false })
     .range(offset, offset + pageSize - 1)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 })
   return NextResponse.json({ data: data || [], total: count ?? 0, page, pageSize })
 }
 
@@ -60,6 +60,6 @@ export async function POST(request: Request) {
     organization_id: membership.organization_id,
   }).select().single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  if (error) return NextResponse.json({ error: 'Failed to create conversation' }, { status: 400 })
   return NextResponse.json(data)
 }

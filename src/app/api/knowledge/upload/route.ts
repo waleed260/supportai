@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       })
 
     if (uploadError) {
-      return NextResponse.json({ error: 'Upload failed: ' + uploadError.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 })
     }
 
     const { data: source, error: dbError } = await svc.from('knowledge_sources').insert({
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     }).select().single()
 
     if (dbError) {
-      return NextResponse.json({ error: dbError.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to save knowledge source' }, { status: 500 })
     }
 
     const { data: { publicUrl } } = svc.storage
@@ -91,6 +91,6 @@ export async function POST(request: Request) {
       tags: { route: '/api/knowledge/upload' },
     })
     log.error('Upload error', { route: '/api/knowledge/upload', error })
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -80,6 +80,58 @@ export function createLimiter(
   return inMemoryRatelimit(limit, windowMs)
 }
 
+const PROGRESSIVE_DELAYS = [1000, 2000, 5000, 30_000]
+const LOCKOUT_DURATION = 15 * 60 * 1000
+
+type LockoutEntry = {
+  count: number
+  lockUntil: number
+  lastAttemptAt: number
+}
+
+const accountLockouts = new Map<string, LockoutEntry>()
+
+export interface AccountLockoutResult {
+  locked: boolean
+  remainingAttempts: number
+}
+
+export function checkAccountLockout(identifier: string): AccountLockoutResult {
+  const now = Date.now()
+  const entry = accountLockouts.get(identifier)
+  if (!entry) return { locked: false, remainingAttempts: 5 }
+  if (now < entry.lockUntil) {
+    return { locked: true, remainingAttempts: 0 }
+  }
+  if (now >= entry.lockUntil && entry.count >= 5) {
+    accountLockouts.delete(identifier)
+    return { locked: false, remainingAttempts: 5 }
+  }
+  const delayIndex = Math.min(entry.count - 1, PROGRESSIVE_DELAYS.length - 1)
+  const delayMs = PROGRESSIVE_DELAYS[delayIndex] ?? 0
+  const waitUntil = entry.lastAttemptAt + delayMs
+  if (now < waitUntil) {
+    return { locked: true, remainingAttempts: Math.max(0, 5 - entry.count) }
+  }
+  return { locked: false, remainingAttempts: Math.max(0, 5 - entry.count) }
+}
+
+export function recordFailedAttempt(identifier: string): { remainingAttempts: number; locked: boolean } {
+  const now = Date.now()
+  const entry = accountLockouts.get(identifier) || { count: 0, lockUntil: 0, lastAttemptAt: 0 }
+  entry.count++
+  entry.lastAttemptAt = now
+  if (entry.count >= 5) {
+    entry.lockUntil = now + LOCKOUT_DURATION
+  }
+  accountLockouts.set(identifier, entry)
+  return { remainingAttempts: Math.max(0, 5 - entry.count), locked: entry.count >= 5 }
+}
+
+export function resetAccountLockout(identifier: string): void {
+  accountLockouts.delete(identifier)
+}
+
 export const limiters = {
   chat: createLimiter('RATE_LIMIT_CHAT', 'RATE_LIMIT_CHAT_WINDOW', 20, 60_000),
   webhook: createLimiter('RATE_LIMIT_WEBHOOK', 'RATE_LIMIT_WEBHOOK_WINDOW', 60, 60_000),

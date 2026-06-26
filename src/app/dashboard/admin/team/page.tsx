@@ -39,7 +39,7 @@ export default function TeamPage() {
     })
 
     if (res.status === 404) {
-      toast.error('User not found. They need to register first.')
+      toast.error('User not found')
       return
     }
 

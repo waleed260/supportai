@@ -18,7 +18,7 @@ export default function ResetPasswordScreen({ navigation }: { navigation: any })
     setError('')
     const { error: err } = await supabase.auth.updateUser({ password })
     if (err) {
-      setError(err.message)
+      setError('Failed to reset password. Please try again.')
     } else {
       setSuccess(true)
     }

@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     .order('created_at', { ascending: false })
     .range(offset, offset + pageSize - 1)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to fetch leads' }, { status: 500 })
   return NextResponse.json({ data: data || [], total: count ?? 0, page, pageSize })
 }
 
@@ -54,7 +54,7 @@ export async function PATCH(request: Request) {
   if (assigned_to) updates.assigned_to = assigned_to
 
   const { error } = await supabase.from('leads').update(updates).eq('id', id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to update lead' }, { status: 500 })
 
   return NextResponse.json({ success: true })
 }

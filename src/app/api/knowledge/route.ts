@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     status: 'pending',
   }).select().single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to save knowledge source' }, { status: 500 })
   return NextResponse.json(data)
 }
 
@@ -59,6 +59,6 @@ export async function DELETE(request: Request) {
   const svc = await createServiceRoleClient()
   const { error } = await svc.from('knowledge_sources')
     .delete().eq('id', id).eq('organization_id', membership.organization_id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to delete knowledge source' }, { status: 500 })
   return NextResponse.json({ success: true })
 }

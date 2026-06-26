@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     .order('created_at', { ascending: false })
     .range(offset, offset + pageSize - 1)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to fetch escalations' }, { status: 500 })
   return NextResponse.json({ data: data || [], total: count ?? 0, page, pageSize })
 }
 
@@ -54,7 +54,7 @@ export async function PATCH(request: Request) {
   if (resolved_by) updates.resolved_by = resolved_by
 
   const { error } = await supabase.from('escalations').update(updates).eq('id', id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to update escalation' }, { status: 500 })
 
   if (status === 'resolved') {
     const { data: esc } = await supabase.from('escalations')

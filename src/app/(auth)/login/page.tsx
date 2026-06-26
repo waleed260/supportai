@@ -25,9 +25,14 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      toast.error(error.message)
+    const res = await fetch('/api/auth/callback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (!res.ok) {
+      toast.error('Incorrect email or password')
       setLoading(false)
       return
     }
@@ -43,7 +48,7 @@ export default function LoginPage() {
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) {
-      toast.error(error.message)
+      toast.error('Failed to sign in with Google')
       setGoogleLoading(false)
     }
   }

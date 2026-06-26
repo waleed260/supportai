@@ -12,14 +12,10 @@ export default function ForgotPasswordScreen({ navigation }: { navigation: any }
     if (!email) { setError('Enter your email'); return }
     setLoading(true)
     setError('')
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+    await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: 'supportai://reset-password',
     })
-    if (err) {
-      setError(err.message)
-    } else {
-      setSent(true)
-    }
+    setSent(true)
     setLoading(false)
   }
 

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     if (!email) return NextResponse.json({ error: 'user_id or email is required' }, { status: 400 })
     const { data: userData } = await supabase.from('users')
       .select('id').eq('email', email).single()
-    if (!userData) return NextResponse.json({ error: 'User not found. They need to register first.' }, { status: 404 })
+    if (!userData) return NextResponse.json({ error: 'User not found' }, { status: 404 })
     targetUserId = userData.id
   }
 
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     role: role || 'team_member',
   }).select('*, user:users(*)').single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to add member' }, { status: 500 })
   return NextResponse.json(data)
 }
 
@@ -65,6 +65,6 @@ export async function DELETE(request: Request) {
 
   const { error } = await supabase.from('memberships')
     .delete().eq('id', id).eq('organization_id', membership.organization_id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Failed to remove member' }, { status: 500 })
   return NextResponse.json({ success: true })
 }

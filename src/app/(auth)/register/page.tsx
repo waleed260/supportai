@@ -8,8 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { AlertCircle, Sparkles, ArrowRight, Building2, Users, User, Mail, Lock } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Sparkles, ArrowRight, Building2, Users, User, Mail, Lock } from 'lucide-react'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -18,7 +17,6 @@ export default function RegisterPage() {
   const [companyName, setCompanyName] = useState('')
   const [companySize, setCompanySize] = useState<string>('')
   const [loading, setLoading] = useState(false)
-  const [emailExists, setEmailExists] = useState(false)
   const router = useRouter()
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -30,14 +28,9 @@ export default function RegisterPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, name, companyName, companySize }),
     })
-    const data = await res.json()
 
     if (!res.ok) {
-      if (res.status === 409 && data.code === 'email_exists') {
-        setEmailExists(true)
-      } else {
-        toast.error(data.error || 'Registration failed')
-      }
+      toast.error('Registration failed. Please try again.')
       setLoading(false)
       return
     }
@@ -65,18 +58,6 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleRegister} className="p-8 space-y-3.5">
-          {emailExists && (
-            <Alert variant="destructive" className="rounded-sm py-2.5">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm">
-                This email is already registered.{' '}
-                <Link href="/login" className="font-medium underline underline-offset-4">
-                  Sign in instead
-                </Link>
-              </AlertDescription>
-            </Alert>
-          )}
-
           <div className="space-y-1.5">
             <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
             <div className="relative">

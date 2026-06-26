@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateSlug } from '@/lib/utils'
-import { registerSchema, sanitizeText } from '@/lib/validation'
+import { registerSchema, sanitizeText, sanitizeInput } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
 import { log } from '@/lib/logger'
 
@@ -10,38 +10,41 @@ export async function POST(request: Request) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
-    const { success: allowed, remaining, reset } = await limiters.auth(`auth:register:${ip}`)
+    const { success: allowed } = await limiters.auth(`auth:register:${ip}`)
     if (!allowed) {
-      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
-        status: 429,
-        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
-      })
+      return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 400 })
     }
 
-    const body = await request.json()
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 400 })
+    }
+
     const parsed = registerSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+      log.warn('register_validation_failure', { route: '/api/auth/register', ip, errors: parsed.error.issues })
+      return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 400 })
     }
 
-    const { email, password, name, companyName, companySize } = parsed.data
+    const { email, password, name: rawName, companyName: rawCompany, companySize } = parsed.data
+    const emailClean = sanitizeInput(email, 255).toLowerCase()
+    const name = sanitizeInput(rawName, 255)
+    const companyName = sanitizeInput(rawCompany, 255)
+
     const supabase = await createServiceRoleClient()
 
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
+      email: emailClean,
       password,
       email_confirm: true,
       user_metadata: { full_name: name },
     })
 
     if (authError) {
-      if (authError.message?.toLowerCase().includes('already registered') || authError.message?.toLowerCase().includes('already exists')) {
-        return NextResponse.json({
-          error: 'This email is already registered. Please sign in instead.',
-          code: 'email_exists',
-        }, { status: 409 })
-      }
-      return NextResponse.json({ error: authError.message }, { status: 400 })
+      log.warn('register_auth_error', { route: '/api/auth/register', email: emailClean, error: authError.message })
+      return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 400 })
     }
 
     if (!authData.user) {
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
 
     const { error: userError } = await supabase.from('users').upsert({
       id: userId,
-      email,
+      email: emailClean,
       full_name: name,
     }, { onConflict: 'email', ignoreDuplicates: false })
     if (userError) {

@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     organization_id: membership.organization_id,
   }).select().single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  if (error) return NextResponse.json({ error: 'Failed to send message' }, { status: 400 })
 
   await supabase.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', body.conversation_id)
 

@@ -85,7 +85,7 @@ export async function POST(request: Request) {
             updated_at: new Date().toISOString(),
           })
           .eq('id', target_organization_id)
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        if (error) return NextResponse.json({ error: 'Action failed' }, { status: 500 })
         break
       }
       case 'suspend_client': {
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
           .from('organizations')
           .update({ is_active: false, status: 'suspended', updated_at: new Date().toISOString() })
           .eq('id', target_organization_id)
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        if (error) return NextResponse.json({ error: 'Action failed' }, { status: 500 })
         break
       }
       case 'reject_client': {
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
           .from('organizations')
           .update({ is_active: false, status: 'suspended', updated_at: new Date().toISOString() })
           .eq('id', target_organization_id)
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        if (error) return NextResponse.json({ error: 'Action failed' }, { status: 500 })
         break
       }
       case 'reopen_client': {
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
           .from('organizations')
           .update({ is_active: false, status: 'pending', updated_at: new Date().toISOString() })
           .eq('id', target_organization_id)
-        if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        if (error) return NextResponse.json({ error: 'Action failed' }, { status: 500 })
         break
       }
     }
