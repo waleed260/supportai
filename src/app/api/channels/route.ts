@@ -83,6 +83,19 @@ export async function POST(request: Request) {
 
   if (error) return NextResponse.json({ error: 'Failed to save channel' }, { status: 500 })
 
+  if (channel === 'web_chat') {
+    await svc.from('widget_settings').upsert({
+      organization_id: membership.organization_id,
+      title: 'Chat with us',
+      welcome_message: 'Hi! How can we help you today?',
+      primary_color: '#2563eb',
+      position: 'right',
+      show_branding: true,
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'organization_id' })
+  }
+
   await logAudit({
     userId: session.user.id,
     organizationId: membership.organization_id,

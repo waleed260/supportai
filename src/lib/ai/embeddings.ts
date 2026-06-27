@@ -1,27 +1,39 @@
 import OpenAI from 'openai'
 
 function getOpenAI() {
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
+  const key = process.env.OPENAI_API_KEY
+  if (!key || key.startsWith('your-')) return null
+  return new OpenAI({ apiKey: key })
 }
 
-export async function generateEmbedding(text: string): Promise<number[]> {
-  const response = await getOpenAI().embeddings.create({
-    model: 'text-embedding-3-small',
-    input: text,
-    dimensions: 1024,
-  })
-  return response.data[0].embedding
+export async function generateEmbedding(text: string): Promise<number[] | null> {
+  const client = getOpenAI()
+  if (!client) return null
+  try {
+    const response = await client.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: text,
+      dimensions: 1024,
+    })
+    return response.data[0].embedding
+  } catch {
+    return null
+  }
 }
 
-export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
-  const response = await getOpenAI().embeddings.create({
-    model: 'text-embedding-3-small',
-    input: texts,
-    dimensions: 1024,
-  })
-  return response.data.map(d => d.embedding)
+export async function generateEmbeddings(texts: string[]): Promise<number[][] | null> {
+  const client = getOpenAI()
+  if (!client) return null
+  try {
+    const response = await client.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: texts,
+      dimensions: 1024,
+    })
+    return response.data.map(d => d.embedding)
+  } catch {
+    return null
+  }
 }
 
 export async function chunkText(text: string, maxChunkSize = 1000): Promise<string[]> {

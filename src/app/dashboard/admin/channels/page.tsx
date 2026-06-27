@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
-import { MessageSquare, Globe, Camera, MessageCircle, Copy, Check, Loader2 } from 'lucide-react'
+import { MessageSquare, Globe, Camera, MessageCircle, Copy, Check, Loader2, Palette, Type, MessageCircle as MessageCircleIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ChannelConnectDialog } from '@/components/channels/channel-connect-dialog'
@@ -35,6 +35,9 @@ export default function ChannelsPage() {
   const [loading, setLoading] = useState(true)
   const [connectChannel, setConnectChannel] = useState<ConversationChannel | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [widgetSettings, setWidgetSettings] = useState<{ title: string; welcome_message: string; primary_color: string } | null>(null)
+  const [widgetConfigOpen, setWidgetConfigOpen] = useState(false)
+  const [savingWidget, setSavingWidget] = useState(false)
 
   useEffect(() => {
     const oauthSuccess = searchParams.get('oauth_success')
@@ -68,6 +71,50 @@ export default function ChannelsPage() {
       connectWebChat()
     } else {
       setConnectChannel(channel)
+    }
+  }
+
+  const loadWidgetSettings = async () => {
+    try {
+      const data = await apiFetch('/api/widget-settings')
+      setWidgetSettings({
+        title: data.title || 'Chat with us',
+        welcome_message: data.welcome_message || 'Hi! How can we help you today?',
+        primary_color: data.primary_color || '#2563eb',
+      })
+    } catch {
+      setWidgetSettings({ title: 'Chat with us', welcome_message: 'Hi! How can we help you today?', primary_color: '#2563eb' })
+    }
+  }
+
+  useEffect(() => {
+    const webChatConn = connections.find(c => c.channel === 'web_chat' && c.is_connected)
+    if (webChatConn) loadWidgetSettings()
+  }, [connections])
+
+  const handleConfigure = (channel: ConversationChannel) => {
+    if (channel === 'web_chat') {
+      setWidgetConfigOpen(true)
+    } else {
+      setConnectChannel(channel)
+    }
+  }
+
+  const saveWidgetSettings = async () => {
+    if (!widgetSettings) return
+    setSavingWidget(true)
+    try {
+      await apiFetch('/api/widget-settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(widgetSettings),
+      })
+      toast.success('Widget settings saved!')
+      setWidgetConfigOpen(false)
+    } catch {
+      toast.error('Failed to save widget settings')
+    } finally {
+      setSavingWidget(false)
     }
   }
 
@@ -190,7 +237,7 @@ export default function ChannelsPage() {
                 <div className="flex gap-2">
                   {conn?.is_connected ? (
                     <>
-                      <Button variant="outline" className="flex-1" onClick={() => handleConnect(ch.channel)}>
+                      <Button variant="outline" className="flex-1" onClick={() => handleConfigure(ch.channel)}>
                         Configure
                       </Button>
                       <Button variant="ghost" size="sm" className="text-destructive" onClick={() => disconnect(ch.channel)}>
@@ -203,6 +250,60 @@ export default function ChannelsPage() {
                     </Button>
                   )}
                 </div>
+                {isWebChat && widgetConfigOpen && widgetSettings && (
+                  <div className="space-y-3 border-t pt-3 mt-1">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Widget Title</Label>
+                      <div className="flex gap-1.5 items-center">
+                        <Type className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <Input
+                          value={widgetSettings.title}
+                          onChange={e => setWidgetSettings(prev => prev ? { ...prev, title: e.target.value } : prev)}
+                          className="text-xs h-8"
+                          placeholder="Chat with us"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Welcome Message</Label>
+                      <div className="flex gap-1.5 items-start">
+                        <MessageCircleIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-1.5" />
+                        <Input
+                          value={widgetSettings.welcome_message}
+                          onChange={e => setWidgetSettings(prev => prev ? { ...prev, welcome_message: e.target.value } : prev)}
+                          className="text-xs h-8"
+                          placeholder="Hi! How can we help you today?"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Primary Color</Label>
+                      <div className="flex gap-1.5 items-center">
+                        <Palette className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <Input
+                          value={widgetSettings.primary_color}
+                          onChange={e => setWidgetSettings(prev => prev ? { ...prev, primary_color: e.target.value } : prev)}
+                          className="text-xs h-8 font-mono"
+                          placeholder="#2563eb"
+                        />
+                        <input
+                          type="color"
+                          value={widgetSettings.primary_color}
+                          onChange={e => setWidgetSettings(prev => prev ? { ...prev, primary_color: e.target.value } : prev)}
+                          className="h-8 w-8 rounded cursor-pointer border"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <Button size="sm" className="flex-1" onClick={saveWidgetSettings} disabled={savingWidget}>
+                        {savingWidget ? 'Saving...' : 'Save Settings'}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setWidgetConfigOpen(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )

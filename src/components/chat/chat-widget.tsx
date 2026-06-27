@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { MessageSquare, X, Send, Bot, User } from 'lucide-react'
+import { MessageSquare, X, Send, Bot, User, UserRound } from 'lucide-react'
 
 interface ChatWidgetProps {
   organizationId: string
@@ -28,7 +28,8 @@ export function ChatWidget({ organizationId, config }: ChatWidgetProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [customerName] = useState('')
+  const [customerName, setCustomerName] = useState('')
+  const conversationIdRef = useRef<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const primaryColor = config?.primary_color || '#2563eb'
@@ -62,11 +63,15 @@ export function ChatWidget({ organizationId, config }: ChatWidgetProps) {
         body: JSON.stringify({
           organization_id: organizationId,
           message: userMessage,
-          customer_name: customerName,
+          customer_name: customerName || undefined,
+          conversation_id: conversationIdRef.current || undefined,
         }),
       })
 
       const data = await res.json()
+      if (data.conversation_id) {
+        conversationIdRef.current = data.conversation_id
+      }
       setMessages(prev => [...prev, { role: 'assistant', content: data.text }])
     } catch {
       setMessages(prev => [...prev, {
@@ -91,61 +96,90 @@ export function ChatWidget({ organizationId, config }: ChatWidgetProps) {
               <X className="h-4 w-4" />
             </Button>
           </CardHeader>
-          <ScrollArea className="h-80 p-3" ref={scrollRef as any}>
-            <div className="space-y-3">
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex gap-2 ${msg.role === 'customer' ? 'justify-end' : ''}`}>
-                  {msg.role === 'assistant' && (
-                    <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                      <Bot className="h-3 w-3" />
-                    </div>
-                  )}
-                  <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-                    msg.role === 'customer'
-                      ? 'text-white'
-                      : 'bg-gray-100 text-gray-800'
-                  }`} style={msg.role === 'customer' ? { backgroundColor: primaryColor } : {}}>
-                    {msg.content}
-                  </div>
-                  {msg.role === 'customer' && (
-                    <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                      <User className="h-3 w-3 text-blue-600" />
-                    </div>
-                  )}
-                </div>
-              ))}
-              {loading && (
-                <div className="flex gap-2">
-                  <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center">
-                    <Bot className="h-3 w-3" />
-                  </div>
-                  <div className="bg-gray-100 rounded-lg px-3 py-2 text-sm text-muted-foreground">
-                    <span className="animate-pulse">Thinking</span>...
-                  </div>
+          {!customerName ? (
+            <div className="p-6 space-y-4">
+              <div className="text-center space-y-2">
+                <UserRound className="h-10 w-10 mx-auto text-gray-400" />
+                <p className="text-sm text-gray-600">Hi there! What's your name?</p>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && input.trim() && setCustomerName(input.trim())}
+                  placeholder="Enter your name..."
+                  className="flex-1"
+                />
+                <Button size="icon" onClick={() => input.trim() && setCustomerName(input.trim())}
+                  style={{ backgroundColor: primaryColor }}>
+                  <Send className="h-4 w-4 text-white" />
+                </Button>
+              </div>
+              {config?.show_branding !== false && (
+                <div className="text-center text-[10px] text-gray-400">
+                  Powered by SupportAI
                 </div>
               )}
             </div>
-          </ScrollArea>
-          <CardFooter className="p-3 pt-0">
-            <div className="flex w-full gap-2">
-              <Input
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && sendMessage()}
-                placeholder="Type your message..."
-                className="flex-1"
-                disabled={loading}
-              />
-              <Button size="icon" onClick={sendMessage} disabled={loading || !input.trim()}
-                style={{ backgroundColor: primaryColor }}>
-                <Send className="h-4 w-4 text-white" />
-              </Button>
-            </div>
-          </CardFooter>
-          {config?.show_branding !== false && (
-            <div className="text-center text-[10px] text-gray-400 pb-1">
-              Powered by SupportAI
-            </div>
+          ) : (
+            <>
+              <ScrollArea className="h-80 p-3" ref={scrollRef as any}>
+                <div className="space-y-3">
+                  {messages.map((msg, i) => (
+                    <div key={i} className={`flex gap-2 ${msg.role === 'customer' ? 'justify-end' : ''}`}>
+                      {msg.role === 'assistant' && (
+                        <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                          <Bot className="h-3 w-3" />
+                        </div>
+                      )}
+                      <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                        msg.role === 'customer'
+                          ? 'text-white'
+                          : 'bg-gray-100 text-gray-800'
+                      }`} style={msg.role === 'customer' ? { backgroundColor: primaryColor } : {}}>
+                        {msg.content}
+                      </div>
+                      {msg.role === 'customer' && (
+                        <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                          <User className="h-3 w-3 text-blue-600" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {loading && (
+                    <div className="flex gap-2">
+                      <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Bot className="h-3 w-3" />
+                      </div>
+                      <div className="bg-gray-100 rounded-lg px-3 py-2 text-sm text-muted-foreground">
+                        <span className="animate-pulse">Thinking</span>...
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+              <CardFooter className="p-3 pt-0">
+                <div className="flex w-full gap-2">
+                  <Input
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && sendMessage()}
+                    placeholder="Type your message..."
+                    className="flex-1"
+                    disabled={loading}
+                  />
+                  <Button size="icon" onClick={sendMessage} disabled={loading || !input.trim()}
+                    style={{ backgroundColor: primaryColor }}>
+                    <Send className="h-4 w-4 text-white" />
+                  </Button>
+                </div>
+              </CardFooter>
+              {config?.show_branding !== false && (
+                <div className="text-center text-[10px] text-gray-400 pb-1">
+                  Powered by SupportAI
+                </div>
+              )}
+            </>
           )}
         </Card>
       )}
