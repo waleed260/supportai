@@ -120,7 +120,7 @@ export default function ChannelsPage() {
 
   const connectWebChat = async () => {
     if (!membership) return
-    const existing = connections.find(c => c.channel === 'web_chat')
+    const existing = connections.find(c => c.channel === 'web_chat' && c.is_connected)
     if (existing) {
       toast.info('Web Chat is already connected')
       return
