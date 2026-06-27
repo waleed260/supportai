@@ -84,16 +84,32 @@ export async function POST(request: Request) {
   if (error) return NextResponse.json({ error: 'Failed to save channel' }, { status: 500 })
 
   if (channel === 'web_chat') {
-    await svc.from('widget_settings').upsert({
-      organization_id: membership.organization_id,
-      title: 'Chat with us',
-      welcome_message: 'Hi! How can we help you today?',
-      primary_color: '#2563eb',
-      position: 'right',
-      show_branding: true,
-      is_active: true,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'organization_id' })
+    const { data: existing } = await svc.from('widget_settings')
+      .select('id')
+      .eq('organization_id', membership.organization_id)
+      .maybeSingle()
+
+    if (existing) {
+      await svc.from('widget_settings').update({
+        title: 'Chat with us',
+        welcome_message: 'Hi! How can we help you today?',
+        primary_color: '#2563eb',
+        position: 'right',
+        show_branding: true,
+        is_active: true,
+        updated_at: new Date().toISOString(),
+      }).eq('id', existing.id)
+    } else {
+      await svc.from('widget_settings').insert({
+        organization_id: membership.organization_id,
+        title: 'Chat with us',
+        welcome_message: 'Hi! How can we help you today?',
+        primary_color: '#2563eb',
+        position: 'right',
+        show_branding: true,
+        is_active: true,
+      })
+    }
   }
 
   await logAudit({

@@ -45,14 +45,31 @@ export async function PATCH(request: Request) {
   const { title, welcome_message, primary_color } = body
 
   const svc = await createServiceRoleClient()
-  const { error } = await svc.from('widget_settings').upsert({
-    organization_id: membership.organization_id,
-    title: title || 'Chat with us',
-    welcome_message: welcome_message || 'Hi! How can we help you today?',
-    primary_color: primary_color || '#2563eb',
-    updated_at: new Date().toISOString(),
-  }, { onConflict: 'organization_id' })
 
-  if (error) return NextResponse.json({ error: 'Failed to update widget settings' }, { status: 500 })
+  const { data: existing } = await svc.from('widget_settings')
+    .select('id')
+    .eq('organization_id', membership.organization_id)
+    .maybeSingle()
+
+  if (existing) {
+    const { error } = await svc.from('widget_settings').update({
+      title: title || 'Chat with us',
+      welcome_message: welcome_message || 'Hi! How can we help you today?',
+      primary_color: primary_color || '#2563eb',
+      updated_at: new Date().toISOString(),
+    }).eq('id', existing.id)
+
+    if (error) return NextResponse.json({ error: 'Failed to update widget settings' }, { status: 500 })
+  } else {
+    const { error } = await svc.from('widget_settings').insert({
+      organization_id: membership.organization_id,
+      title: title || 'Chat with us',
+      welcome_message: welcome_message || 'Hi! How can we help you today?',
+      primary_color: primary_color || '#2563eb',
+    })
+
+    if (error) return NextResponse.json({ error: 'Failed to create widget settings' }, { status: 500 })
+  }
+
   return NextResponse.json({ success: true })
 }
