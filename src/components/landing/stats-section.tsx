@@ -18,8 +18,9 @@ export function StatsSection() {
 
   return (
     <section className="py-20 relative">
-      <div className="absolute inset-0 bg-surface-inverse/80 backdrop-blur-sm" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23a64d00%22 fill-opacity=%220.08%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/60 to-background" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23a64d00%22 fill-opacity=%220.05%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/[0.02] via-transparent to-primary/[0.02]" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {stats.map((stat, i) => (

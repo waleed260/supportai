@@ -64,7 +64,7 @@ export function HeroSection() {
               <div className="w-2.5 h-2.5 rounded-full bg-success" />
               <div className="ml-4 h-4 w-32 rounded-sm bg-border/50" />
             </div>
-            <div className="bg-[#f8f6f3] dark:bg-[#0f1419] p-6 grid grid-cols-4 gap-4">
+            <div className="bg-muted/30 dark:bg-card p-6 grid grid-cols-4 gap-4">
               <div className="col-span-1 space-y-3">
                 <div className="h-3 w-16 rounded-sm bg-primary/20" />
                 <div className="h-8 rounded-sm bg-border/50" />
