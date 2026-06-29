@@ -1,53 +1,20 @@
-import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateEmbedding } from './embeddings'
 import { syncLeadToCrm } from '@/lib/integrations/crm'
 import { cachedQuery, cacheDel } from '@/lib/cache'
 
-function getAIProvider(): { type: 'openrouter' | 'direct'; client: OpenAI | Anthropic } {
-  if (process.env.USE_DIRECT_ANTHROPIC === 'true' && process.env.ANTHROPIC_API_KEY) {
-    return {
-      type: 'direct',
-      client: new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }),
-    }
-  }
-  return {
-    type: 'openrouter',
-    client: new OpenAI({
-      baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-      apiKey: process.env.OPENROUTER_API_KEY!,
-      defaultHeaders: {
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        'X-Title': 'SupportAI',
-      },
-    }),
-  }
-}
-
 type ProviderMessage = { role: 'system' | 'user' | 'assistant'; content: string }
 
 async function callAI(messages: ProviderMessage[], model: string, maxTokens: number): Promise<string> {
-  const provider = getAIProvider()
-
-  if (provider.type === 'direct') {
-    const client = provider.client as Anthropic
-    const response = await client.messages.create({
-      model: model.replace('anthropic/', ''),
-      max_tokens: maxTokens,
-      system: messages.find(m => m.role === 'system')?.content || '',
-      messages: messages.filter(m => m.role !== 'system') as Anthropic.MessageParam[],
-    })
-    return response.content.map(b => b.type === 'text' ? b.text : '').join('')
-  }
-
-  const client = provider.client as OpenAI
-  const response = await client.chat.completions.create({
-    model,
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+  const response = await client.messages.create({
+    model: model.replace('anthropic/', ''),
     max_tokens: maxTokens,
-    messages,
+    system: messages.find(m => m.role === 'system')?.content || '',
+    messages: messages.filter(m => m.role !== 'system') as Anthropic.MessageParam[],
   })
-  return response.choices[0]?.message?.content || ''
+  return response.content.map(b => b.type === 'text' ? b.text : '').join('')
 }
 
 const SYSTEM_PROMPT = `You are SupportAI, an intelligent customer support and sales agent.
@@ -161,7 +128,7 @@ export async function detectLanguage(text: string): Promise<string> {
         { role: 'system', content: 'Detect the language of this message. Respond with exactly the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "ar", "zh", "ja", "ko", "pt", "ru", "it", "nl", "tr", "vi", "th"). Default to "en" if unsure.' },
         { role: 'user', content: text.slice(0, 500) },
       ],
-      'deepseek-v4-flash-free',
+      process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
        10,
     )
     const lang = content.trim().toLowerCase()
@@ -178,7 +145,7 @@ export async function analyzeSentiment(text: string): Promise<string> {
         { role: 'system', content: 'Analyze the sentiment of this customer message. Respond with exactly one word: positive, neutral, negative, frustrated, or high_risk.' },
         { role: 'user', content: text },
       ],
-      'deepseek-v4-flash-free',
+      process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
        10,
     )
     const sentiment = content.trim().toLowerCase()
