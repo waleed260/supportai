@@ -27,7 +27,7 @@ export function LandingFooter() {
   const { ref, inView } = useInView(0.1)
 
   return (
-    <footer className="border-t border-border bg-background" role="contentinfo">
+    <footer className="border-t border-border bg-background/80 backdrop-blur-xl" role="contentinfo">
       <div ref={ref} className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-4 gap-8">
           <div className={`md:col-span-1 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>

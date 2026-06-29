@@ -161,8 +161,8 @@ export async function detectLanguage(text: string): Promise<string> {
         { role: 'system', content: 'Detect the language of this message. Respond with exactly the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "ar", "zh", "ja", "ko", "pt", "ru", "it", "nl", "tr", "vi", "th"). Default to "en" if unsure.' },
         { role: 'user', content: text.slice(0, 500) },
       ],
-      'anthropic/claude-3-haiku',
-      10,
+      'deepseek-v4-flash-free',
+       10,
     )
     const lang = content.trim().toLowerCase()
     return /^[a-z]{2}$/.test(lang) ? lang : 'en'
@@ -178,8 +178,8 @@ export async function analyzeSentiment(text: string): Promise<string> {
         { role: 'system', content: 'Analyze the sentiment of this customer message. Respond with exactly one word: positive, neutral, negative, frustrated, or high_risk.' },
         { role: 'user', content: text },
       ],
-      'anthropic/claude-3-haiku',
-      10,
+      'deepseek-v4-flash-free',
+       10,
     )
     const sentiment = content.trim().toLowerCase()
     const valid = ['positive', 'neutral', 'negative', 'frustrated', 'high_risk']
@@ -233,7 +233,7 @@ export async function generateAIResponse(params: {
   const detectedLanguage = await detectLanguage(message)
   const languageContext = `\n\nThe customer's language code is: ${detectedLanguage}. Always respond in this language.`
 
-  const model = params.agentConfig?.model || process.env.ANTHROPIC_MODEL || 'anthropic/claude-3.5-sonnet'
+  const model = params.agentConfig?.model || process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6'
 
   const text = await callAI(
     [

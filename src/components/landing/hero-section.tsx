@@ -5,16 +5,16 @@ import { ArrowRight, Sparkles } from 'lucide-react'
 export function HeroSection() {
   return (
     <section className="relative min-h-[90dvh] flex items-center justify-center overflow-hidden pt-24 pb-16">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#fff7ed] via-background to-amber-50 dark:from-background dark:via-background dark:to-[#1a1f2e]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-br from-background/70 via-background/50 to-background/70" aria-hidden="true" />
 
-      <div className="absolute inset-0 opacity-50 dark:opacity-70" aria-hidden="true">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-primary/30 dark:bg-primary/20 blur-3xl animate-gradient-shift" />
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-amber-400/20 dark:bg-amber-500/20 blur-3xl animate-gradient-shift-slow" />
-        <div className="absolute top-1/3 right-1/3 w-64 h-64 rounded-full bg-orange-400/20 dark:bg-orange-500/15 blur-3xl animate-gradient-shift-fast" />
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 rounded-full bg-primary/20 dark:bg-primary/15 blur-3xl animate-glow-pulse" />
+      <div className="absolute inset-0 opacity-30" aria-hidden="true">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-primary/20 blur-3xl animate-gradient-shift" />
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-amber-500/15 blur-3xl animate-gradient-shift-slow" />
+        <div className="absolute top-1/3 right-1/3 w-64 h-64 rounded-full bg-orange-500/15 blur-3xl animate-gradient-shift-fast" />
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 rounded-full bg-primary/15 blur-3xl animate-glow-pulse" />
       </div>
 
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(255,255,255,0.95)_100%)] dark:bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(18,24,32,0.95)_100%)]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(18,24,32,0.7)_100%)]" aria-hidden="true" />
 
       <div className="relative max-w-6xl mx-auto px-4 text-center animate-fade-in">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-8 animate-fade-in-up text-sm">

@@ -10,7 +10,7 @@ export function CTASection() {
 
   return (
     <section className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-foreground" aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
       <div className="absolute inset-0 opacity-30" aria-hidden="true">
         <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-primary/40 blur-3xl animate-gradient-shift" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-amber-500/30 blur-3xl animate-gradient-shift-slow" />
