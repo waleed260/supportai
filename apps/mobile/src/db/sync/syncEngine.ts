@@ -1,4 +1,4 @@
-import { syncQueueRepo, conversationRepo, messageRepo, leadRepo, escalationRepo } from '../repository'
+import { syncQueueRepo, conversationRepo, messageRepo } from '../repository'
 import { useSyncStore } from '../../stores/syncStore'
 import type { Conversation, Message } from '@supportai/types'
 

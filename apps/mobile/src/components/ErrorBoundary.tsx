@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { View, Text, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import * as Sentry from '@sentry/react-native'
 
 interface Props {

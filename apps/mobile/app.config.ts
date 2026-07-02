@@ -1,4 +1,4 @@
-export default ({ config }: { config: Record<string, unknown> }) => ({
+const appConfig = ({ config }: { config: Record<string, unknown> }) => ({
   ...config,
   expo: {
     ...(config.expo as Record<string, unknown>),
@@ -43,3 +43,5 @@ export default ({ config }: { config: Record<string, unknown> }) => ({
     ],
   },
 })
+
+export default appConfig

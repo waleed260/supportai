@@ -1,24 +1,24 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 import { View, Animated } from 'react-native'
 
 function SkeletonBlock({ className }: { className?: string }) {
-  const opacity = useRef(new Animated.Value(0.3))
+  const opacity = useMemo(() => new Animated.Value(0.3), [])
 
   useEffect(() => {
     const animation = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity.current, { toValue: 1, duration: 800, useNativeDriver: true }),
-        Animated.timing(opacity.current, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
       ])
     )
     animation.start()
     return () => animation.stop()
-  }, [])
+  }, [opacity])
 
   return (
     <Animated.View
       className={`bg-gray-200 rounded-lg ${className || ''}`}
-      style={{ opacity: opacity.current }}
+      style={{ opacity }}
     />
   )
 }
