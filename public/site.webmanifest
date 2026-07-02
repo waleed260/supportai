@@ -3,8 +3,8 @@
   "short_name": "SupportAI",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#000000",
+  "background_color": "#121820",
+  "theme_color": "#a64d00",
   "icons": [
     {
       "src": "/icon.svg",
