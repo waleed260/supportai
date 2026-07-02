@@ -157,7 +157,7 @@ export function PricingSection() {
 
   return (
     <section id="pricing" className="pt-20 pb-24 relative min-h-screen max-w-7xl mx-auto px-4">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/30 to-transparent dark:via-background pointer-events-none" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/30 to-transparent dark:via-background pointer-events-none" aria-hidden="true" />
 
       <article className="text-left mb-6 space-y-4 max-w-2xl relative">
         <h2 className="md:text-5xl text-4xl capitalize font-medium text-foreground mb-4">

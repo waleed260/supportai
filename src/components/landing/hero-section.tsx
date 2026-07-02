@@ -14,7 +14,7 @@ export function HeroSection() {
         <div className="absolute bottom-1/4 left-1/3 w-80 h-80 rounded-full bg-primary/15 blur-3xl animate-glow-pulse" />
       </div>
 
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(18,24,32,0.7)_100%)]" aria-hidden="true" />
+      <div className="absolute inset-0" aria-hidden="true" style={{ background: 'radial-gradient(ellipse at center, transparent 0%, var(--color-surface-base) 100%)', opacity: 0.6 }} />
 
       <div className="relative max-w-6xl mx-auto px-4 text-center animate-fade-in">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-8 animate-fade-in-up text-sm">

@@ -53,7 +53,7 @@ export function TestimonialsSection() {
 
   return (
     <section className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#fff7ed]/20 to-transparent dark:via-background" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/30 to-transparent dark:via-background" aria-hidden="true" />
       <div ref={ref} className="relative max-w-7xl mx-auto px-4">
         <div className={`text-center mb-16 transition-all duration-400 ${inView ? 'animate-fade-in-up' : 'opacity-0'}`}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-background/50 backdrop-blur-sm text-muted-foreground mb-4 text-sm">
