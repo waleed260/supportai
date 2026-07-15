@@ -1,4 +1,3 @@
-import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
@@ -37,15 +36,24 @@ const nextConfig: NextConfig = {
   },
 }
 
-const hasSentryConfig = !!(process.env.SENTRY_DSN && process.env.SENTRY_AUTH_TOKEN)
-const config = hasSentryConfig
-  ? withSentryConfig(nextConfig, {
-      org: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT,
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      silent: true,
-      telemetry: false,
-    })
-  : nextConfig
-
-export default config
+// Dynamically apply Sentry config only when env vars are present
+export default async function config() {
+  const hasSentryConfig = !!(process.env.SENTRY_DSN && process.env.SENTRY_AUTH_TOKEN)
+  
+  if (hasSentryConfig) {
+    try {
+      const { withSentryConfig } = await import('@sentry/nextjs')
+      return withSentryConfig(nextConfig, {
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        silent: true,
+        telemetry: false,
+      })
+    } catch {
+      console.warn('Sentry config skipped — @sentry/nextjs not available')
+    }
+  }
+  
+  return nextConfig
+}

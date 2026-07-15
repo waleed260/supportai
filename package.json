@@ -3,10 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "npm@10.0.0",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+
   "scripts": {
     "dev": "next dev",
     "dev:mobile": "npm run dev -w apps/mobile",
