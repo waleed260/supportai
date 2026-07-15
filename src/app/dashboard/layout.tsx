@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Sidebar } from '@/components/layout/sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
+import { AuthProvider } from '@/contexts/auth-context'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { User, Membership } from '@/types'
 
@@ -92,20 +93,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const role = membership.role
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-background">
-      <Sidebar
-        role={role}
-        organizationName={membership.organization?.name}
-        collapsed={collapsed}
-        onToggle={() => setCollapsed(!collapsed)}
-        onSignOut={handleSignOut}
-      />
-      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
-        <DashboardHeader user={user} role={role} />
-        <main className="flex-1 p-4 sm:p-6 overflow-auto animate-fade-in">
-          {children}
-        </main>
+    <AuthProvider initialUser={user} initialMembership={membership}>
+      <div className="min-h-screen flex bg-gray-50 dark:bg-background">
+        <Sidebar
+          role={role}
+          organizationName={membership.organization?.name}
+          collapsed={collapsed}
+          onToggle={() => setCollapsed(!collapsed)}
+          onSignOut={handleSignOut}
+        />
+        <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
+          <DashboardHeader user={user} role={role} />
+          <main className="flex-1 p-4 sm:p-6 overflow-auto animate-fade-in">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   )
 }

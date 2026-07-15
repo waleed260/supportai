@@ -1,8 +1,7 @@
 'use client'
 
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { createContext, useContext, useEffect, useState } from 'react'
 import type { User, Membership } from '@/types'
 
 interface AuthContextValue {
@@ -19,45 +18,52 @@ const AuthContext = createContext<AuthContextValue>({
   signOut: async () => {},
 })
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [membership, setMembership] = useState<Membership | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+export function AuthProvider({ children, initialUser, initialMembership }: {
+  children: ReactNode
+  initialUser?: User | null
+  initialMembership?: Membership | null
+}) {
+  const [user, setUser] = useState<User | null>(initialUser || null)
+  const [membership, setMembership] = useState<Membership | null>(initialMembership || null)
+  const [loading, setLoading] = useState(!initialUser)
   const supabase = createClient()
 
   useEffect(() => {
-    const init = async () => {
+    // If we already have initial data, no need to fetch
+    if (initialUser && initialMembership) {
+      setLoading(false)
+      return
+    }
+
+    const fetchData = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        router.push('/login')
+        setLoading(false)
         return
       }
 
-      const { data: profile } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-      setUser(profile)
+      const [profileResult, membershipsResult] = await Promise.all([
+        supabase.from('users').select('*').eq('id', session.user.id).single(),
+        supabase.from('memberships')
+          .select('*, organization:organizations(*)')
+          .eq('user_id', session.user.id)
+          .eq('is_active', true)
+          .limit(1)
+          .single(),
+      ])
 
-      const { data: memberships } = await supabase
-        .from('memberships')
-        .select('*, organization:organizations(*)')
-        .eq('user_id', session.user.id)
-        .eq('is_active', true)
-        .limit(1)
-        .single()
-      setMembership(memberships)
+      if (profileResult.data) setUser(profileResult.data)
+      if (membershipsResult.data) setMembership(membershipsResult.data)
       setLoading(false)
     }
-    init()
-  }, [supabase, router])
+
+    fetchData()
+  }, [supabase, initialUser, initialMembership])
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+    setUser(null)
+    setMembership(null)
   }
 
   return (

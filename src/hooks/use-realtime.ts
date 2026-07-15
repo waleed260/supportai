@@ -1,37 +1,54 @@
+'use client'
+
 import { useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+
+interface UseRealtimeSubscriptionOptions {
+  table: string
+  filter?: string
+  event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*'
+  callback: (payload: RealtimePostgresChangesPayload<any>) => void
+  deps?: any[]
+}
 
 export function useRealtimeSubscription({
   table,
-  event = '*',
   filter,
-  schema = 'public',
+  event = '*',
   callback,
   deps = [],
-}: {
-  table: string
-  event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*'
-  filter?: string
-  schema?: string
-  callback: (payload: any) => void
-  deps?: any[]
-}) {
+}: UseRealtimeSubscriptionOptions) {
   const callbackRef = useRef(callback)
   callbackRef.current = callback
 
   useEffect(() => {
     const supabase = createClient()
-    const channelName = `${table}-${event}-${filter || 'all'}`
+
+    const channelConfig: any = {
+      event,
+      schema: 'public',
+      table,
+    }
+
+    if (filter) {
+      channelConfig.filter = filter
+    }
 
     const channel = supabase
-      .channel(channelName)
-      .on('postgres_changes', { event, schema, table, filter } as any, (payload: any) => {
-        callbackRef.current(payload)
-      })
+      .channel(`realtime-${table}-${Date.now()}`)
+      .on(
+        'postgres_changes',
+        channelConfig,
+        (payload) => {
+          callbackRef.current(payload)
+        }
+      )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [table, event, filter, schema, ...deps])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table, filter, event, ...deps])
 }
