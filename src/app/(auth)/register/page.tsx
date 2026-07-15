@@ -69,18 +69,18 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Brand */}
-      <div className="hidden lg:flex lg:w-2/5 relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950">
+      <div className="hidden lg:flex lg:w-2/5 relative overflow-hidden bg-slate-900">
         <div className="absolute inset-0">
-          <div className="absolute top-20 right-20 size-[400px] bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-40 left-20 size-[300px] bg-indigo-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-20 right-20 size-[400px] bg-slate-800 rounded-full blur-3xl" />
+          <div className="absolute bottom-40 left-20 size-[300px] bg-slate-800/50 rounded-full blur-3xl" />
         </div>
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v2H24v-2h12zM36 24v2H24v-2h12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }} />
 
         <div className="relative flex flex-col justify-between p-12 w-full">
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="size-9 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="size-9 rounded-xl bg-white flex items-center justify-center shadow-lg">
+                <Sparkles className="h-5 w-5 text-slate-900" />
               </div>
               <span className="text-xl font-bold text-white">SupportAI</span>
             </Link>
@@ -88,46 +88,44 @@ export default function RegisterPage() {
 
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold text-white leading-tight mb-3">
+              <h2 className="text-3xl font-bold text-white leading-tight mb-3" style={{ fontFamily: 'var(--font-syne)' }}>
                 Start your free trial
               </h2>
-              <p className="text-base text-blue-200/70 leading-relaxed">
+              <p className="text-base text-slate-400 leading-relaxed">
                 No credit card required. Full access to all features for 14 days.
               </p>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
               {stats.map(s => (
-                <div key={s.label} className="text-center p-3 rounded-xl bg-white/5">
+                <div key={s.label} className="text-center p-3 rounded-xl bg-slate-800">
                   <div className="text-xl font-bold text-white">{s.value}</div>
-                  <div className="text-xs text-blue-300/60 mt-0.5">{s.label}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">{s.label}</div>
                 </div>
               ))}
             </div>
 
-            {/* Quote */}
-            <div className="border-t border-white/10 pt-5">
-              <Quote className="h-4 w-4 text-blue-400/50 mb-1.5" />
-              <p className="text-sm text-blue-200/60 italic leading-relaxed">
+            <div className="border-t border-slate-800 pt-5">
+              <Quote className="h-4 w-4 text-slate-600 mb-1.5" />
+              <p className="text-sm text-slate-400 italic leading-relaxed">
                 &ldquo;The lead capture feature alone paid for itself within the first month.&rdquo;
               </p>
-              <p className="text-xs text-blue-300/50 mt-2">— Marcus Rivera, GrowthPad</p>
+              <p className="text-xs text-slate-500 mt-2">— Marcus Rivera, GrowthPad</p>
             </div>
           </div>
 
-          <p className="text-sm text-blue-300/40">&copy; {new Date().getFullYear()} SupportAI</p>
+          <p className="text-sm text-slate-600">&copy; {new Date().getFullYear()} SupportAI</p>
         </div>
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 dark:from-background dark:via-background dark:to-background">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-slate-50/50 via-white to-slate-50/30 dark:from-background dark:via-background dark:to-background">
         <div className="w-full max-w-sm animate-fade-in">
           {/* Mobile logo & brand */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-3">
-              <div className="size-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="size-9 rounded-xl bg-primary flex items-center justify-center shadow-lg">
+                <Sparkles className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold">SupportAI</span>
             </Link>

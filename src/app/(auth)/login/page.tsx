@@ -51,85 +51,76 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Brand */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950">
-        {/* Decorative elements */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-900">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 size-[400px] bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-40 right-20 size-[300px] bg-indigo-500/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] bg-cyan-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-20 left-20 size-[400px] bg-slate-800 rounded-full blur-3xl" />
+          <div className="absolute bottom-40 right-20 size-[300px] bg-slate-800/50 rounded-full blur-3xl" />
         </div>
-
-        {/* Grid overlay */}
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v2H24v-2h12zM36 24v2H24v-2h12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }} />
 
         <div className="relative flex flex-col justify-between p-16 w-full">
-          {/* Logo */}
           <div>
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="size-9 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="size-9 rounded-xl bg-white flex items-center justify-center shadow-lg">
+                <Sparkles className="h-5 w-5 text-slate-900" />
               </div>
               <span className="text-xl font-bold text-white">SupportAI</span>
             </Link>
           </div>
 
-          {/* Content */}
           <div className="space-y-10">
             <div>
-              <h2 className="text-4xl font-bold text-white leading-tight mb-4">
-                AI Customer Support<br />
-                <span className="text-blue-300">That Actually Works</span>
+              <h2 className="text-4xl font-bold text-white leading-tight mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+                AI customer support<br />
+                <span className="text-slate-400">that actually works</span>
               </h2>
-              <p className="text-lg text-blue-200/70 max-w-md leading-relaxed">
+              <p className="text-lg text-slate-400 max-w-md leading-relaxed">
                 Deploy intelligent AI agents across WhatsApp, Instagram, Facebook, and your website — all from one platform.
               </p>
             </div>
 
-            {/* Features */}
             <div className="space-y-3">
               {features.map((f, i) => (
-                <div key={i} className="flex items-center gap-3 text-blue-200/80">
-                  <CheckCircle className="h-4 w-4 text-blue-400 shrink-0" />
+                <div key={i} className="flex items-center gap-3 text-slate-300">
+                  <CheckCircle className="h-4 w-4 text-slate-500 shrink-0" />
                   <span className="text-sm">{f}</span>
                 </div>
               ))}
             </div>
 
-            {/* Testimonial */}
-            <div className="border-t border-white/10 pt-6">
-              <Quote className="h-5 w-5 text-blue-400/50 mb-2" />
-              <p className="text-sm text-blue-200/70 leading-relaxed italic max-w-md">
+            <div className="border-t border-slate-800 pt-6">
+              <Quote className="h-5 w-5 text-slate-600 mb-2" />
+              <p className="text-sm text-slate-400 leading-relaxed italic max-w-md">
                 &ldquo;{testimonials[0].text}&rdquo;
               </p>
               <div className="flex items-center gap-2 mt-3">
-                <div className="size-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-xs font-bold text-white">
+                <div className="size-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white">
                   SC
                 </div>
                 <div>
                   <p className="text-sm font-medium text-white">{testimonials[0].name}</p>
-                  <p className="text-xs text-blue-300/60">{testimonials[0].role}</p>
+                  <p className="text-xs text-slate-500">{testimonials[0].role}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Footer */}
-          <p className="text-sm text-blue-300/40">&copy; {new Date().getFullYear()} SupportAI. All rights reserved.</p>
+          <p className="text-sm text-slate-600">&copy; {new Date().getFullYear()} SupportAI. All rights reserved.</p>
         </div>
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 dark:from-background dark:via-background dark:to-background">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-gradient-to-br from-slate-50/50 via-white to-slate-50/30 dark:from-background dark:via-background dark:to-background">
         <div className="w-full max-w-sm animate-fade-in">
           {/* Mobile logo & brand */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-3">
-              <div className="size-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="size-9 rounded-xl bg-primary flex items-center justify-center shadow-lg">
+                <Sparkles className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold">SupportAI</span>
             </Link>
-            <p className="text-sm text-muted-foreground">AI Customer Support That Actually Works</p>
+            <p className="text-sm text-muted-foreground">AI customer support that actually works</p>
           </div>
 
           <div className="text-center mb-8">
