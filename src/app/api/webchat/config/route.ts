@@ -1,18 +1,20 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { webchatConfigSchema } from '@/lib/validation'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const organizationId = searchParams.get('organization_id')
 
-  if (!organizationId) {
-    return NextResponse.json({ error: 'organization_id is required' }, { status: 400 })
+  const parsed = webchatConfigSchema.safeParse({ organization_id: organizationId })
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
   }
 
   const supabase = await createServiceRoleClient()
 
   const { data: widget } = await supabase.from('widget_settings')
-    .select('*').eq('organization_id', organizationId).single()
+    .select('*').eq('organization_id', parsed.data.organization_id).single()
 
   if (!widget) {
     return NextResponse.json({ error: 'Widget not configured' }, { status: 404 })

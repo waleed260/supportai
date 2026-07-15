@@ -1,0 +1,15 @@
+{
+  "name": "SupportAI",
+  "short_name": "SupportAI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121820",
+  "theme_color": "#a64d00",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "500x500",
+      "type": "image/svg+xml"
+    }
+  ]
+}

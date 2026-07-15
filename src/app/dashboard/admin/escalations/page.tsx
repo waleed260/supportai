@@ -1,0 +1,116 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useAuthContext } from '@/contexts/auth-context'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { formatDate } from '@/lib/utils'
+import { toast } from 'sonner'
+import { AlertTriangle, CheckCircle, UserCheck } from 'lucide-react'
+import type { Escalation } from '@/types'
+
+export default function EscalationsPage() {
+  const { membership, user } = useAuthContext()
+  const [escalations, setEscalations] = useState<(Escalation & { conversation?: { customer_name: string; channel: string; customer_email: string; sentiment: string } })[]>([])
+  const [filter, setFilter] = useState('open')
+
+  useEffect(() => {
+    if (!membership) return
+    fetchEscalations(membership.organization_id)
+  }, [membership])
+
+  const fetchEscalations = async (_oid: string) => {
+    const res = await fetch('/api/escalations')
+    if (res.ok) {
+      const json = await res.json()
+      setEscalations(json.data)
+    }
+  }
+
+  const resolveEscalation = async (id: string) => {
+    const res = await fetch('/api/escalations', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, resolved_by: user?.id }),
+    })
+
+    if (!res.ok) toast.error('Failed to resolve')
+    else {
+      toast.success('Escalation resolved')
+      if (membership) fetchEscalations(membership.organization_id)
+    }
+  }
+
+  const filtered = filter === 'all' ? escalations : filter === 'open'
+    ? escalations.filter(e => !e.resolved_at)
+    : escalations.filter(e => e.resolved_at)
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">Escalations</h2>
+        <Select value={filter} onValueChange={(v: string | null) => v && setFilter(v)}>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="open">Open</SelectItem>
+            <SelectItem value="resolved">Resolved</SelectItem>
+            <SelectItem value="all">All</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Customer</TableHead>
+                <TableHead>Channel</TableHead>
+                <TableHead>Reason</TableHead>
+                <TableHead>Trigger</TableHead>
+                <TableHead>Sentiment</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map(esc => (
+                <TableRow key={esc.id}>
+                  <TableCell className="font-medium">{esc.conversation?.customer_name || 'Unknown'}</TableCell>
+                  <TableCell><Badge variant="outline">{esc.conversation?.channel || '-'}</Badge></TableCell>
+                  <TableCell className="max-w-xs truncate">{esc.reason || '-'}</TableCell>
+                  <TableCell><Badge variant="secondary">{esc.triggered_by}</Badge></TableCell>
+                  <TableCell>
+                    <Badge variant={esc.conversation?.sentiment === 'negative' || esc.conversation?.sentiment === 'frustrated' ? 'destructive' : 'secondary'}>
+                      {esc.conversation?.sentiment || '-'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{formatDate(esc.created_at)}</TableCell>
+                  <TableCell>
+                    {!esc.resolved_at ? (
+                      <Button size="sm" variant="default" onClick={() => resolveEscalation(esc.id)}>
+                        <CheckCircle className="h-4 w-4 mr-1" />Resolve
+                      </Button>
+                    ) : (
+                      <Badge variant="outline" className="text-green-600">Resolved</Badge>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {filtered.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    No escalations found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

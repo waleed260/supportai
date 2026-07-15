@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,70 +14,61 @@ import { Plus, Trash2 } from 'lucide-react'
 import type { Membership, User } from '@/types'
 
 export default function TeamPage() {
+  const { membership } = useAuthContext()
   const [team, setTeam] = useState<(Membership & { user?: User })[]>([])
-  const [orgId, setOrgId] = useState<string | null>(null)
   const [inviteOpen, setInviteOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<string>('team_member')
 
   useEffect(() => {
-    const init = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const { data: membership } = await supabase.from('memberships')
-        .select('organization_id').eq('user_id', session.user.id).limit(1).single()
-      if (!membership) return
-      setOrgId(membership.organization_id)
-
-      const { data } = await supabase.from('memberships')
-        .select('*, user:users(*)').eq('organization_id', membership.organization_id)
-      if (data) setTeam(data)
+    if (!membership) return
+    const fetchTeam = async () => {
+      const res = await fetch('/api/memberships')
+      if (res.ok) setTeam(await res.json())
     }
-    init()
-  }, [])
+    fetchTeam()
+  }, [membership])
 
   const inviteMember = async () => {
-    if (!orgId || !inviteEmail) return
-    const supabase = createClient()
+    if (!membership || !inviteEmail) return
 
-    const { data: existingUser } = await supabase.from('users')
-      .select('id').eq('email', inviteEmail).single()
+    const res = await fetch('/api/memberships', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
+    })
 
-    if (!existingUser) {
-      toast.error('User not found. They need to register first.')
+    if (res.status === 404) {
+      toast.error('User not found')
       return
     }
 
-    const { error } = await supabase.from('memberships').insert({
-      user_id: existingUser.id,
-      organization_id: orgId,
-      role: inviteRole,
-    })
-    if (error) { toast.error('Failed to add member') } else {
+    if (!res.ok) {
+      toast.error('Failed to add member')
+    } else {
       toast.success('Team member added!')
       setInviteOpen(false)
       setInviteEmail('')
-      const { data } = await supabase.from('memberships')
-        .select('*, user:users(*)').eq('organization_id', orgId)
-      if (data) setTeam(data)
+      const member = await res.json()
+      setTeam(prev => [...prev, member])
     }
   }
 
   const removeMember = async (id: string) => {
-    const supabase = createClient()
-    await supabase.from('memberships').delete().eq('id', id)
-    toast.success('Member removed')
-    setTeam(prev => prev.filter(m => m.id !== id))
+    const res = await fetch(`/api/memberships?id=${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      toast.success('Member removed')
+      setTeam(prev => prev.filter(m => m.id !== id))
+    }
   }
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Team Members</h2>
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-          <DialogTrigger render={<Button variant="default"><Plus className="h-4 w-4 mr-2" />Add Member</Button>}>
-            Add Member
+          <DialogTrigger asChild>
+            <Button variant="default"><Plus className="h-4 w-4 mr-2" />Add Member</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Add Team Member</DialogTitle></DialogHeader>

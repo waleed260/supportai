@@ -15,6 +15,9 @@ export interface Organization {
   company_size?: string
   industry?: string
   is_active: boolean
+  status?: string
+  approved_at?: string
+  approved_by?: string
   created_at: string
   updated_at: string
 }
@@ -157,6 +160,8 @@ export interface Lead {
   status: string
   assigned_to?: string
   metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
 }
 
 export interface Escalation {
@@ -169,6 +174,8 @@ export interface Escalation {
   issue_summary?: string
   resolved_by?: string
   resolved_at?: string
+  status?: string
+  created_at: string
 }
 
 export interface ChannelConnection {
@@ -179,6 +186,8 @@ export interface ChannelConnection {
   is_connected: boolean
   webhook_url?: string
   webhook_verified: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface WidgetSettings {

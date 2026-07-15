@@ -1,0 +1,5 @@
+insert into subscription_plans (name, slug, description, price_monthly, price_yearly, max_conversations, max_seats, max_knowledge_docs, channels, features) values
+('Starter', 'starter', 'Basic AI customer support for small businesses', 2900, 29000, 500, 1, 5, array['web_chat', 'whatsapp'], jsonb_build_object('lead_capture', false, 'sentiment_analysis', false, 'advanced_analytics', false, 'priority_support', false)),
+('Growth', 'growth', 'Multi-channel support with lead capture', 9900, 99000, 2000, 3, 20, array['web_chat', 'whatsapp', 'instagram', 'facebook'], jsonb_build_object('lead_capture', true, 'sentiment_analysis', true, 'advanced_analytics', false, 'priority_support', false)),
+('Pro', 'pro', 'Enterprise AI with full feature access', 29900, 299000, null, 50, 100, array['web_chat', 'whatsapp', 'instagram', 'facebook', 'telegram', 'email'], jsonb_build_object('lead_capture', true, 'sentiment_analysis', true, 'advanced_analytics', true, 'priority_support', true))
+on conflict (slug) do nothing;

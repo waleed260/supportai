@@ -36,6 +36,17 @@ yarn-error.log*
 # vercel
 .vercel
 
+
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.playwright-mcp/
+vercel-env.txt
+agent-dashboard*
+dashboard-snapshot.md
+agent-dashboard-snapshot.md
+agent-dashboard-v2.md
+vercel-home.md
+test-results/
+.claude/

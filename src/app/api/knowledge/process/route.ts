@@ -1,23 +1,38 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
-import { generateEmbedding, chunkText, extractTextFromUrl } from '@/lib/ai/embeddings'
+import { generateEmbedding, extractTextFromUrl } from '@/lib/ai/embeddings'
+import { chunkText } from '@/lib/knowledge/chunking'
+import { knowledgeProcessSchema } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { knowledge_source_id } = body
+    const formData = await request.formData()
+    const knowledge_source_id = formData.get('knowledge_source_id') as string
+    const file = formData.get('file') as File | null
 
-    if (!knowledge_source_id) {
-      return NextResponse.json({ error: 'knowledge_source_id is required' }, { status: 400 })
+    const parsed = knowledgeProcessSchema.safeParse({ knowledge_source_id })
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
     }
 
     const supabase = await createServiceRoleClient()
 
     const { data: source } = await supabase.from('knowledge_sources')
-      .select('*').eq('id', knowledge_source_id).single()
+      .select('*').eq('id', parsed.data.knowledge_source_id).single()
 
     if (!source) {
       return NextResponse.json({ error: 'Knowledge source not found' }, { status: 404 })
+    }
+
+    const { success, remaining, reset } = await limiters.knowledgeProcess(source.organization_id)
+    if (!success) {
+      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
     }
 
     await supabase.from('knowledge_sources')
@@ -27,6 +42,21 @@ export async function POST(request: Request) {
 
     if (source.type === 'website' && source.source_url) {
       text = await extractTextFromUrl(source.source_url)
+    } else if (file) {
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const fileName = file.name.toLowerCase()
+
+      if (fileName.endsWith('.pdf')) {
+        const pdfParse = (await import('pdf-parse')).default
+        const pdfData = await pdfParse(buffer)
+        text = pdfData.text
+      } else if (fileName.endsWith('.docx')) {
+        const mammoth = await import('mammoth')
+        const result = await mammoth.extractRawText({ buffer })
+        text = result.value
+      } else {
+        text = buffer.toString('utf-8')
+      }
     }
 
     if (!text) {
@@ -47,7 +77,7 @@ export async function POST(request: Request) {
           organization_id: source.organization_id,
           content: chunk,
           embedding: embeddingArray as any,
-          metadata: { source_url: source.source_url, chunk_index: chunkCount },
+          metadata: { source_url: source.source_url, chunk_index: chunkCount, file_name: file?.name },
         })
         chunkCount++
       }
@@ -58,7 +88,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, chunks_processed: chunkCount })
   } catch (error) {
-    console.error('Knowledge processing error:', error)
+    Sentry.captureException(error, {
+      tags: { route: '/api/knowledge/process' },
+    })
+    log.error('Knowledge processing error', { route: '/api/knowledge/process', error })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

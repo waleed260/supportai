@@ -1,9 +1,11 @@
+import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
+      { protocol: "https", hostname: "iunbuxpozsnmjpydhlsq.supabase.co" },
+      { protocol: "https", hostname: "*.gravatar.com" },
     ],
   },
   async headers() {
@@ -22,8 +24,28 @@ const nextConfig: NextConfig = {
           { key: "Content-Security-Policy", value: "frame-ancestors *" },
         ],
       },
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
+        ],
+      },
     ]
   },
 }
 
-export default nextConfig
+const hasSentryConfig = !!(process.env.SENTRY_DSN && process.env.SENTRY_AUTH_TOKEN)
+const config = hasSentryConfig
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: true,
+      telemetry: false,
+    })
+  : nextConfig
+
+export default config

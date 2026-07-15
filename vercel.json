@@ -4,8 +4,19 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "functions": {
-    "api/*": {
-      "maxDuration": 30
+    "app/api/chat/route.ts": { "maxDuration": 30 },
+    "app/api/webchat/route.ts": { "maxDuration": 30 },
+    "app/api/knowledge/process/route.ts": { "maxDuration": 60 },
+    "app/api/knowledge/upload/route.ts": { "maxDuration": 60 },
+    "app/api/webhooks/whatsapp/route.ts": { "maxDuration": 30 },
+    "app/api/webhooks/instagram/route.ts": { "maxDuration": 30 },
+    "app/api/webhooks/facebook/route.ts": { "maxDuration": 30 },
+    "app/api/cron/export/route.ts": { "maxDuration": 300 }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/export",
+      "schedule": "0 6 * * *"
     }
-  }
+  ]
 }

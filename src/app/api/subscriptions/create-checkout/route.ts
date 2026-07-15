@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import Stripe from 'stripe'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createCheckoutSchema } from '@/lib/validation'
+import { limiters } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31' as any })
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31' as any })
+}
 
 export async function POST(request: Request) {
   try {
+    const stripe = getStripe()
     const supabase = await createServerSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,7 +22,20 @@ export async function POST(request: Request) {
     if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 403 })
 
     const body = await request.json()
-    const { price_id, interval } = body
+    const parsed = createCheckoutSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
+    }
+
+    const { price_id } = parsed.data
+
+    const { success, remaining, reset } = await limiters.api(`checkout:${membership.organization_id}`)
+    if (!success) {
+      return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil((reset - Date.now()) / 1000)) },
+      })
+    }
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -32,7 +52,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {
-    console.error('Checkout error:', error)
+    Sentry.captureException(error, { tags: { route: '/api/subscriptions/create-checkout' } })
+    log.error('Checkout error', { route: '/api/subscriptions/create-checkout', error })
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }
