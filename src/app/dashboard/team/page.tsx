@@ -33,20 +33,43 @@ export default function TeamOverview() {
   }, [])
 
   const cards = [
-    { title: 'Active Conversations', value: stats.active, icon: MessageSquare, color: 'text-blue-600' },
-    { title: 'Escalated', value: stats.escalated, icon: AlertTriangle, color: 'text-red-600' },
-    { title: 'Resolved Today', value: stats.resolved, icon: CheckCircle, color: 'text-green-600' },
+    {
+      title: 'Active Conversations',
+      value: stats.active,
+      icon: MessageSquare,
+      color: 'text-blue-600 dark:text-blue-400',
+      bg: 'bg-blue-50 dark:bg-blue-950/50',
+    },
+    {
+      title: 'Escalated',
+      value: stats.escalated,
+      icon: AlertTriangle,
+      color: 'text-red-600 dark:text-red-400',
+      bg: 'bg-red-50 dark:bg-red-950/50',
+    },
+    {
+      title: 'Resolved Today',
+      value: stats.resolved,
+      icon: CheckCircle,
+      color: 'text-green-600 dark:text-green-400',
+      bg: 'bg-green-50 dark:bg-green-950/50',
+    },
   ]
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">My Dashboard</h2>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold tracking-tight">My Dashboard</h2>
+        <p className="text-sm text-muted-foreground mt-1">Overview of your team&apos;s conversations</p>
+      </div>
       <div className="grid gap-4 md:grid-cols-3">
         {cards.map(c => (
-          <Card key={c.title}>
+          <Card key={c.title} className="card-hover border-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{c.title}</CardTitle>
-              <c.icon className={`h-4 w-4 ${c.color}`} />
+              <div className={`${c.bg} p-2 rounded-lg`}>
+                <c.icon className={`h-4 w-4 ${c.color}`} />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{c.value}</div>

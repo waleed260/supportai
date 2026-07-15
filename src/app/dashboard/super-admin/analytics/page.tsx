@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, TrendingUp, Users, MessageSquare } from 'lucide-react'
+import { TrendingUp, Users, MessageSquare, DollarSign } from 'lucide-react'
 
 export default function SuperAdminAnalytics() {
   const [stats, setStats] = useState({ orgs: 0, convos: 0, users: 0, revenue: 0 })
@@ -27,21 +27,50 @@ export default function SuperAdminAnalytics() {
   }, [])
 
   const cards = [
-    { title: 'Platform Revenue', value: `$${stats.revenue}`, icon: TrendingUp, color: 'text-green-600' },
-    { title: 'Active Organizations', value: stats.orgs, icon: Users, color: 'text-blue-600' },
-    { title: 'Total Users', value: stats.users, icon: Users, color: 'text-purple-600' },
-    { title: 'Total Conversations', value: stats.convos, icon: MessageSquare, color: 'text-orange-600' },
+    {
+      title: 'Platform Revenue',
+      value: `$${stats.revenue}`,
+      icon: TrendingUp,
+      color: 'text-green-600 dark:text-green-400',
+      bg: 'bg-green-50 dark:bg-green-950/50',
+    },
+    {
+      title: 'Active Organizations',
+      value: stats.orgs,
+      icon: Users,
+      color: 'text-blue-600 dark:text-blue-400',
+      bg: 'bg-blue-50 dark:bg-blue-950/50',
+    },
+    {
+      title: 'Total Users',
+      value: stats.users,
+      icon: Users,
+      color: 'text-purple-600 dark:text-purple-400',
+      bg: 'bg-purple-50 dark:bg-purple-950/50',
+    },
+    {
+      title: 'Total Conversations',
+      value: stats.convos,
+      icon: MessageSquare,
+      color: 'text-orange-600 dark:text-orange-400',
+      bg: 'bg-orange-50 dark:bg-orange-950/50',
+    },
   ]
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Platform Analytics</h2>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold tracking-tight">Platform Analytics</h2>
+        <p className="text-sm text-muted-foreground mt-1">Overall platform metrics and trends</p>
+      </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {cards.map(c => (
-          <Card key={c.title}>
+          <Card key={c.title} className="card-hover border-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{c.title}</CardTitle>
-              <c.icon className={`h-4 w-4 ${c.color}`} />
+              <div className={`${c.bg} p-2 rounded-lg`}>
+                <c.icon className={`h-4 w-4 ${c.color}`} />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{c.value}</div>
