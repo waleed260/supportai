@@ -166,6 +166,9 @@ export async function generateAIResponse(params: {
     tone_of_voice?: string
     brand_guidelines?: string
     custom_instructions?: string
+    welcome_message?: string
+    fallback_message?: string
+    language_mode?: string
     sentiment_analysis_enabled?: boolean
     lead_capture_enabled?: boolean
     sales_mode_enabled?: boolean
@@ -198,7 +201,14 @@ export async function generateAIResponse(params: {
   }
 
   const detectedLanguage = await detectLanguage(message)
-  const languageContext = `\n\nThe customer's language code is: ${detectedLanguage}. Always respond in this language.`
+  const languageMode = agentConfig?.language_mode || 'auto'
+  const languageContext = languageMode === 'en'
+    ? `\n\nThe customer's language code is: en. Always respond in English.`
+    : languageMode === 'ur'
+      ? `\n\nThe customer's language code is: ur. Always respond in Urdu (اردو).`
+      : languageMode === 'mixed_roman_urdu'
+        ? `\n\nThe customer communicates in Roman Urdu (Urdu written in Latin script, e.g., "kya hal hai?"). Always respond in Roman Urdu, mixing common English words naturally.`
+        : `\n\nThe customer's language code is: ${detectedLanguage}. Always respond in this language.`
 
   const model = params.agentConfig?.model || process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6'
 
@@ -254,8 +264,18 @@ export async function generateAIResponse(params: {
     .replace(/\[LEAD\].*?(\n|$)/g, '')
     .trim()
 
+  let replyText = cleanText
+
+  if (shouldEscalate && agentConfig?.fallback_message) {
+    replyText = agentConfig.fallback_message
+  }
+
+  if (agentConfig?.welcome_message && history.length <= 1) {
+    replyText = `${agentConfig.welcome_message}\n\n${replyText}`.trim()
+  }
+
   return {
-    text: cleanText,
+    text: replyText,
     sentiment,
     shouldEscalate,
     leadCaptured: leadData,

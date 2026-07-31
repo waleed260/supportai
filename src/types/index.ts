@@ -82,6 +82,9 @@ export interface AIAgent {
   tone_of_voice: string
   brand_guidelines?: string
   custom_instructions?: string
+  welcome_message?: string
+  fallback_message?: string
+  language_mode?: string
   model: string
   temperature: number
   is_active: boolean

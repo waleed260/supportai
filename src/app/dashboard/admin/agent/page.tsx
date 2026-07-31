@@ -19,6 +19,7 @@ import {
 
 const sections = [
   { id: 'identity', label: 'Identity', icon: User, accent: 'from-primary/10 to-amber-500/5', gradient: 'bg-gradient-to-r from-primary to-amber-500' },
+  { id: 'messages', label: 'Messages', icon: MessageSquare, accent: 'from-fuchsia-500/10 to-pink-500/5', gradient: 'bg-gradient-to-r from-fuchsia-500 to-pink-500' },
   { id: 'model', label: 'AI Model', icon: Brain, accent: 'from-violet-500/10 to-purple-500/5', gradient: 'bg-gradient-to-r from-violet-500 to-purple-500' },
   { id: 'features', label: 'Features', icon: Sparkles, accent: 'from-emerald-500/10 to-teal-500/5', gradient: 'bg-gradient-to-r from-emerald-500 to-teal-500' },
   { id: 'advanced', label: 'Advanced', icon: Sliders, accent: 'from-sky-500/10 to-blue-500/5', gradient: 'bg-gradient-to-r from-sky-500 to-blue-500' },
@@ -240,6 +241,19 @@ export default function AgentConfigPage() {
 
   const IdentitySection = (
     <div className="space-y-5" key="identity">
+      <div
+        onClick={() => update('is_active', !agent.is_active)}
+        className="flex items-center justify-between p-4 rounded-sm border border-border bg-card/40 hover:bg-card/60 hover:border-primary/20 transition-all cursor-pointer group"
+      >
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${agent.is_active ? 'bg-success opacity-100 shadow-sm shadow-current' : 'bg-muted-foreground/30'}`} />
+            <Label className="text-sm font-medium cursor-pointer">Agent Active</Label>
+          </div>
+          <p className="text-xs text-muted-foreground pl-[18px]">Enable or disable this agent</p>
+        </div>
+        <Switch checked={agent.is_active} onCheckedChange={v => update('is_active', v)} onClick={e => e.stopPropagation()} />
+      </div>
       <div className="space-y-2">
         <Label className="text-sm font-medium">Agent Name</Label>
         <Input
@@ -294,6 +308,46 @@ export default function AgentConfigPage() {
           rows={4}
           className="resize-none"
         />
+      </div>
+    </div>
+  )
+
+  const MessagesSection = (
+    <div className="space-y-5" key="messages">
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Language Mode</Label>
+        <Select value={agent.language_mode || 'auto'} onValueChange={v => update('language_mode', v)}>
+          <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="auto">Auto Detect</SelectItem>
+            <SelectItem value="en">English</SelectItem>
+            <SelectItem value="ur">Urdu</SelectItem>
+            <SelectItem value="mixed_roman_urdu">Mixed (Roman Urdu)</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-1">Choose the language the AI should respond in. Auto Detect matches the customer&apos;s language automatically.</p>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Welcome Message</Label>
+        <Textarea
+          value={agent.welcome_message || ''}
+          onChange={e => update('welcome_message', e.target.value)}
+          placeholder="e.g., Hi there! Welcome to our store. How can I help you today?"
+          rows={3}
+          className="resize-none"
+        />
+        <p className="text-xs text-muted-foreground mt-1">Sent by the AI when a new conversation starts.</p>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Fallback Message</Label>
+        <Textarea
+          value={agent.fallback_message || ''}
+          onChange={e => update('fallback_message', e.target.value)}
+          placeholder="e.g., I'm sorry, I couldn't find an answer to that. Let me connect you with a human agent."
+          rows={3}
+          className="resize-none"
+        />
+        <p className="text-xs text-muted-foreground mt-1">Sent when the AI can&apos;t answer confidently and escalates to a human.</p>
       </div>
     </div>
   )
@@ -395,7 +449,7 @@ export default function AgentConfigPage() {
       <div className="rounded-sm border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-sm bg-sky-500/10 flex items-center justify-center shrink-0">
-            <MessageSquare className="h-4 w-4 text-sky-500" />
+            <Settings2 className="h-4 w-4 text-sky-500" />
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-foreground mb-1">Max Conversation Turns</h4>
@@ -414,35 +468,12 @@ export default function AgentConfigPage() {
           </div>
         </div>
       </div>
-
-      <div className="rounded-sm border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-sm bg-sky-500/10 flex items-center justify-center shrink-0">
-            <Settings2 className="h-4 w-4 text-sky-500" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-foreground mb-1">Response Language</h4>
-            <p className="text-xs text-muted-foreground mb-3">
-              Default language. The AI can detect &amp; respond in the customer&apos;s language.
-            </p>
-            <Select defaultValue="auto">
-              <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="auto">Auto-detect</SelectItem>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
-                <SelectItem value="fr">French</SelectItem>
-                <SelectItem value="de">German</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
     </div>
   )
 
   const sectionContent: Record<string, React.ReactNode> = {
     identity: IdentitySection,
+    messages: MessagesSection,
     model: ModelSection,
     features: FeaturesSection,
     advanced: AdvancedSection,
@@ -474,8 +505,8 @@ export default function AgentConfigPage() {
               ) : null}
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-sm border border-border bg-card/50">
-              <div className={`w-1.5 h-1.5 rounded-full ${agent.name ? 'bg-success animate-pulse' : 'bg-muted'}`} />
-              <span className="text-xs text-muted-foreground">{agent.name ? 'Active' : 'Inactive'}</span>
+              <div className={`w-1.5 h-1.5 rounded-full ${agent.is_active ? 'bg-success animate-pulse' : 'bg-muted'}`} />
+              <span className="text-xs text-muted-foreground">{agent.is_active ? 'Active' : 'Inactive'}</span>
             </div>
             <Button variant="outline" size="sm" className="gap-1.5 rounded-sm text-xs" disabled>
               <Play className="h-3.5 w-3.5" /> Test
