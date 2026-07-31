@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { metaOAuthStartSchema } from '@/lib/validation'
 import crypto from 'crypto'
 
 const FB_API_VERSION = 'v21.0'
@@ -16,12 +17,12 @@ export async function GET(request: Request) {
   const channel = searchParams.get('channel')
   const orgId = searchParams.get('org_id')
 
-  if (!channel || !['whatsapp', 'instagram', 'facebook'].includes(channel)) {
-    return NextResponse.json({ error: 'Invalid channel' }, { status: 400 })
+  const parsed = metaOAuthStartSchema.safeParse({ channel: channel ?? undefined, org_id: orgId ?? undefined })
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
   }
-  if (!orgId) {
-    return NextResponse.json({ error: 'org_id is required' }, { status: 400 })
-  }
+
+  const { channel: validChannel, org_id: validOrgId } = parsed.data
 
   const supabase = await createServerSupabaseClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -37,10 +38,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'META_APP_ID not configured' }, { status: 500 })
   }
 
-  const statePayload = JSON.stringify({ org_id: orgId, channel, uid: session.user.id, nonce: crypto.randomUUID() })
+  const statePayload = JSON.stringify({ org_id: validOrgId, channel: validChannel, uid: session.user.id, nonce: crypto.randomUUID() })
   const state = Buffer.from(statePayload).toString('base64url')
 
-  const scope = CHANNEL_SCOPES[channel] || 'pages_show_list'
+  const scope = CHANNEL_SCOPES[validChannel] || 'pages_show_list'
 
   const params = new URLSearchParams({
     client_id: appId,

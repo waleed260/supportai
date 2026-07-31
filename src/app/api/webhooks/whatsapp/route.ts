@@ -8,6 +8,7 @@ import { checkUsageLimit } from '@/lib/billing/usage'
 import { cachedQuery } from '@/lib/cache'
 import { log, getRouteName } from '@/lib/logger'
 import { safeDecryptCredentials } from '@/lib/crypto'
+import { whatsappWebhookSchema } from '@/lib/validation'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -46,9 +47,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
-    const body = JSON.parse(rawBody)
+    let body: unknown
+    try {
+      body = JSON.parse(rawBody)
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
+    }
 
-    const entry = body.entry?.[0]
+    const parsed = whatsappWebhookSchema.safeParse(body)
+    if (!parsed.success) {
+      log.error('invalid webhook payload structure', {
+        route: '/api/webhooks/whatsapp',
+        issues: parsed.error.flatten(),
+      })
+      Sentry.captureException(new Error('Malformed WhatsApp webhook payload'), {
+        tags: { route: '/api/webhooks/whatsapp' },
+        extra: { issues: parsed.error.flatten() },
+      })
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    const entry = parsed.data.entry?.[0]
     const change = entry?.changes?.[0]
     const message = change?.value?.messages?.[0]
     const phoneNumberId = change?.value?.metadata?.phone_number_id

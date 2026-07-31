@@ -131,3 +131,164 @@ export const paginationSchema = z.object({
 export const conversationIdSchema = z.object({
   id: z.string().uuid(),
 })
+
+export const auditPostSchema = z.object({
+  action: z.string().min(1).max(100),
+  resourceType: z.string().max(100).optional(),
+  resourceId: z.string().max(255).optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
+})
+
+export const adminActionSchema = z.object({
+  action: z.enum(['approve_client', 'suspend_client', 'reject_client', 'reopen_client']),
+  target_organization_id: z.string().min(1).max(255),
+})
+
+export const knowledgeSourceCreateSchema = z.object({
+  name: z.string().min(1).max(255),
+  type: z.string().max(50).optional(),
+  source_url: z.string().max(500).optional().nullable(),
+})
+
+export const membershipsPostSchema = z
+  .object({
+    user_id: z.string().uuid().optional(),
+    email: z.string().email().max(255).optional(),
+    role: z.enum(['super_admin', 'client_admin', 'team_member']).optional(),
+  })
+  .refine((data) => data.user_id || data.email, {
+    message: 'user_id or email is required',
+    path: ['user_id'],
+  })
+
+export const widgetSettingsPatchSchema = z.object({
+  title: z.string().max(255).optional(),
+  welcome_message: z.string().max(2000).optional(),
+  primary_color: z.string().max(50).optional(),
+})
+
+export const notificationPreferencesSchema = z.object({
+  organization_id: z.string().min(1).max(255),
+  escalation_alerts: z.boolean().optional(),
+  usage_alerts: z.boolean().optional(),
+  billing_alerts: z.boolean().optional(),
+})
+
+export const notificationDispatchSchema = z.object({
+  organization_id: z.string().min(1).max(255),
+  title: z.string().min(1).max(255),
+  body: z.string().min(1).max(4000),
+  data: z.record(z.string(), z.unknown()).optional().default({}),
+})
+
+export const registerDeviceSchema = z.object({
+  expo_push_token: z.string().min(1).max(512),
+  platform: z.string().min(1).max(50),
+  organization_id: z.string().min(1).max(255),
+})
+
+export const stripeEventSchema = z
+  .object({
+    id: z.string().min(1),
+    object: z.literal('event'),
+    type: z.string().min(1),
+    created: z.number().optional(),
+    data: z
+      .object({
+        object: z.record(z.string(), z.unknown()),
+      })
+      .passthrough(),
+  })
+  .passthrough()
+
+export const whatsappWebhookSchema = z
+  .object({
+    object: z.string().min(1),
+    entry: z
+      .array(
+        z
+          .object({
+            id: z.string().optional(),
+            changes: z
+              .array(
+                z
+                  .object({
+                    field: z.string().optional(),
+                    value: z
+                      .object({
+                        messaging_product: z.string().optional(),
+                        metadata: z
+                          .object({
+                            display_phone_number: z.string().optional(),
+                            phone_number_id: z.string().optional(),
+                          })
+                          .optional(),
+                        contacts: z.array(z.record(z.string(), z.unknown())).optional(),
+                        messages: z
+                          .array(
+                            z
+                              .object({
+                                from: z.string(),
+                                id: z.string().optional(),
+                                timestamp: z.string().optional(),
+                                type: z.string().optional(),
+                                text: z.object({ body: z.string() }).optional(),
+                              })
+                              .passthrough(),
+                          )
+                          .optional(),
+                        statuses: z.array(z.record(z.string(), z.unknown())).optional(),
+                      })
+                      .passthrough(),
+                  })
+                  .passthrough(),
+              )
+              .optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
+  })
+  .passthrough()
+
+export const messengerWebhookSchema = z
+  .object({
+    object: z.string().min(1),
+    entry: z
+      .array(
+        z
+          .object({
+            id: z.string().optional(),
+            time: z.number().optional(),
+            messaging: z
+              .array(
+                z
+                  .object({
+                    sender: z.object({ id: z.string() }).optional(),
+                    recipient: z.object({ id: z.string() }).optional(),
+                    timestamp: z.number().optional(),
+                    message: z
+                      .object({ mid: z.string().optional(), text: z.string().optional() })
+                      .passthrough()
+                      .optional(),
+                  })
+                  .passthrough(),
+              )
+              .optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
+  })
+  .passthrough()
+
+export const metaOAuthStartSchema = z.object({
+  channel: z.enum(['whatsapp', 'instagram', 'facebook']),
+  org_id: z.string().min(1).max(255),
+})
+
+export const metaOAuthStateSchema = z.object({
+  org_id: z.string().min(1).max(255),
+  channel: z.enum(['whatsapp', 'instagram', 'facebook']),
+  uid: z.string().min(1).max(255),
+})

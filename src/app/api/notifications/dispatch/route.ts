@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { notificationDispatchSchema } from '@/lib/validation'
 import { log } from '@/lib/logger'
 
 const EXPO_PUSH_API = 'https://exp.host/--/api/v2/push/send'
@@ -13,11 +14,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { organization_id, title, body: messageBody, data } = body
-
-    if (!organization_id || !title || !messageBody) {
-      return NextResponse.json({ error: 'organization_id, title, and body required' }, { status: 400 })
+    const parsed = notificationDispatchSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
     }
+
+    const { organization_id, title, body: messageBody, data } = parsed.data
 
     const supabase = await createServiceRoleClient()
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { registerDeviceSchema } from '@/lib/validation'
 import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
@@ -17,10 +18,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { expo_push_token, platform, organization_id } = body
-    if (!expo_push_token || !platform || !organization_id) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    const parsed = registerDeviceSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
     }
+
+    const { expo_push_token, platform, organization_id } = parsed.data
 
     const { error: upsertError } = await supabase.from('device_tokens').upsert({
       user_id: user.id,

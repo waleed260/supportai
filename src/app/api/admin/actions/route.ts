@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
+import { adminActionSchema } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { log } from '@/lib/logger'
 import { limiters } from '@/lib/rate-limit'
-
-const validActions = ['approve_client', 'suspend_client', 'reject_client', 'reopen_client'] as const
-type AdminAction = typeof validActions[number]
 
 export async function GET() {
   try {
@@ -54,14 +52,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { action, target_organization_id } = body as { action?: string; target_organization_id?: string }
+    const parsed = adminActionSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
+    }
 
-    if (!action || !validActions.includes(action as AdminAction)) {
-      return NextResponse.json({ error: `Invalid action. Must be one of: ${validActions.join(', ')}` }, { status: 400 })
-    }
-    if (!target_organization_id || typeof target_organization_id !== 'string') {
-      return NextResponse.json({ error: 'target_organization_id is required' }, { status: 400 })
-    }
+    const { action, target_organization_id } = parsed.data
 
     const { success, reset } = await limiters.api(`admin:${session.user.id}`)
     if (!success) {
@@ -73,7 +69,7 @@ export async function POST(request: Request) {
 
     const svc = await createServiceRoleClient()
 
-    switch (action as AdminAction) {
+    switch (action) {
       case 'approve_client': {
         const { error } = await svc
           .from('organizations')

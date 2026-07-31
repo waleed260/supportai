@@ -8,6 +8,7 @@ import { checkUsageLimit } from '@/lib/billing/usage'
 import { cachedQuery } from '@/lib/cache'
 import { log } from '@/lib/logger'
 import { safeDecryptCredentials } from '@/lib/crypto'
+import { messengerWebhookSchema } from '@/lib/validation'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -46,9 +47,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
-    const body = JSON.parse(rawBody)
+    let body: unknown
+    try {
+      body = JSON.parse(rawBody)
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
+    }
 
-    const entry = body.entry?.[0]
+    const parsed = messengerWebhookSchema.safeParse(body)
+    if (!parsed.success) {
+      log.error('invalid webhook payload structure', {
+        route: '/api/webhooks/facebook',
+        issues: parsed.error.flatten(),
+      })
+      Sentry.captureException(new Error('Malformed Facebook webhook payload'), {
+        tags: { route: '/api/webhooks/facebook' },
+        extra: { issues: parsed.error.flatten() },
+      })
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    const entry = parsed.data.entry?.[0]
     const messaging = entry?.messaging?.[0]
 
     if (!messaging) return NextResponse.json({ status: 'ok' })

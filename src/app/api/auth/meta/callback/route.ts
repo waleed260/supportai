@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { safeEncryptCredentials } from '@/lib/crypto'
+import { metaOAuthStateSchema } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { log } from '@/lib/logger'
 
@@ -64,14 +65,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Missing code or state' }, { status: 400 })
     }
 
-    let state: { org_id: string; channel: string; uid: string }
+    let state: unknown
     try {
       state = JSON.parse(Buffer.from(stateParam, 'base64url').toString())
     } catch {
       return NextResponse.json({ error: 'Invalid state' }, { status: 400 })
     }
 
-    const { org_id: orgId, channel, uid: userId } = state
+    const parsedState = metaOAuthStateSchema.safeParse(state)
+    if (!parsedState.success) {
+      return NextResponse.json({ error: 'Invalid state' }, { status: 400 })
+    }
+
+    const { org_id: orgId, channel, uid: userId } = parsedState.data
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
     const redirectUri = `${appUrl}/api/auth/meta/callback`
 

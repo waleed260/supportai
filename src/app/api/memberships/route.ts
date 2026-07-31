@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { membershipsPostSchema } from '@/lib/validation'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -27,11 +28,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const { user_id, email, role } = await request.json()
+  const body = await request.json()
+  const parsed = membershipsPostSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
+  }
+
+  const { user_id, email, role } = parsed.data
   let targetUserId = user_id
 
   if (!targetUserId) {
-    if (!email) return NextResponse.json({ error: 'user_id or email is required' }, { status: 400 })
     const { data: userData } = await supabase.from('users')
       .select('id').eq('email', email).single()
     if (!userData) return NextResponse.json({ error: 'User not found' }, { status: 404 })

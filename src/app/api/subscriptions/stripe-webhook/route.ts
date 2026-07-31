@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { stripeEventSchema } from '@/lib/validation'
 import { log } from '@/lib/logger'
 
 export async function POST(request: Request) {
@@ -17,6 +18,19 @@ export async function POST(request: Request) {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
     } catch {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    }
+
+    const parsedEvent = stripeEventSchema.safeParse(event)
+    if (!parsedEvent.success) {
+      Sentry.captureException(new Error('Malformed Stripe webhook event'), {
+        tags: { route: '/api/subscriptions/stripe-webhook' },
+        extra: { issues: parsedEvent.error.flatten() },
+      })
+      log.error('invalid stripe event structure', {
+        route: '/api/subscriptions/stripe-webhook',
+        issues: parsedEvent.error.flatten(),
+      })
+      return NextResponse.json({ error: 'Invalid event payload' }, { status: 400 })
     }
 
     const supabase = await createServiceRoleClient()

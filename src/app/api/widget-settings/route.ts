@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
+import { widgetSettingsPatchSchema } from '@/lib/validation'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -42,7 +43,12 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const { title, welcome_message, primary_color } = body
+  const parsed = widgetSettingsPatchSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
+  }
+
+  const { title, welcome_message, primary_color } = parsed.data
 
   const svc = await createServiceRoleClient()
 

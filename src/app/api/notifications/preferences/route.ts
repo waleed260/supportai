@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { notificationPreferencesSchema } from '@/lib/validation'
 import { log } from '@/lib/logger'
 
 export async function GET(request: Request) {
@@ -62,11 +63,12 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json()
-    const { organization_id, escalation_alerts, usage_alerts, billing_alerts } = body
-
-    if (!organization_id) {
-      return NextResponse.json({ error: 'organization_id required' }, { status: 400 })
+    const parsed = notificationPreferencesSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
     }
+
+    const { organization_id, escalation_alerts, usage_alerts, billing_alerts } = parsed.data
 
     const { error: upsertError } = await supabase.from('notification_preferences').upsert({
       user_id: user.id,

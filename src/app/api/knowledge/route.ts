@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
+import { knowledgeSourceCreateSchema } from '@/lib/validation'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -26,9 +27,12 @@ export async function POST(request: Request) {
   if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 403 })
 
   const body = await request.json()
-  const { name, type, source_url } = body
+  const parsed = knowledgeSourceCreateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
+  }
 
-  if (!name) return NextResponse.json({ error: 'name is required' }, { status: 400 })
+  const { name, type, source_url } = parsed.data
 
   const svc = await createServiceRoleClient()
   const { data, error } = await svc.from('knowledge_sources').insert({

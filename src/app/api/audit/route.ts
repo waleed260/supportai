@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { auditPostSchema } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { log } from '@/lib/logger'
-import { z } from 'zod'
-
-const auditPostSchema = z.object({
-  action: z.string().min(1).max(100),
-  resourceType: z.string().max(100).optional(),
-  resourceId: z.string().max(255).optional(),
-  details: z.record(z.string(), z.unknown()).optional(),
-})
 
 export async function POST(request: Request) {
   try {
