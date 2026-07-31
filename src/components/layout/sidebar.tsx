@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   LayoutDashboard, MessageSquare, Bot, BookOpen, Globe, Users,
   Settings, BarChart3, CreditCard, LogOut, ChevronLeft, PanelLeft,
-  Sparkles,
+  Sparkles, Target,
 } from 'lucide-react'
 import {
   Tooltip,
@@ -37,6 +37,7 @@ const adminLinks = [
   { href: '/dashboard/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/dashboard/admin/conversations', label: 'Conversations', icon: MessageSquare },
   { href: '/dashboard/admin/agent', label: 'AI Agent', icon: Bot },
+  { href: '/dashboard/admin/leads', label: 'Leads', icon: Target },
   { href: '/dashboard/admin/knowledge', label: 'Knowledge Base', icon: BookOpen },
   { href: '/dashboard/admin/channels', label: 'Channels', icon: Globe },
   { href: '/dashboard/admin/team', label: 'Team', icon: Users },
