@@ -158,10 +158,9 @@ export function LogsExplorer({ scope }: LogsExplorerProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {source !== 'analytics' && <TableHead>Action</TableHead>}
-                  {source !== 'audit' && <TableHead>Event</TableHead>}
+                  <TableHead>Type</TableHead>
                   <TableHead>Organization</TableHead>
-                  {source !== 'analytics' && <TableHead>Actor</TableHead>}
+                  <TableHead>Actor</TableHead>
                   <TableHead>Details</TableHead>
                   <TableHead>Timestamp</TableHead>
                 </TableRow>
@@ -171,32 +170,23 @@ export function LogsExplorer({ scope }: LogsExplorerProps) {
                   const isAudit = 'action' in row
                   return (
                     <TableRow key={row.id}>
-                      {isAudit ? (
-                        <>
-                          <TableCell><ActionBadge action={(row as AuditRow).action} /></TableCell>
-                          <TableCell>
-                            {(row as AuditRow).organizations?.name ?? '—'}
-                          </TableCell>
-                          <TableCell>
-                            {(row as AuditRow).users?.full_name || (row as AuditRow).users?.email || 'System'}
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate font-mono text-xs">
-                            {formatDetails((row as AuditRow).details)}
-                          </TableCell>
-                          <TableCell className="text-sm whitespace-nowrap">{formatTime(row.created_at)}</TableCell>
-                        </>
-                      ) : (
-                        <>
-                          <TableCell><EventBadge type={(row as AnalyticsRow).event_type} /></TableCell>
-                          <TableCell>
-                            {(row as AnalyticsRow).organizations?.name ?? '—'}
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate font-mono text-xs">
-                            {formatDetails((row as AnalyticsRow).event_data)}
-                          </TableCell>
-                          <TableCell className="text-sm whitespace-nowrap">{formatTime(row.created_at)}</TableCell>
-                        </>
-                      )}
+                      <TableCell>
+                        {isAudit
+                          ? <ActionBadge action={(row as AuditRow).action} />
+                          : <EventBadge type={(row as AnalyticsRow).event_type} />}
+                      </TableCell>
+                      <TableCell>
+                        {(isAudit ? (row as AuditRow).organizations?.name : (row as AnalyticsRow).organizations?.name) ?? '—'}
+                      </TableCell>
+                      <TableCell>
+                        {isAudit
+                          ? ((row as AuditRow).users?.full_name || (row as AuditRow).users?.email || 'System')
+                          : '—'}
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate font-mono text-xs">
+                        {formatDetails(isAudit ? (row as AuditRow).details : (row as AnalyticsRow).event_data)}
+                      </TableCell>
+                      <TableCell className="text-sm whitespace-nowrap">{formatTime(row.created_at)}</TableCell>
                     </TableRow>
                   )
                 })}

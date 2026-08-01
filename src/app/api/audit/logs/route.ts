@@ -56,7 +56,7 @@ export async function GET(request: Request) {
 
     if (source === 'audit' || source === 'all') {
       let query = svc.from('audit_logs')
-        .select('*, users(full_name, email), organizations(name)')
+        .select('*, users(full_name, email), organizations(name)', { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(offset, offset + pageSize - 1)
 
