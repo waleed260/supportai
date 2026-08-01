@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   const { provider, credentials, settings } = parsed.data
 
-  const { success, remaining, reset } = await limiters.api(`integrations:${membership.organization_id}`)
+  const { success, reset } = await limiters.api(`integrations:${membership.organization_id}`)
   if (!success) {
     return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
       status: 429,
@@ -78,7 +78,7 @@ export async function PATCH(request: Request) {
 
   const { provider, is_enabled, credentials, settings } = parsed.data
 
-  const { success, remaining, reset } = await limiters.api(`integrations:${membership.organization_id}`)
+  const { success, reset } = await limiters.api(`integrations:${membership.organization_id}`)
   if (!success) {
     return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
       status: 429,
@@ -87,15 +87,27 @@ export async function PATCH(request: Request) {
   }
 
   const svc = await createServiceRoleClient()
-  const updateData: Record<string, any> = {}
-  if (is_enabled !== undefined) updateData.is_enabled = is_enabled
-  if (credentials !== undefined) updateData.credentials = credentials
-  if (settings !== undefined) updateData.settings = settings
+
+  const upsertData: {
+    organization_id: string
+    provider: string
+    name: string
+    updated_at: string
+    is_enabled?: boolean
+    credentials?: Record<string, unknown>
+    settings?: Record<string, unknown>
+  } = {
+    organization_id: membership.organization_id,
+    provider,
+    name: `${provider} integration`,
+    updated_at: new Date().toISOString(),
+  }
+  if (is_enabled !== undefined) upsertData.is_enabled = is_enabled
+  if (credentials !== undefined) upsertData.credentials = credentials
+  if (settings !== undefined) upsertData.settings = settings
 
   const { data, error } = await svc.from('org_integrations')
-    .update(updateData)
-    .eq('organization_id', membership.organization_id)
-    .eq('provider', provider)
+    .upsert(upsertData, { onConflict: 'organization_id,provider' })
     .select().single()
 
   if (error) return NextResponse.json({ error: 'Failed to update integration' }, { status: 500 })

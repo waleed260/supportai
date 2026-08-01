@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
@@ -21,13 +18,12 @@ type Integration = {
   id: string
   provider: string
   is_enabled: boolean
-  credentials: Record<string, any>
-  settings: Record<string, any>
+  credentials: Record<string, unknown>
+  settings: Record<string, unknown>
 }
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<Integration[]>([])
-  const [selected, setSelected] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -77,12 +73,12 @@ export default function IntegrationsPage() {
           const integration = getIntegration(p.id)
           const Icon = p.icon
           return (
-            <Card key={p.id} className={`h-full ${selected === p.id ? 'ring-2 ring-primary' : ''}`}>
+            <Card key={p.id} className="h-full">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Icon className="h-6 w-6 text-muted-foreground" />
-    <div className="p-6">
+                    <div>
                       <CardTitle className="text-lg">{p.name}</CardTitle>
                       <CardDescription>{p.description}</CardDescription>
                     </div>
