@@ -64,7 +64,6 @@ const adminLinks = [
 const teamLinks = [
   { href: '/dashboard/team', label: 'Overview', icon: LayoutDashboard },
   { href: '/dashboard/team/conversations', label: 'Conversations', icon: MessageSquare },
-  { href: '/dashboard/admin/escalations', label: 'Escalations Queue', icon: AlertTriangle },
 ]
 
 function SidebarLink({ href, label, icon: Icon, collapsed, isActive }: {
