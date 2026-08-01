@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   LayoutDashboard, MessageSquare, Bot, BookOpen, Globe, Users,
   Settings, BarChart3, CreditCard, LogOut, ChevronLeft, PanelLeft,
-  Sparkles, Target,
+  Sparkles, Target, AlertTriangle,
 } from 'lucide-react'
 import {
   Tooltip,
@@ -27,10 +27,21 @@ interface SidebarProps {
 }
 
 const superAdminLinks = [
-  { href: '/dashboard/super-admin', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/super-admin/clients', label: 'Clients', icon: Users },
+  { href: '/dashboard/super-admin', label: 'Super Admin Overview', icon: LayoutDashboard },
+  { href: '/dashboard/super-admin/clients', label: 'Client Management', icon: Users },
   { href: '/dashboard/super-admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
-  { href: '/dashboard/super-admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/dashboard/super-admin/analytics', label: 'Platform Analytics', icon: BarChart3 },
+  { href: '/dashboard/admin', label: 'Admin Overview', icon: LayoutDashboard },
+  { href: '/dashboard/admin/conversations', label: 'Conversations Panel', icon: MessageSquare },
+  { href: '/dashboard/admin/agent', label: 'AI Agent Config', icon: Bot },
+  { href: '/dashboard/admin/leads', label: 'Lead Capture', icon: Target },
+  { href: '/dashboard/admin/knowledge', label: 'Knowledge Base', icon: BookOpen },
+  { href: '/dashboard/admin/channels', label: 'Channels', icon: Globe },
+  { href: '/dashboard/admin/escalations', label: 'Escalations Queue', icon: AlertTriangle },
+  { href: '/dashboard/admin/team', label: 'Team Members', icon: Users },
+  { href: '/dashboard/admin/analytics', label: 'Client Analytics', icon: BarChart3 },
+  { href: '/dashboard/admin/billing', label: 'Billing & Plans', icon: CreditCard },
+  { href: '/dashboard/admin/integrations', label: 'CRM Integrations', icon: Settings },
 ]
 
 const adminLinks = [
@@ -40,14 +51,17 @@ const adminLinks = [
   { href: '/dashboard/admin/leads', label: 'Leads', icon: Target },
   { href: '/dashboard/admin/knowledge', label: 'Knowledge Base', icon: BookOpen },
   { href: '/dashboard/admin/channels', label: 'Channels', icon: Globe },
+  { href: '/dashboard/admin/escalations', label: 'Escalations', icon: AlertTriangle },
   { href: '/dashboard/admin/team', label: 'Team', icon: Users },
   { href: '/dashboard/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/admin/billing', label: 'Billing', icon: CreditCard },
+  { href: '/dashboard/admin/integrations', label: 'Integrations', icon: Settings },
 ]
 
 const teamLinks = [
   { href: '/dashboard/team', label: 'Overview', icon: LayoutDashboard },
   { href: '/dashboard/team/conversations', label: 'Conversations', icon: MessageSquare },
+  { href: '/dashboard/admin/escalations', label: 'Escalations Queue', icon: AlertTriangle },
 ]
 
 function SidebarLink({ href, label, icon: Icon, collapsed, isActive }: {

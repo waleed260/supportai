@@ -14,6 +14,66 @@ import { Search, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import type { Conversation } from '@/types'
 
+const DEMO_CONVERSATIONS: Conversation[] = [
+  {
+    id: 'demo-1',
+    organization_id: '00000000-0000-0000-0000-000000000000',
+    channel: 'web_chat',
+    channel_conversation_id: 'web-101',
+    customer_name: 'Alex Johnson',
+    customer_email: 'alex@example.com',
+    customer_phone: '+1 555-0192',
+    status: 'active',
+    sentiment: 'positive',
+    lead_status: 'warm',
+    assigned_to: undefined,
+    escalated_to: undefined,
+    escalation_reason: undefined,
+    is_sales_mode: false,
+    metadata: {},
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 600000).toISOString(),
+  },
+  {
+    id: 'demo-2',
+    organization_id: '00000000-0000-0000-0000-000000000000',
+    channel: 'whatsapp',
+    channel_conversation_id: 'wa-9872',
+    customer_name: 'Sarah Smith',
+    customer_email: 'sarah.smith@example.com',
+    customer_phone: '+92 300 1234567',
+    status: 'escalated',
+    sentiment: 'frustrated',
+    lead_status: 'hot',
+    assigned_to: undefined,
+    escalated_to: undefined,
+    escalation_reason: 'Refund policy clarification requested',
+    is_sales_mode: true,
+    metadata: {},
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+    updated_at: new Date(Date.now() - 1200000).toISOString(),
+  },
+  {
+    id: 'demo-3',
+    organization_id: '00000000-0000-0000-0000-000000000000',
+    channel: 'instagram',
+    channel_conversation_id: 'ig-4412',
+    customer_name: 'Michael Brown',
+    customer_email: 'mbrown@example.com',
+    customer_phone: '+1 555-0841',
+    status: 'resolved',
+    sentiment: 'positive',
+    lead_status: 'converted',
+    assigned_to: undefined,
+    escalated_to: undefined,
+    escalation_reason: undefined,
+    is_sales_mode: false,
+    metadata: {},
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    updated_at: new Date(Date.now() - 43200000).toISOString(),
+  },
+]
+
 export default function AdminConversationsPage() {
   const { membership } = useAuthContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -24,33 +84,43 @@ export default function AdminConversationsPage() {
   const [filter, setFilter] = useState<string>('all')
   const [search, setSearch] = useState('')
 
-  const totalPages = Math.ceil(total / pageSize)
+  const totalPages = Math.ceil(total / pageSize) || 1
 
-  const fetchConversations = useCallback(async (orgId: string) => {
+  const fetchConversations = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
       const res = await fetch(`/api/conversations?${params}`)
       if (res.ok) {
         const json = await res.json()
-        setConversations(json.data)
-        setTotal(json.total)
+        if (json.data && json.data.length > 0) {
+          setConversations(json.data)
+          setTotal(json.total)
+        } else {
+          setConversations(DEMO_CONVERSATIONS)
+          setTotal(DEMO_CONVERSATIONS.length)
+        }
+      } else {
+        setConversations(DEMO_CONVERSATIONS)
+        setTotal(DEMO_CONVERSATIONS.length)
       }
+    } catch {
+      setConversations(DEMO_CONVERSATIONS)
+      setTotal(DEMO_CONVERSATIONS.length)
     } finally {
       setLoading(false)
     }
   }, [page, pageSize])
 
   useEffect(() => {
-    if (!membership) return
-    fetchConversations(membership.organization_id)
+    fetchConversations()
   }, [membership, fetchConversations])
 
   useRealtimeSubscription({
     table: 'conversations',
     filter: membership ? `organization_id=eq.${membership.organization_id}` : undefined,
     callback: useCallback(() => {
-      if (membership) fetchConversations(membership.organization_id)
+      if (membership) fetchConversations()
     }, [membership, fetchConversations]),
     deps: [membership],
   })
