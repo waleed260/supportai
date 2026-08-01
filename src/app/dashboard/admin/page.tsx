@@ -7,10 +7,14 @@ import { MessageSquare, Users, TrendingUp, AlertTriangle, ArrowUpRight } from 'l
 import Link from 'next/link'
 
 export default function AdminOverview() {
-  const [stats, setStats] = useState({ convos: 142, active: 18, escalated: 3, leads: 27 })
+  const [stats, setStats] = useState({ convos: 0, active: 0, escalated: 0, leads: 0 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetch = async () => {
+      setLoading(true)
+      setError(null)
       try {
         const supabase = createClient()
         const { data: { session } } = await supabase.auth.getSession()
@@ -27,16 +31,16 @@ export default function AdminOverview() {
           supabase.from('leads').select('*', { count: 'exact', head: true }).eq('organization_id', orgId),
         ])
 
-        if (convos.count || active.count || escalated.count || leads.count) {
-          setStats({
-            convos: convos.count || 0,
-            active: active.count || 0,
-            escalated: escalated.count || 0,
-            leads: leads.count || 0,
-          })
-        }
+        setStats({
+          convos: convos.count || 0,
+          active: active.count || 0,
+          escalated: escalated.count || 0,
+          leads: leads.count || 0,
+        })
       } catch {
-        // Keep default demo stats if DB is uninitialized
+        setError('Failed to load dashboard stats')
+      } finally {
+        setLoading(false)
       }
     }
     fetch()
@@ -45,6 +49,7 @@ export default function AdminOverview() {
   const quickLinks = [
     { href: '/dashboard/admin/conversations', label: 'Conversations Panel' },
     { href: '/dashboard/admin/agent', label: 'Configure AI Agent' },
+    { href: '/dashboard/admin/logs', label: 'Logs Explorer' },
     { href: '/dashboard/admin/knowledge', label: 'Knowledge Base' },
     { href: '/dashboard/admin/channels', label: 'Channel Integrations' },
     { href: '/dashboard/admin/escalations', label: 'Escalation Queue' },
@@ -92,6 +97,10 @@ export default function AdminOverview() {
         </div>
       </div>
 
+      {error && (
+        <p className="text-sm text-destructive">{error}</p>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {cards.map((c, i) => (
           <Card key={c.title} className="card-hover border-0 shadow-sm" style={{ animationDelay: `${i * 100}ms` }}>
@@ -102,7 +111,7 @@ export default function AdminOverview() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{c.value}</div>
+              <div className="text-3xl font-bold">{loading ? '—' : c.value}</div>
               <div className="text-xs text-muted-foreground mt-1">Last 30 days</div>
             </CardContent>
           </Card>

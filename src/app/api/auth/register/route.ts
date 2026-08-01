@@ -112,6 +112,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create widget settings' }, { status: 500 })
     }
 
+    const { data: trialPlan } = await supabase.from('subscription_plans')
+      .select('id, max_conversations')
+      .eq('slug', 'free_trial')
+      .single()
+
+    if (trialPlan) {
+      const now = new Date()
+      const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
+      const { error: subError } = await supabase.from('subscriptions').insert({
+        organization_id: org.id,
+        plan_id: trialPlan.id,
+        status: 'trialing',
+        current_period_start: now.toISOString(),
+        current_period_end: trialEnd.toISOString(),
+        trial_end: trialEnd.toISOString(),
+        billing_interval: 'month',
+      })
+      if (subError) {
+        log.warn('register_trial_subscription_error', { route: '/api/auth/register', organization_id: org.id, error: subError.message })
+      }
+    }
+
     return NextResponse.json({
       success: true,
       user: authData.user,

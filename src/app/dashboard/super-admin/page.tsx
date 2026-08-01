@@ -57,15 +57,26 @@ export default function SuperAdminOverview() {
     },
   ]
 
+  const quickLinks = [
+    { href: '/dashboard/super-admin/clients', label: 'Client Organizations' },
+    { href: '/dashboard/super-admin/subscriptions', label: 'Billing Subscriptions' },
+    { href: '/dashboard/super-admin/analytics', label: 'Platform Analytics' },
+    { href: '/dashboard/super-admin/logs', label: 'Logs Explorer' },
+    { href: '/dashboard/admin/conversations', label: 'Agent Conversations' },
+    { href: '/dashboard/admin/agent', label: 'AI Agent Fine-tuning' },
+  ]
+
   return (
-    <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold tracking-tight">Platform Overview</h2>
-        <p className="text-sm text-muted-foreground mt-1">High-level metrics across all organizations</p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Super Admin Platform Overview</h2>
+          <p className="text-sm text-muted-foreground mt-1">High-level metrics, active clients, and log diagnostics across all organizations</p>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {cards.map(c => (
-          <Card key={c.title} className="card-hover border-0 shadow-sm">
+          <Card key={c.title} className="card-hover border shadow-xs">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{c.title}</CardTitle>
               <div className={`${c.bg} p-2 rounded-lg`}>
@@ -78,6 +89,25 @@ export default function SuperAdminOverview() {
           </Card>
         ))}
       </div>
+
+      <Card className="border shadow-xs">
+        <CardHeader>
+          <CardTitle className="text-base">Super Admin Navigation & Tools</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            {quickLinks.map(link => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 text-sm font-medium transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

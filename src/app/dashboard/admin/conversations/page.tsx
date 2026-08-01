@@ -14,66 +14,6 @@ import { Search, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import type { Conversation } from '@/types'
 
-const DEMO_CONVERSATIONS: Conversation[] = [
-  {
-    id: 'demo-1',
-    organization_id: '00000000-0000-0000-0000-000000000000',
-    channel: 'web_chat',
-    channel_conversation_id: 'web-101',
-    customer_name: 'Alex Johnson',
-    customer_email: 'alex@example.com',
-    customer_phone: '+1 555-0192',
-    status: 'active',
-    sentiment: 'positive',
-    lead_status: 'warm',
-    assigned_to: undefined,
-    escalated_to: undefined,
-    escalation_reason: undefined,
-    is_sales_mode: false,
-    metadata: {},
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-    updated_at: new Date(Date.now() - 600000).toISOString(),
-  },
-  {
-    id: 'demo-2',
-    organization_id: '00000000-0000-0000-0000-000000000000',
-    channel: 'whatsapp',
-    channel_conversation_id: 'wa-9872',
-    customer_name: 'Sarah Smith',
-    customer_email: 'sarah.smith@example.com',
-    customer_phone: '+92 300 1234567',
-    status: 'escalated',
-    sentiment: 'frustrated',
-    lead_status: 'hot',
-    assigned_to: undefined,
-    escalated_to: undefined,
-    escalation_reason: 'Refund policy clarification requested',
-    is_sales_mode: true,
-    metadata: {},
-    created_at: new Date(Date.now() - 7200000).toISOString(),
-    updated_at: new Date(Date.now() - 1200000).toISOString(),
-  },
-  {
-    id: 'demo-3',
-    organization_id: '00000000-0000-0000-0000-000000000000',
-    channel: 'instagram',
-    channel_conversation_id: 'ig-4412',
-    customer_name: 'Michael Brown',
-    customer_email: 'mbrown@example.com',
-    customer_phone: '+1 555-0841',
-    status: 'resolved',
-    sentiment: 'positive',
-    lead_status: 'converted',
-    assigned_to: undefined,
-    escalated_to: undefined,
-    escalation_reason: undefined,
-    is_sales_mode: false,
-    metadata: {},
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    updated_at: new Date(Date.now() - 43200000).toISOString(),
-  },
-]
-
 export default function AdminConversationsPage() {
   const { membership } = useAuthContext()
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -81,6 +21,7 @@ export default function AdminConversationsPage() {
   const [page, setPage] = useState(1)
   const [pageSize] = useState(50)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>('all')
   const [search, setSearch] = useState('')
 
@@ -88,32 +29,32 @@ export default function AdminConversationsPage() {
 
   const fetchConversations = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
       const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
       const res = await fetch(`/api/conversations?${params}`)
-      if (res.ok) {
-        const json = await res.json()
-        if (json.data && json.data.length > 0) {
-          setConversations(json.data)
-          setTotal(json.total)
-        } else {
-          setConversations(DEMO_CONVERSATIONS)
-          setTotal(DEMO_CONVERSATIONS.length)
-        }
+      const json = await res.json()
+      if (res.ok && Array.isArray(json.data)) {
+        setConversations(json.data)
+        setTotal(json.total ?? json.data.length)
       } else {
-        setConversations(DEMO_CONVERSATIONS)
-        setTotal(DEMO_CONVERSATIONS.length)
+        setError(json.error || 'Failed to load conversations')
+        setConversations([])
+        setTotal(0)
       }
     } catch {
-      setConversations(DEMO_CONVERSATIONS)
-      setTotal(DEMO_CONVERSATIONS.length)
+      setError('Failed to load conversations')
+      setConversations([])
+      setTotal(0)
     } finally {
       setLoading(false)
     }
   }, [page, pageSize])
 
   useEffect(() => {
-    fetchConversations()
+    if (!membership) return
+    const id = setTimeout(() => fetchConversations(), 0)
+    return () => clearTimeout(id)
   }, [membership, fetchConversations])
 
   useRealtimeSubscription({
@@ -188,7 +129,14 @@ export default function AdminConversationsPage() {
                   <TableCell className="text-sm text-muted-foreground">{formatDate(c.updated_at)}</TableCell>
                 </TableRow>
               ))}
-              {!loading && filtered.length === 0 && (
+              {!loading && error && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-destructive py-8">
+                    {error}
+                  </TableCell>
+                </TableRow>
+              )}
+              {!loading && !error && filtered.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                     No conversations found

@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import type { AIAgent } from '@/types'
 import {
   Bot, Sparkles, Brain, Sliders, Shield, ChevronRight,
-  Loader2, MessageSquare, User, Settings2, Clock,
+  Loader2, MessageSquare, User, Settings2,
   Activity, TrendingUp, RotateCcw, Play,
 } from 'lucide-react'
 
@@ -25,12 +25,15 @@ const sections = [
   { id: 'advanced', label: 'Advanced', icon: Sliders, accent: 'from-sky-500/10 to-blue-500/5', gradient: 'bg-gradient-to-r from-sky-500 to-blue-500' },
 ]
 
-const metrics = [
-  { icon: Bot, label: 'Handled by AI', value: '2,847', change: '+12%', positive: true },
-  { icon: Clock, label: 'Avg Response', value: '1.2s', change: '-8%', positive: true },
-  { icon: Activity, label: 'Active Chats', value: '18', change: '+3', positive: false },
-  { icon: TrendingUp, label: 'Escalation Rate', value: '5.3%', change: '-2.1%', positive: true },
-]
+interface AgentMetrics {
+  convos: number
+  active: number
+  escalated: number
+  leads: number
+  escalationRate: number
+}
+
+const EMPTY_METRICS: AgentMetrics = { convos: 0, active: 0, escalated: 0, leads: 0, escalationRate: 0 }
 
 function AgentSkeleton() {
   return (
@@ -134,9 +137,54 @@ export default function AgentConfigPage() {
   const [saving, setSaving] = useState<string | null>(null)
   const [activeSection, setActiveSection] = useState('identity')
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [metrics, setMetrics] = useState<AgentMetrics>(EMPTY_METRICS)
   const contentRef = useRef<HTMLDivElement>(null)
   const supabaseRef = useRef(createClient())
   const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const res = await fetch('/api/analytics')
+      const json = await res.json()
+      if (res.ok) {
+        setMetrics({
+          convos: json.total_conversations || 0,
+          active: json.active_conversations || 0,
+          escalated: json.escalation_rate ? Math.round((json.escalation_rate / 100) * (json.total_conversations || 0)) : 0,
+          leads: json.total_leads || 0,
+          escalationRate: json.escalation_rate || 0,
+        })
+      }
+    } catch {}
+  }, [])
+
+  const createAgent = useCallback(async () => {
+    if (!membership) return
+    setLoading(true)
+    const { data, error } = await supabaseRef.current.from('ai_agents').insert({
+      organization_id: membership.organization_id,
+      name: 'SupportAI Assistant',
+      is_active: true,
+      personality: 'professional',
+      tone_of_voice: 'friendly',
+      model: 'anthropic/claude-3.5-sonnet',
+      temperature: 0.7,
+      lead_capture_enabled: true,
+      sales_mode_enabled: false,
+      sentiment_analysis_enabled: true,
+      language_mode: 'auto',
+    }).select().single()
+
+    if (error || !data) {
+      toast.error('Failed to create agent')
+      setLoading(false)
+      return
+    }
+    setAgent(data)
+    setLastSaved(new Date())
+    setLoading(false)
+    toast.success('AI Agent created!')
+  }, [membership])
 
   useEffect(() => {
     const fetch = async () => {
@@ -146,57 +194,19 @@ export default function AgentConfigPage() {
         if (data) {
           setAgent(data)
           setLastSaved(new Date(data.updated_at || Date.now()))
-        } else {
-          setAgent({
-            id: 'demo-agent-1',
-            organization_id: membership?.organization_id || '00000000-0000-0000-0000-000000000000',
-            name: 'SupportAI Assistant',
-            is_active: true,
-            personality: 'professional',
-            tone_of_voice: 'friendly',
-            brand_guidelines: 'We provide prompt, polite, and helpful assistance. Avoid jargon and focus on quick problem resolution.',
-            custom_instructions: 'Always capture lead contact info (email/phone) when a user inquires about pricing or product demos.',
-            welcome_message: 'Hi there! Welcome to SupportAI. How can I help you today?',
-            fallback_message: "I'm sorry, I couldn't find an answer to that in our knowledge base. Let me connect you with a human specialist.",
-            model: 'anthropic/claude-3.5-sonnet',
-            temperature: 0.7,
-            lead_capture_enabled: true,
-            sales_mode_enabled: true,
-            sentiment_analysis_enabled: true,
-            language_mode: 'auto',
-            updated_at: new Date().toISOString(),
-          })
         }
-      } catch {
-        setAgent({
-          id: 'demo-agent-1',
-          organization_id: '00000000-0000-0000-0000-000000000000',
-          name: 'SupportAI Assistant',
-          is_active: true,
-          personality: 'professional',
-          tone_of_voice: 'friendly',
-          brand_guidelines: 'We provide prompt, polite, and helpful assistance.',
-          custom_instructions: 'Always capture customer leads when pricing is mentioned.',
-          welcome_message: 'Hi there! Welcome to SupportAI.',
-          fallback_message: 'Connecting you with human support.',
-          model: 'anthropic/claude-3.5-sonnet',
-          temperature: 0.7,
-          lead_capture_enabled: true,
-          sales_mode_enabled: true,
-          sentiment_analysis_enabled: true,
-          language_mode: 'auto',
-          updated_at: new Date().toISOString(),
-        })
-      } finally {
+      } catch {} finally {
         setLoading(false)
       }
+      fetchMetrics()
     }
     fetch()
-  }, [membership])
+  }, [membership, fetchMetrics])
 
   useEffect(() => {
+    const timers = debounceTimers.current
     return () => {
-      Object.values(debounceTimers.current).forEach(clearTimeout)
+      Object.values(timers).forEach(clearTimeout)
     }
   }, [])
 
@@ -271,9 +281,9 @@ export default function AgentConfigPage() {
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-1">No AI Agent Found</h2>
           <p className="text-sm text-muted-foreground mb-6">
-            Your organization hasn&apos;t set up an AI agent yet. Contact your administrator to get started.
+            Your organization hasn&apos;t set up an AI agent yet. Create one to start capturing and resolving customer conversations.
           </p>
-          <Button disabled className="gap-2 rounded-sm">
+          <Button onClick={createAgent} className="gap-2 rounded-sm">
             <Bot className="h-4 w-4" /> Create Agent
           </Button>
         </div>
@@ -403,8 +413,6 @@ export default function AgentConfigPage() {
           <SelectContent>
             <SelectItem value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Recommended)</SelectItem>
             <SelectItem value="anthropic/claude-3-haiku">Claude 3 Haiku (Fast)</SelectItem>
-            <SelectItem value="openai/gpt-4o">GPT-4o</SelectItem>
-            <SelectItem value="google/gemini-pro">Gemini Pro</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground mt-1">Claude 3.5 Sonnet offers the best balance of speed and accuracy for customer support.</p>
@@ -439,10 +447,10 @@ export default function AgentConfigPage() {
   const FeaturesSection = (
     <div className="space-y-5" key="features">
       {[
-        { key: 'lead_capture_enabled', label: 'Lead Capture Mode', desc: 'Automatically capture lead information from conversations', color: 'text-emerald-500', dot: 'bg-emerald-500' },
-        { key: 'sales_mode_enabled', label: 'Sales Mode', desc: 'Enable proactive sales conversations', color: 'text-amber-500', dot: 'bg-amber-500' },
-        { key: 'sentiment_analysis_enabled', label: 'Sentiment Analysis', desc: 'Analyze customer sentiment in real-time', color: 'text-violet-500', dot: 'bg-violet-500' },
-      ].map(({ key, label, desc, color, dot }) => {
+        { key: 'lead_capture_enabled', label: 'Lead Capture Mode', desc: 'Automatically capture lead information from conversations', dot: 'bg-emerald-500' },
+        { key: 'sales_mode_enabled', label: 'Sales Mode', desc: 'Enable proactive sales conversations', dot: 'bg-amber-500' },
+        { key: 'sentiment_analysis_enabled', label: 'Sentiment Analysis', desc: 'Analyze customer sentiment in real-time', dot: 'bg-violet-500' },
+      ].map(({ key, label, desc, dot }) => {
         const isOn = agent[key as keyof typeof agent] as boolean
         return (
           <div
@@ -466,47 +474,30 @@ export default function AgentConfigPage() {
 
   const AdvancedSection = (
     <div className="space-y-5" key="advanced">
-      <div className="rounded-sm border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
+      <div className="rounded-sm border border-border bg-card/40 p-5">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-sm bg-sky-500/10 flex items-center justify-center shrink-0">
             <Shield className="h-4 w-4 text-sky-500" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-foreground mb-1">Confidence Threshold</h4>
-            <p className="text-xs text-muted-foreground mb-3">
-              Below this confidence, the conversation escalates to a human agent.
+            <h4 className="text-sm font-medium text-foreground mb-1">Escalation Handling</h4>
+            <p className="text-xs text-muted-foreground">
+              When the AI detects frustration or low-confidence answers, it escalates to a human agent and records the reason. Escalated conversations appear in the Escalation Queue.
             </p>
-            <Select defaultValue="0.7">
-              <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0.9">High (0.9)</SelectItem>
-                <SelectItem value="0.7">Balanced (0.7)</SelectItem>
-                <SelectItem value="0.5">Low (0.5)</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </div>
 
-      <div className="rounded-sm border border-border bg-card/40 p-5 hover:bg-card/60 transition-colors">
+      <div className="rounded-sm border border-border bg-card/40 p-5">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-sm bg-sky-500/10 flex items-center justify-center shrink-0">
             <Settings2 className="h-4 w-4 text-sky-500" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-foreground mb-1">Max Conversation Turns</h4>
-            <p className="text-xs text-muted-foreground mb-3">
-              Limit AI responses per conversation before requiring human review.
+            <h4 className="text-sm font-medium text-foreground mb-1">Knowledge Base Retrieval</h4>
+            <p className="text-xs text-muted-foreground">
+              The agent answers using semantic search over your uploaded knowledge base (pgvector). Upload documents in the Knowledge Base section to improve accuracy.
             </p>
-            <Select defaultValue="20">
-              <SelectTrigger className="h-9 w-36"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 turns</SelectItem>
-                <SelectItem value="20">20 turns</SelectItem>
-                <SelectItem value="50">50 turns</SelectItem>
-                <SelectItem value="unlimited">Unlimited</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </div>
@@ -554,28 +545,20 @@ export default function AgentConfigPage() {
               variant="default"
               size="sm"
               className="gap-1.5 rounded-sm text-xs bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-              onClick={() => {
-                toast.success('Live AI Sandbox active! Type a test message to preview responses.')
-                const testMsg = prompt('Enter a test message for your AI Agent:', 'What are your pricing plans?')
-                if (testMsg) {
-                  toast.promise(
-                    new Promise(res => setTimeout(res, 1200)),
-                    {
-                      loading: 'Querying Claude 3.5 Sonnet & RAG vector index...',
-                      success: `[Agent Reply]: ${agent.welcome_message || 'Hello!'} Our Pro plan starts at $49/mo, and Enterprise includes dedicated Claude Sonnet RAG. Would you like to schedule a demo?`,
-                      error: 'Failed to query agent',
-                    }
-                  )
-                }
-              }}
+              onClick={() => toast.info('Open the web widget on your site to test the agent in a live conversation.')}
             >
-              <Play className="h-3.5 w-3.5" /> Test Agent Sandbox
+              <Play className="h-3.5 w-3.5" /> Test Agent
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {metrics.map(m => {
+          {[
+            { icon: Bot, label: 'Total Conversations', value: metrics.convos.toLocaleString() },
+            { icon: Activity, label: 'Active Chats', value: metrics.active.toLocaleString() },
+            { icon: TrendingUp, label: 'Escalation Rate', value: `${metrics.escalationRate.toFixed(1)}%` },
+            { icon: MessageSquare, label: 'Leads Captured', value: metrics.leads.toLocaleString() },
+          ].map(m => {
             const Icon = m.icon
             return (
               <div key={m.label} className="rounded-sm border border-border bg-card/40 p-4 hover:bg-card/60 transition-colors h-full">
@@ -585,7 +568,6 @@ export default function AgentConfigPage() {
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl font-bold text-foreground tabular-nums">{m.value}</span>
-                  <span className={`text-xs font-medium ${m.positive ? 'text-success' : 'text-destructive'}`}>{m.change}</span>
                 </div>
               </div>
             )
@@ -632,7 +614,33 @@ export default function AgentConfigPage() {
                     {currentSection && <currentSection.icon className="h-4 w-4 text-primary" />}
                     <h2 className="text-base font-semibold text-foreground">{currentSection?.label}</h2>
                   </div>
-                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground h-7 rounded-sm" onClick={() => toast.info('Settings reset to defaults')}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs text-muted-foreground h-7 rounded-sm"
+                    onClick={async () => {
+                      const { error } = await supabaseRef.current.from('ai_agents')
+                        .update({
+                          name: 'SupportAI Assistant',
+                          personality: 'professional',
+                          tone_of_voice: 'friendly',
+                          temperature: 0.7,
+                          lead_capture_enabled: true,
+                          sales_mode_enabled: false,
+                          sentiment_analysis_enabled: true,
+                        })
+                        .eq('id', agent.id)
+                      if (error) {
+                        toast.error('Failed to reset settings')
+                      } else {
+                        const { data } = await supabaseRef.current.from('ai_agents').select('*').eq('id', agent.id).single()
+                        if (data) setAgent(data)
+                        setLastSaved(new Date())
+                        invalidateAgentCache()
+                        toast.success('Settings reset to defaults')
+                      }
+                    }}
+                  >
                     <RotateCcw className="h-3 w-3" /> Reset
                   </Button>
                 </div>

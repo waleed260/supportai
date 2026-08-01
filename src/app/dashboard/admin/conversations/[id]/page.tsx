@@ -13,103 +13,7 @@ import { toast } from 'sonner'
 import { ArrowLeft, Send, User, Bot } from 'lucide-react'
 import Link from 'next/link'
 import type { Conversation, Message } from '@/types'
-
-const DEMO_CONVERSATIONS_DETAIL: Record<string, { conversation: Conversation; messages: Message[] }> = {
-  'demo-1': {
-    conversation: {
-      id: 'demo-1',
-      organization_id: '00000000-0000-0000-0000-000000000000',
-      channel: 'web_chat',
-      channel_conversation_id: 'web-101',
-      customer_name: 'Alex Johnson',
-      customer_email: 'alex.johnson@techcorp.com',
-      customer_phone: '+1 555-0192',
-      status: 'active',
-      sentiment: 'positive',
-      lead_status: 'warm',
-      is_sales_mode: true,
-      metadata: { location: 'San Francisco, CA', company: 'TechCorp Inc' },
-      created_at: new Date(Date.now() - 3600000).toISOString(),
-      updated_at: new Date(Date.now() - 600000).toISOString(),
-    },
-    messages: [
-      {
-        id: 'm-101',
-        conversation_id: 'demo-1',
-        organization_id: '00000000-0000-0000-0000-000000000000',
-        role: 'customer',
-        content: "Hi! I'm interested in the SupportAI Enterprise plan. Does it support custom Claude 3.5 Sonnet RAG with pgvector?",
-        metadata: {},
-        created_at: new Date(Date.now() - 3600000).toISOString(),
-      },
-      {
-        id: 'm-102',
-        conversation_id: 'demo-1',
-        organization_id: '00000000-0000-0000-0000-000000000000',
-        role: 'assistant',
-        content: "Hello Alex! Yes, absolutely! Our Enterprise plan includes custom Anthropic Claude 3.5 Sonnet integration, private pgvector knowledge embeddings, multi-channel WhatsApp/Instagram connectors, and dedicated SLA.",
-        metadata: {},
-        created_at: new Date(Date.now() - 3500000).toISOString(),
-      },
-      {
-        id: 'm-103',
-        conversation_id: 'demo-1',
-        organization_id: '00000000-0000-0000-0000-000000000000',
-        role: 'customer',
-        content: 'That sounds amazing. Can I schedule a 15-minute product walk-through demo for tomorrow at 2 PM PST?',
-        metadata: {},
-        created_at: new Date(Date.now() - 600000).toISOString(),
-      },
-    ],
-  },
-  'demo-2': {
-    conversation: {
-      id: 'demo-2',
-      organization_id: '00000000-0000-0000-0000-000000000000',
-      channel: 'whatsapp',
-      channel_conversation_id: 'wa-9872',
-      customer_name: 'Sarah Smith',
-      customer_email: 'sarah.smith@logistics.co',
-      customer_phone: '+92 300 1234567',
-      status: 'escalated',
-      sentiment: 'frustrated',
-      lead_status: 'hot',
-      is_sales_mode: true,
-      metadata: { location: 'Lahore, Pakistan', account_tier: 'Pro Tier' },
-      created_at: new Date(Date.now() - 7200000).toISOString(),
-      updated_at: new Date(Date.now() - 1200000).toISOString(),
-    },
-    messages: [
-      {
-        id: 'm-201',
-        conversation_id: 'demo-2',
-        organization_id: '00000000-0000-0000-0000-000000000000',
-        role: 'customer',
-        content: 'Our WhatsApp support bot went offline 20 minutes ago. We are losing customer leads right now!',
-        metadata: {},
-        created_at: new Date(Date.now() - 7200000).toISOString(),
-      },
-      {
-        id: 'm-202',
-        conversation_id: 'demo-2',
-        organization_id: '00000000-0000-0000-0000-000000000000',
-        role: 'assistant',
-        content: 'I apologize for the disruption Sarah! I am escalating your incident immediately to Tier-2 Engineering to restore your Meta WhatsApp API token connection.',
-        metadata: {},
-        created_at: new Date(Date.now() - 7100000).toISOString(),
-      },
-      {
-        id: 'm-203',
-        conversation_id: 'demo-2',
-        organization_id: '00000000-0000-0000-0000-000000000000',
-        role: 'customer',
-        content: 'Please hurry! Can a human support manager call me at +92 300 1234567?',
-        metadata: {},
-        created_at: new Date(Date.now() - 1200000).toISOString(),
-      },
-    ],
-  },
-}
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 export default function ConversationDetailPage() {
   const { user } = useAuthContext()
@@ -119,10 +23,13 @@ export default function ConversationDetailPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [aiTakeover, setAiTakeover] = useState(false)
+  const [suggesting, setSuggesting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const init = async () => {
+      setError(null)
       try {
         const res = await fetch(`/api/conversations/${id}`)
         if (res.ok) {
@@ -131,12 +38,11 @@ export default function ConversationDetailPage() {
           setMessages(data.messages || [])
           return
         }
-      } catch {}
-
-      // Demo fallback data
-      const demo = DEMO_CONVERSATIONS_DETAIL[id] || DEMO_CONVERSATIONS_DETAIL['demo-1']
-      setConversation(demo.conversation)
-      setMessages(demo.messages)
+        const json = await res.json().catch(() => null)
+        setError(json?.error || 'Failed to load conversation')
+      } catch {
+        setError('Failed to load conversation')
+      }
     }
     init()
   }, [id, user])
@@ -149,7 +55,7 @@ export default function ConversationDetailPage() {
     table: 'messages',
     filter: `conversation_id=eq.${id}`,
     event: 'INSERT',
-    callback: useCallback((payload: any) => {
+    callback: useCallback((payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
       setMessages(prev => [...prev, payload.new as Message])
     }, []),
     deps: [id],
@@ -162,7 +68,7 @@ export default function ConversationDetailPage() {
     const newMsgObj: Message = {
       id: `msg-${Date.now()}`,
       conversation_id: id,
-      organization_id: conversation?.organization_id || '00000000-0000-0000-0000-000000000000',
+      organization_id: conversation?.organization_id || '',
       role: 'agent',
       content: textToSend,
       metadata: {},
@@ -173,7 +79,7 @@ export default function ConversationDetailPage() {
     if (!customText) setNewMessage('')
 
     try {
-      await fetch('/api/messages', {
+      const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -182,26 +88,53 @@ export default function ConversationDetailPage() {
           content: textToSend,
         }),
       })
-    } catch {}
+      if (!res.ok) {
+        const json = await res.json().catch(() => null)
+        toast.error(json?.error || 'Failed to send message')
+      }
+    } catch {
+      toast.error('Failed to send message')
+    }
   }
 
   const resolveConversation = async () => {
-    toast.success('Conversation resolved!')
-    setConversation(prev => prev ? { ...prev, status: 'resolved' as const } : prev)
     try {
-      await fetch(`/api/conversations/${id}`, {
+      const res = await fetch(`/api/conversations/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'resolved' }),
       })
-    } catch {}
+      if (res.ok) {
+        toast.success('Conversation resolved!')
+        setConversation(prev => prev ? { ...prev, status: 'resolved' as const } : prev)
+      } else {
+        toast.error('Failed to resolve conversation')
+      }
+    } catch {
+      toast.error('Failed to resolve conversation')
+    }
   }
 
-  const generateAISuggestion = (suggestionText: string) => {
-    setTimeout(() => {
-      setNewMessage(suggestionText)
-      toast.success('AI Suggestion inserted into composer!')
-    }, 400)
+  const generateAISuggestion = async () => {
+    setSuggesting(true)
+    try {
+      const res = await fetch(`/api/conversations/${id}/suggest`, { method: 'POST' })
+      const json = await res.json()
+      if (res.ok && json.suggestion) {
+        setNewMessage(json.suggestion)
+        toast.success('AI suggestion inserted into composer!')
+      } else {
+        toast.error(json?.error || 'Failed to generate suggestion')
+      }
+    } catch {
+      toast.error('Failed to generate suggestion')
+    } finally {
+      setSuggesting(false)
+    }
+  }
+
+  if (error) {
+    return <div className="flex items-center justify-center h-64 text-destructive">{error}</div>
   }
 
   if (!conversation) {
@@ -320,36 +253,21 @@ export default function ConversationDetailPage() {
           <Card className="border shadow-sm">
             <CardHeader className="py-3 px-4 border-b bg-muted/20">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Bot className="h-4 w-4 text-primary" /> AI Copilot Smart Suggestions
+                <Bot className="h-4 w-4 text-primary" /> AI Copilot
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-2">
               <p className="text-xs text-muted-foreground mb-3">
-                Click any prompt to auto-draft an AI response based on Knowledge Base & RAG context:
+                Generate an AI draft reply to the customer&apos;s latest message using your knowledge base and agent config:
               </p>
               <Button
                 variant="outline"
                 size="sm"
                 className="w-full justify-start text-xs text-left h-auto py-2.5 px-3 border-primary/20 hover:bg-primary/5"
-                onClick={() => generateAISuggestion(`Hi ${conversation.customer_name || 'there'}! I can certainly confirm your meeting for tomorrow at 2 PM PST. I have sent a calendar invite to ${conversation.customer_email || 'your email'}.`)}
+                onClick={generateAISuggestion}
+                disabled={suggesting}
               >
-                📅 Confirm Demo Meeting (2 PM PST)
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-xs text-left h-auto py-2.5 px-3 border-emerald-500/20 hover:bg-emerald-500/5"
-                onClick={() => generateAISuggestion(`I apologize for the issue! I am escalating your ticket to priority support right now and our tech team will resolve it within 10 minutes.`)}
-              >
-                🚨 Priority Incident Escalation
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-xs text-left h-auto py-2.5 px-3 border-purple-500/20 hover:bg-purple-500/5"
-                onClick={() => generateAISuggestion(`Here is our official pricing documentation and pgvector setup guide: https://supportai.com/docs/vector-rag`)}
-              >
-                📖 Share RAG Documentation & Pricing
+                {suggesting ? 'Generating...' : '✨ Generate AI Draft Reply'}
               </Button>
             </CardContent>
           </Card>
@@ -363,24 +281,20 @@ export default function ConversationDetailPage() {
             </CardHeader>
             <CardContent className="p-4 space-y-3 text-xs">
               <div className="flex justify-between border-b pb-2">
-                <span className="text-muted-foreground">Lead Score:</span>
-                <span className="font-semibold text-emerald-600">88 / 100 (Hot Lead)</span>
+                <span className="text-muted-foreground">Lead Status:</span>
+                <span className="font-medium">{conversation.lead_status || 'Not set'}</span>
               </div>
               <div className="flex justify-between border-b pb-2">
                 <span className="text-muted-foreground">Captured Email:</span>
-                <span className="font-mono">{conversation.customer_email || 'alex@example.com'}</span>
+                <span className="font-mono">{conversation.customer_email || '—'}</span>
               </div>
               <div className="flex justify-between border-b pb-2">
                 <span className="text-muted-foreground">Captured Phone:</span>
-                <span className="font-mono">{conversation.customer_phone || '+1 555-0192'}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2">
-                <span className="text-muted-foreground">Channel:</span>
-                <span className="font-semibold uppercase">{conversation.channel}</span>
+                <span className="font-mono">{conversation.customer_phone || '—'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Intent Captured:</span>
-                <span className="font-medium text-primary">Enterprise Plan Walkthrough</span>
+                <span className="text-muted-foreground">Channel:</span>
+                <span className="font-semibold uppercase">{conversation.channel}</span>
               </div>
             </CardContent>
           </Card>
