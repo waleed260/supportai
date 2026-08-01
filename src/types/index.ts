@@ -91,6 +91,7 @@ export interface AIAgent {
   lead_capture_enabled: boolean
   sales_mode_enabled: boolean
   sentiment_analysis_enabled: boolean
+  updated_at?: string
 }
 
 export interface KnowledgeSource {
