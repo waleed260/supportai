@@ -13,7 +13,7 @@ export async function generateEmbedding(text: string): Promise<number[] | null> 
     const response = await client.embeddings.create({
       model: 'text-embedding-3-small',
       input: text,
-      dimensions: 1024,
+      dimensions: 1536,
     })
     return response.data[0].embedding
   } catch {
@@ -28,7 +28,7 @@ export async function generateEmbeddings(texts: string[]): Promise<number[][] | 
     const response = await client.embeddings.create({
       model: 'text-embedding-3-small',
       input: texts,
-      dimensions: 1024,
+      dimensions: 1536,
     })
     return response.data.map(d => d.embedding)
   } catch {

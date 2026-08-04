@@ -1,6 +1,6 @@
 -- Match documents via cosine similarity
 create or replace function match_documents(
-  query_embedding vector(1024),
+  query_embedding vector(1536),
   match_threshold float,
   match_count int,
   p_organization_id uuid

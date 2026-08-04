@@ -49,9 +49,10 @@ export async function PATCH(request: Request) {
     })
   }
 
-  const updates: Record<string, unknown> = { resolved_at: new Date().toISOString() }
+  const updates: Record<string, unknown> = {}
   if (status) updates.status = status
   if (resolved_by) updates.resolved_by = resolved_by
+  if (status === 'resolved') updates.resolved_at = new Date().toISOString()
 
   const { error } = await supabase.from('escalations').update(updates).eq('id', id)
   if (error) return NextResponse.json({ error: 'Failed to update escalation' }, { status: 500 })

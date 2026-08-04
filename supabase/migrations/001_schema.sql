@@ -117,7 +117,7 @@ create table documents (
   organization_id uuid not null references organizations(id) on delete cascade,
   content text not null,
   metadata jsonb default '{}',
-  embedding vector(1024),
+  embedding vector(1536),
   created_at timestamptz default now()
 );
 
