@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function DashboardRedirect() {
   const router = useRouter()
   const supabase = createClient()
-  const [checking, setChecking] = useState(true)
 
   useEffect(() => {
     const check = async () => {

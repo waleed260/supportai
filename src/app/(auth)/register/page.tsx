@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useMounted } from '@/hooks/use-mounted'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { generateSlug } from '@/lib/utils'
-import { Mail, Lock, User, Building2, Eye, EyeOff, Loader2, Sparkles, ArrowRight, CheckCircle, Quote } from 'lucide-react'
+import { Mail, Lock, User, Building2, Eye, EyeOff, Loader2, Sparkles, ArrowRight, Quote } from 'lucide-react'
 
 const stats = [
   { value: '10K+', label: 'Active Users' },
@@ -28,11 +29,9 @@ export default function RegisterPage() {
   const [companySize, setCompanySize] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted()
   const router = useRouter()
   const supabase = createClient()
-
-  useEffect(() => setMounted(true), [])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()

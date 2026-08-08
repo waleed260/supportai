@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Moon, Sun } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 
 const navLinks = [
   { label: 'Features', href: '#features' },
@@ -11,19 +11,22 @@ const navLinks = [
   { label: 'About', href: '#about' },
 ]
 
+function subscribeToThemeClass(onChange: () => void) {
+  const observer = new MutationObserver(onChange)
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  return () => observer.disconnect()
+}
+
 export function LandingNav() {
   const [open, setOpen] = useState(false)
-  const [dark, setDark] = useState(false)
-
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark')
-    setDark(isDark)
-  }, [])
+  const dark = useSyncExternalStore(
+    subscribeToThemeClass,
+    () => document.documentElement.classList.contains('dark'),
+    () => false,
+  )
 
   const toggleDark = () => {
-    const next = !dark
-    setDark(next)
-    document.documentElement.classList.toggle('dark', next)
+    document.documentElement.classList.toggle('dark', !dark)
   }
 
   return (

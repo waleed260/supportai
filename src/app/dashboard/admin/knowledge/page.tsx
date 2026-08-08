@@ -30,7 +30,8 @@ export default function KnowledgeBasePage() {
 
   useEffect(() => {
     if (!membership) return
-    fetchSources()
+    const id = setTimeout(() => fetchSources(), 0)
+    return () => clearTimeout(id)
   }, [membership, fetchSources])
 
   const handleUpload = async () => {

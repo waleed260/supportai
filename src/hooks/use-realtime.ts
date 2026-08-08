@@ -2,14 +2,16 @@
 
 import { useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { RealtimePostgresChangesPayload, RealtimePostgresChangesFilter } from '@supabase/supabase-js'
+
+type RealtimeRow = { [key: string]: unknown }
 
 interface UseRealtimeSubscriptionOptions {
   table: string
   filter?: string
   event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*'
-  callback: (payload: RealtimePostgresChangesPayload<any>) => void
-  deps?: any[]
+  callback: (payload: RealtimePostgresChangesPayload<RealtimeRow>) => void
+  deps?: unknown[]
 }
 
 export function useRealtimeSubscription({
@@ -20,20 +22,19 @@ export function useRealtimeSubscription({
   deps = [],
 }: UseRealtimeSubscriptionOptions) {
   const callbackRef = useRef(callback)
-  callbackRef.current = callback
+  useEffect(() => {
+    callbackRef.current = callback
+  })
 
   useEffect(() => {
     const supabase = createClient()
 
-    const channelConfig: any = {
+    const channelConfig = {
       event,
       schema: 'public',
       table,
-    }
-
-    if (filter) {
-      channelConfig.filter = filter
-    }
+      ...(filter ? { filter } : {}),
+    } as RealtimePostgresChangesFilter<'*'>
 
     const channel = supabase
       .channel(`realtime-${table}-${Date.now()}`)

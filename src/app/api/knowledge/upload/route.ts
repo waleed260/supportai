@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No organization membership found' }, { status: 403 })
     }
 
-    const { success, remaining, reset } = await limiters.knowledgeUpload(membership.organization_id)
+    const { success, reset } = await limiters.knowledgeUpload(membership.organization_id)
     if (!success) {
       return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
         status: 429,

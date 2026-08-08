@@ -49,7 +49,7 @@ export async function syncLeadToCrm(organizationId: string, lead: LeadData) {
   }
 }
 
-async function pushToHubspot(credentials: Record<string, any>, lead: LeadData) {
+async function pushToHubspot(credentials: Record<string, string | undefined>, lead: LeadData) {
   const apiKey = credentials.api_key || credentials.access_token
   if (!apiKey) return
 
@@ -73,7 +73,7 @@ async function pushToHubspot(credentials: Record<string, any>, lead: LeadData) {
   })
 }
 
-async function pushToSalesforce(credentials: Record<string, any>, lead: LeadData) {
+async function pushToSalesforce(credentials: Record<string, string | undefined>, lead: LeadData) {
   const { instance_url, access_token } = credentials
   if (!instance_url || !access_token) return
 
@@ -94,7 +94,7 @@ async function pushToSalesforce(credentials: Record<string, any>, lead: LeadData
   })
 }
 
-async function pushToZoho(credentials: Record<string, any>, lead: LeadData) {
+async function pushToZoho(credentials: Record<string, string | undefined>, lead: LeadData) {
   const { access_token, api_domain } = credentials
   if (!access_token || !api_domain) return
 
@@ -116,7 +116,7 @@ async function pushToZoho(credentials: Record<string, any>, lead: LeadData) {
   })
 }
 
-async function pushToGoogleSheets(credentials: Record<string, any>, lead: LeadData) {
+async function pushToGoogleSheets(credentials: Record<string, string | undefined>, lead: LeadData) {
   const { spreadsheet_id, sheet_name, service_account_email, private_key } = credentials
   if (!spreadsheet_id) return
 

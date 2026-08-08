@@ -1,15 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useMounted } from '@/hooks/use-mounted'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { Mail, Lock, Eye, EyeOff, Loader2, Sparkles, ArrowRight, Quote, Star, CheckCircle } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Loader2, Sparkles, ArrowRight, Quote, CheckCircle } from 'lucide-react'
 
 const testimonials = [
   { name: 'Sarah Chen', role: 'CEO, TechFlow', text: 'Response times dropped from hours to seconds. Game changer for our team.' },
@@ -25,11 +26,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted()
   const router = useRouter()
   const supabase = createClient()
-
-  useEffect(() => setMounted(true), [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
   const { channel, name, credentials, webhook_url, config } = parsed.data
 
-  const { success, remaining, reset } = await limiters.api(`channels:${membership.organization_id}`)
+  const { success, reset } = await limiters.api(`channels:${membership.organization_id}`)
   if (!success) {
     return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
       status: 429,
@@ -149,7 +149,7 @@ export async function PATCH(request: Request) {
 
   const { channel, is_connected, credentials, webhook_url, config } = parsed.data
 
-  const { success, remaining, reset } = await limiters.api(`channels:${membership.organization_id}`)
+  const { success, reset } = await limiters.api(`channels:${membership.organization_id}`)
   if (!success) {
     return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
       status: 429,

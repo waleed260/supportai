@@ -41,7 +41,7 @@ export async function PATCH(request: Request) {
 
   const { id, status, resolved_by } = parsed.data
 
-  const { success, remaining, reset } = await limiters.api(`escalations:${id}`)
+  const { success, reset } = await limiters.api(`escalations:${id}`)
   if (!success) {
     return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
       status: 429,

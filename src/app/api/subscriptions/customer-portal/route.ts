@@ -24,7 +24,7 @@ export async function POST() {
       .single()
     if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 403 })
 
-    const { success: allowed, remaining, reset } = await limiters.api(`portal:${membership.organization_id}`)
+    const { success: allowed, reset } = await limiters.api(`portal:${membership.organization_id}`)
     if (!allowed) {
       return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
         status: 429,

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     const { price_id } = parsed.data
 
-    const { success, remaining, reset } = await limiters.api(`checkout:${membership.organization_id}`)
+    const { success, reset } = await limiters.api(`checkout:${membership.organization_id}`)
     if (!success) {
       return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
         status: 429,

@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.issues }, { status: 400 })
   }
 
-  const { success, remaining, reset } = await limiters.api(`conversations:${membership.organization_id}`)
+  const { success, reset } = await limiters.api(`conversations:${membership.organization_id}`)
   if (!success) {
     return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
       status: 429,

@@ -12,7 +12,6 @@ import type { Subscription, SubscriptionPlan } from '@/types'
 
 const planIcons = [Rocket, Zap, Shield]
 const planAccents = ['from-primary/20 to-amber-500/10', 'from-violet-500/20 to-purple-500/10', 'from-emerald-500/20 to-teal-500/10']
-const planGradients = ['from-primary to-amber-500', 'from-violet-500 to-purple-500', 'from-emerald-500 to-teal-500']
 
 export default function BillingPage() {
   const [subscription, setSubscription] = useState<Subscription | null>(null)
@@ -58,7 +57,7 @@ export default function BillingPage() {
       })
       const data = await res.json()
       if (data.url) {
-        window.location.href = data.url
+        window.location.assign(data.url)
       } else {
         toast.error(data.error || 'Failed to start checkout')
       }
@@ -75,7 +74,7 @@ export default function BillingPage() {
       const res = await fetch('/api/subscriptions/customer-portal', { method: 'POST' })
       const data = await res.json()
       if (data.url) {
-        window.location.href = data.url
+        window.location.assign(data.url)
       } else {
         toast.error(data.error || 'Failed to open billing portal')
       }

@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuthContext } from '@/contexts/auth-context'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
-import { AlertTriangle, CheckCircle, UserCheck } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 import type { Escalation } from '@/types'
 
 export default function EscalationsPage() {
@@ -17,18 +17,19 @@ export default function EscalationsPage() {
   const [escalations, setEscalations] = useState<(Escalation & { conversation?: { customer_name: string; channel: string; customer_email: string; sentiment: string } })[]>([])
   const [filter, setFilter] = useState('open')
 
-  useEffect(() => {
-    if (!membership) return
-    fetchEscalations(membership.organization_id)
-  }, [membership])
-
-  const fetchEscalations = async (_oid: string) => {
+  const fetchEscalations = useCallback(async () => {
     const res = await fetch('/api/escalations')
     if (res.ok) {
       const json = await res.json()
       setEscalations(json.data)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!membership) return
+    const id = setTimeout(() => fetchEscalations(), 0)
+    return () => clearTimeout(id)
+  }, [membership, fetchEscalations])
 
   const resolveEscalation = async (id: string) => {
     const res = await fetch('/api/escalations', {
@@ -40,7 +41,7 @@ export default function EscalationsPage() {
     if (!res.ok) toast.error('Failed to resolve')
     else {
       toast.success('Escalation resolved')
-      if (membership) fetchEscalations(membership.organization_id)
+      if (membership) fetchEscalations()
     }
   }
 

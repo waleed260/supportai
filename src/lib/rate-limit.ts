@@ -27,7 +27,6 @@ function getRedisClient(): Redis | null {
 }
 
 let redisClient: Redis | null = null
-let memoryStore: Ratelimit | null = null
 
 const memRequestCounts = new Map<string, { count: number; resetAt: number }>()
 

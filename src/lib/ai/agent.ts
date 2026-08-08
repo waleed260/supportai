@@ -3,6 +3,7 @@ import { createServiceRoleClient } from '@/lib/supabase/server'
 import { generateEmbedding } from './embeddings'
 import { syncLeadToCrm } from '@/lib/integrations/crm'
 import { cachedQuery, cacheDel } from '@/lib/cache'
+import type { SentimentLabel } from '@/types'
 
 type ProviderMessage = { role: 'system' | 'user' | 'assistant'; content: string }
 
@@ -138,7 +139,7 @@ export async function detectLanguage(text: string): Promise<string> {
   }
 }
 
-export async function analyzeSentiment(text: string): Promise<string> {
+export async function analyzeSentiment(text: string): Promise<SentimentLabel> {
   try {
     const content = await callAI(
       [
@@ -149,8 +150,8 @@ export async function analyzeSentiment(text: string): Promise<string> {
        10,
     )
     const sentiment = content.trim().toLowerCase()
-    const valid = ['positive', 'neutral', 'negative', 'frustrated', 'high_risk']
-    return valid.includes(sentiment) ? sentiment : 'neutral'
+    const valid: SentimentLabel[] = ['positive', 'neutral', 'negative', 'frustrated', 'high_risk']
+    return (valid as string[]).includes(sentiment) ? (sentiment as SentimentLabel) : 'neutral'
   } catch {
     return 'neutral'
   }
@@ -304,10 +305,10 @@ export async function storeMessage(params: {
 export async function storeSentiment(params: {
   conversationId: string
   organizationId: string
-  sentiment: string
+  sentiment: SentimentLabel
 }) {
   const supabase = await createServiceRoleClient()
   await supabase.from('conversations')
-    .update({ sentiment: params.sentiment as any, updated_at: new Date().toISOString() })
+    .update({ sentiment: params.sentiment, updated_at: new Date().toISOString() })
     .eq('id', params.conversationId)
 }

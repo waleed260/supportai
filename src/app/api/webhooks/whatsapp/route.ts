@@ -113,7 +113,7 @@ export async function POST(request: Request) {
 
     const orgId = connection.organization_id
 
-    const { success: allowed, remaining, reset } = await limiters.webhook(`webhook:whatsapp:${orgId}`)
+    const { success: allowed, reset } = await limiters.webhook(`webhook:whatsapp:${orgId}`)
     if (!allowed) {
       return new NextResponse(JSON.stringify({ status: 'ok' }), {
         status: 429,

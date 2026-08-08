@@ -4,6 +4,7 @@
  * Spec: "Channel tokens (WhatsApp, Instagram) AES-encrypted before storing."
  */
 
+import { randomBytes, createCipheriv, createDecipheriv } from 'node:crypto'
 import { log } from '@/lib/logger'
 
 function getKey(): Buffer {
@@ -19,10 +20,9 @@ function getKey(): Buffer {
  * Returns a string in the format: iv:authTag:ciphertext (all hex).
  */
 export function encryptCredentials(credentials: Record<string, unknown>): string {
-  const crypto = require('crypto') as typeof import('crypto')
   const key = getKey()
-  const iv = crypto.randomBytes(12)
-  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+  const iv = randomBytes(12)
+  const cipher = createCipheriv('aes-256-gcm', key, iv)
   const plaintext = JSON.stringify(credentials)
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()])
   const authTag = cipher.getAuthTag()
@@ -35,14 +35,13 @@ export function encryptCredentials(credentials: Record<string, unknown>): string
  */
 export function decryptCredentials(encrypted: string): Record<string, unknown> | null {
   try {
-    const crypto = require('crypto') as typeof import('crypto')
     const key = getKey()
     const [ivHex, authTagHex, cipherHex] = encrypted.split(':')
     if (!ivHex || !authTagHex || !cipherHex) return null
     const iv = Buffer.from(ivHex, 'hex')
     const authTag = Buffer.from(authTagHex, 'hex')
     const ciphertext = Buffer.from(cipherHex, 'hex')
-    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+    const decipher = createDecipheriv('aes-256-gcm', key, iv)
     decipher.setAuthTag(authTag)
     const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()])
     return JSON.parse(decrypted.toString('utf8'))

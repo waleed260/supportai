@@ -25,13 +25,12 @@ export function AuthProvider({ children, initialUser, initialMembership }: {
 }) {
   const [user, setUser] = useState<User | null>(initialUser || null)
   const [membership, setMembership] = useState<Membership | null>(initialMembership || null)
-  const [loading, setLoading] = useState(!initialUser)
+  const [loading, setLoading] = useState(!(initialUser && initialMembership))
   const supabase = createClient()
 
   useEffect(() => {
-    // If we already have initial data, no need to fetch
+    // If we already have initial data, no need to fetch (loading already false)
     if (initialUser && initialMembership) {
-      setLoading(false)
       return
     }
 

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
-import { MessageSquare, Globe, Camera, MessageCircle, Copy, Check, Loader2, Palette, Type, MessageCircle as MessageCircleIcon } from 'lucide-react'
+import { MessageSquare, Globe, Camera, MessageCircle, Copy, Check, Palette, Type, MessageCircle as MessageCircleIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ChannelConnectDialog } from '@/components/channels/channel-connect-dialog'
@@ -64,7 +64,10 @@ export default function ChannelsPage() {
     }
   }, [membership])
 
-  useEffect(() => { loadConnections() }, [loadConnections])
+  useEffect(() => {
+    const id = setTimeout(() => loadConnections(), 0)
+    return () => clearTimeout(id)
+  }, [loadConnections])
 
   const handleConnect = (channel: ConversationChannel) => {
     if (channel === 'web_chat') {
@@ -89,7 +92,9 @@ export default function ChannelsPage() {
 
   useEffect(() => {
     const webChatConn = connections.find(c => c.channel === 'web_chat' && c.is_connected)
-    if (webChatConn) loadWidgetSettings()
+    if (!webChatConn) return
+    const id = setTimeout(() => loadWidgetSettings(), 0)
+    return () => clearTimeout(id)
   }, [connections])
 
   const handleConfigure = (channel: ConversationChannel) => {

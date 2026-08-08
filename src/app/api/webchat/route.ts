@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
     const rateKey = conversation_id || ip
-    const { success: allowed, remaining, reset } = await limiters.chat(rateKey)
+    const { success: allowed, reset } = await limiters.chat(rateKey)
     if (!allowed) {
       return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
         status: 429,

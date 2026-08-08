@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Knowledge source not found' }, { status: 404 })
     }
 
-    const { success, remaining, reset } = await limiters.knowledgeProcess(source.organization_id)
+    const { success, reset } = await limiters.knowledgeProcess(source.organization_id)
     if (!success) {
       return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
         status: 429,

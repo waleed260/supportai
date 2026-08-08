@@ -2,8 +2,6 @@ import { z } from 'zod'
 
 const uuid = z.string().uuid()
 
-const email = z.string().email().max(255)
-
 export function sanitizeText(text: string, maxLen: number = 8000): string {
   return text.trim().slice(0, maxLen)
 }

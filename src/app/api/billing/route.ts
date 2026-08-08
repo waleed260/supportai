@@ -11,7 +11,7 @@ export async function GET() {
     .select('organization_id').eq('user_id', user.id).limit(1).single()
   if (!membership) return NextResponse.json({ error: 'No organization' }, { status: 404 })
 
-  const { success: allowed, remaining, reset } = await limiters.api(`billing:${membership.organization_id}`)
+  const { success: allowed, reset } = await limiters.api(`billing:${membership.organization_id}`)
   if (!allowed) {
     return new NextResponse(JSON.stringify({ error: 'Rate limit exceeded. Please slow down.' }), {
       status: 429,
