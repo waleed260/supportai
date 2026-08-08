@@ -76,7 +76,7 @@ export async function POST(request: Request) {
           knowledge_source_id,
           organization_id: source.organization_id,
           content: chunk,
-          embedding: embeddingArray as any,
+          embedding: embeddingArray,
           metadata: { source_url: source.source_url, chunk_index: chunkCount, file_name: file?.name },
         })
         chunkCount++

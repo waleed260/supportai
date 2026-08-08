@@ -6,7 +6,7 @@ import { generateAIResponse, storeMessage, storeSentiment, getAgentConfig } from
 import { limiters } from '@/lib/rate-limit'
 import { checkUsageLimit } from '@/lib/billing/usage'
 import { cachedQuery } from '@/lib/cache'
-import { log, getRouteName } from '@/lib/logger'
+import { log } from '@/lib/logger'
 import { safeDecryptCredentials } from '@/lib/crypto'
 import { whatsappWebhookSchema } from '@/lib/validation'
 

@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatDate, getStatusColor, getSentimentColor } from '@/lib/utils'
-import { MessageSquare, UserCheck } from 'lucide-react'
+import { UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Conversation } from '@/types'
 

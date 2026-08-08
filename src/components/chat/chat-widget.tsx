@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Card, CardFooter, CardHeader } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react'
 
@@ -155,7 +155,7 @@ export function ChatWidget({ organizationId, config }: ChatWidgetProps) {
           </CardHeader>
 
           {/* Messages */}
-          <ScrollArea className="h-80 p-4" ref={scrollRef as any}>
+          <ScrollArea className="h-80 p-4" ref={scrollRef}>
             <div className="space-y-3">
               {messages.map((msg, i) => (
                 <div

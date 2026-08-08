@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthContext } from '@/contexts/auth-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, TrendingUp, MessageSquare, AlertTriangle, Users, Target, TrendingDown, Activity } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
+import { BarChart3, TrendingUp, MessageSquare, AlertTriangle, Users, Target, Activity } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 const COLORS = ['#22c55e', '#6b7280', '#f97316', '#ef4444', '#dc2626']
 

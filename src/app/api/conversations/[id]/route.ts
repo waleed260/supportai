@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { conversationsPatchSchema, sanitizeText, conversationIdSchema } from '@/lib/validation'
+import { conversationsPatchSchema, conversationIdSchema } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
 import { log } from '@/lib/logger'
 

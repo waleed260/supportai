@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import * as Sentry from '@sentry/nextjs'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { authCallbackSchema, sanitizeInput } from '@/lib/validation'
 import { limiters, checkAccountLockout, recordFailedAttempt, resetAccountLockout } from '@/lib/rate-limit'

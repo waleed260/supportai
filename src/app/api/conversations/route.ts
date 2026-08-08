@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { conversationsPostSchema, sanitizeText, paginationSchema } from '@/lib/validation'
+import { conversationsPostSchema, paginationSchema } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'
 
 export async function GET(request: Request) {

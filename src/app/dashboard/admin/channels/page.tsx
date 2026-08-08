@@ -321,7 +321,6 @@ export default function ChannelsPage() {
         onOpenChange={(o) => { if (!o) setConnectChannel(null) }}
         onConnected={loadConnections}
         orgId={membership?.organization_id}
-        userId={membership?.user_id}
       />
     </div>
   )

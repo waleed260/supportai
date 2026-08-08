@@ -12,11 +12,6 @@ import { Copy, Check, Loader2, ExternalLink, Info, MessageCircle } from 'lucide-
 import { toast } from 'sonner'
 import type { ConversationChannel } from '@/types'
 
-interface ChannelFormData {
-  credentials: Record<string, string>
-  config: Record<string, string>
-}
-
 interface ChannelField {
   key: string
   label: string
@@ -68,10 +63,9 @@ interface ChannelConnectDialogProps {
   onOpenChange: (open: boolean) => void
   onConnected: () => void
   orgId?: string
-  userId?: string
 }
 
-export function ChannelConnectDialog({ channel, open, onOpenChange, onConnected, orgId, userId }: ChannelConnectDialogProps) {
+export function ChannelConnectDialog({ channel, open, onOpenChange, onConnected, orgId }: ChannelConnectDialogProps) {
   const config = CHANNEL_CONFIGS[channel as keyof typeof CHANNEL_CONFIGS]
   const [formValues, setFormValues] = useState<Record<string, string>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})

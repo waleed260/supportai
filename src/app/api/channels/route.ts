@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server'
-import { safeEncryptCredentials, safeDecryptCredentials } from '@/lib/crypto'
+import { safeEncryptCredentials } from '@/lib/crypto'
 import { logAudit } from '@/lib/audit'
 import { channelsPostSchema, channelsPatchSchema } from '@/lib/validation'
 import { limiters } from '@/lib/rate-limit'

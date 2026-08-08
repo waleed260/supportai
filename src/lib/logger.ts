@@ -22,11 +22,6 @@ function formatExtra(ctx: LogContext): string {
   return parts.length ? ` [${parts.join(' ')}]` : ''
 }
 
-function extractError(err: unknown): string {
-  if (err instanceof Error) return err.stack || err.message
-  return String(err)
-}
-
 export const log = {
   error(message: string, ctx: LogContext = {}) {
     const extra = formatExtra(ctx)
