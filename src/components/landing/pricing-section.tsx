@@ -174,7 +174,7 @@ export function PricingSection() {
               delay: 0,
             }}
           >
-            We've got a plan that's perfect for you
+            We&apos;ve got a plan that&apos;s perfect for you
           </VerticalCutReveal>
         </h2>
 

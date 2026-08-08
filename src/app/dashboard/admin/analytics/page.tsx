@@ -50,7 +50,7 @@ export default function AdminAnalyticsPage() {
       setMetrics(prev => ({ ...prev, leads: count || 0 }))
     }
     fetch()
-  }, [])
+  }, [membership])
 
   const kpiCards = [
     { title: 'Total Conversations', value: metrics.total, icon: MessageSquare, color: 'text-blue-600', change: '+12%' },

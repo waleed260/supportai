@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "npm@10.0.0",
-
   "scripts": {
     "dev": "next dev",
     "dev:mobile": "npm run dev -w apps/mobile",
@@ -14,7 +13,8 @@
     "lint": "eslint",
     "lint:mobile": "npm run lint -w apps/mobile",
     "typecheck": "tsc --noEmit",
-    "test": "npm run typecheck",
+    "test": "npm run typecheck && npm run test:unit -- --run",
+    "test:unit": "vitest",
     "test:mobile": "npm run test -w apps/mobile",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
@@ -73,6 +73,7 @@
     "prettier": "^3.5.0",
     "tailwindcss": "^4",
     "turbo": "^2.5.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }
